@@ -10,6 +10,7 @@ packages = [{include = "aws_grant_user_access"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 boto3 = "^1.26.158"
+jsonschema = "^4.17.3"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.2"
