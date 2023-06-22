@@ -6,12 +6,13 @@ SCHEMA = {
      "type" : "object",
      "properties" : {
          "username" :{"type" : "string", "description": "The AWS IAM username that will be granted access"},
+         "role_arn" :{"type" : "string", "description": "The role the user will be allowed to access"},
          "approval_in_hours" :{
              "type" : "number",
              "description": "a number of hours to approve access before it expires"
          },
      },
-    "required": ["username", "approval_in_hours"]
+    "required": ["username", "role_arn", "approval_in_hours"]
  }
 
 
@@ -21,4 +22,4 @@ def handle(event, context):
 
 def process_event(event, iam_client):
     validate(instance=event, schema=SCHEMA)
-    iam_client.grant_access(username='testuser', start_time='someimte now', endtime="sometime 12 hours later")
+    iam_client.grant_access(role_arn="arn:aws:iam::123456789012:role/somerole", username='testuser', start_time='someimte now', end_time="sometime 12 hours later")

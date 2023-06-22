@@ -1,8 +1,11 @@
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timedelta
+
+import boto3
+from moto import mock_iam
 
 from aws_grant_user_access.src.policy_creator import PolicyCreator
 
-def test_policy_creator_generate_policy_document():
+def test_policy_creator_generates_policy_document():
     policy_creator = PolicyCreator()
     policy_document = policy_creator.generate_policy_document(
         role_arn="aws:::test",
@@ -26,6 +29,43 @@ def test_policy_creator_generate_policy_document():
     }
 
     assert policy_document == expected_result
+
+@mock_iam
+def test_policy_creator_creates_policy_document():
+    moto_client = boto3.client("iam")
+
+    policy_creator = PolicyCreator()
+
+    policy = {"Version": "2012-10-17", "Statement": [{ "Effect": "Allow", "Action": "sts:AssumeRole","Resource": "arn:aws:iam::123456789012:role/somerole"}]}
+    policy_creator.create_iam_policy(policy_document=policy, name="some_name")
+
+    policys = moto_client.list_policies(PathPrefix="grant-user-access")["Policies"]
+    assert len(policys) == 1
+    assert policys[0]["PolicyName"] == "some_name"
+
+@mock_iam
+def test_policy_creator_grants_access():
+    moto_client = boto3.client("iam")
+    policy_creator = PolicyCreator()
+    start_time = datetime.utcnow()
+    role_arn= "arn:aws:iam::123456789012:role/somerole"
+
+    policy_creator.grant_access(
+        role_arn=role_arn,
+        username="test_username",
+        start_time=start_time,
+        end_time=start_time + timedelta(hours=1)
+    )
+
+    policies = moto_client.list_policies(PathPrefix="grant-user-access")["Policies"]
+    assert len(policies) == 1
+    assert policies[0]["PolicyName"] == f"test_username_{start_time.time()}"
+
+    expected_policy_name = "foo name"
+
+    users_policies = moto_client.list_user_policies(UserName="test_username")["PolicyNames"]
+    assert expected_policy_name in users_policies
+
 
 
 
