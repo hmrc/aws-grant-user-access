@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "aws-grant-user-access"
+version = "0.1.0"
+description = "Gives AWS IAM users acess to assume a role for a fixed window"
+authors = []
+license = "Apache-2.0"
+readme = "README.md"
+packages = [{include = "aws_grant_user_access"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+boto3 = "^1.26.158"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.3.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
