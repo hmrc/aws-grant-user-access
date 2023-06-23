@@ -1,7 +1,7 @@
 
 # aws-grant-user-access
 
-This is a placeholder README.md for a new repository
+This project aims to grant assume-role access to an IAM user for a given AWS Role ARN with a time limited IAM policy. 
 
 ### License
 
