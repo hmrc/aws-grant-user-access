@@ -50,22 +50,24 @@ def test_policy_creator_grants_access():
     start_time = datetime.utcnow()
     role_arn= "arn:aws:iam::123456789012:role/somerole"
 
+    create_user_response = moto_client.create_user(
+        Path='temporary-users',
+        UserName='test-user',
+        PermissionsBoundary='engineering-boundary',
+    )
+
     policy_creator.grant_access(
         role_arn=role_arn,
-        username="test_username",
+        username=create_user_response['User'].get('UserName'),
         start_time=start_time,
         end_time=start_time + timedelta(hours=1)
     )
 
     policies = moto_client.list_policies(PathPrefix="grant-user-access")["Policies"]
     assert len(policies) == 1
-    assert policies[0]["PolicyName"] == f"test_username_{start_time.time()}"
+    assert policies[0]["PolicyName"] == f"test-user_{start_time.time()}"
 
     expected_policy_name = "foo name"
 
-    users_policies = moto_client.list_user_policies(UserName="test_username")["PolicyNames"]
+    users_policies = moto_client.list_user_policies(UserName="test-user")["PolicyNames"]
     assert expected_policy_name in users_policies
-
-
-
-
