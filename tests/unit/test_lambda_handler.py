@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from unittest.mock import Mock, patch
 
 import pytest
@@ -20,4 +21,9 @@ def test_process_event_creates_iam_policy():
     test_user = "test-user"
     process_event(dict(role_arn=TEST_ROLE_ARN, username=test_user, approval_in_hours=12), iam_client=client)
 
-    client.grant_access.assert_called_with(role_arn=TEST_ROLE_ARN, username=test_user, start_time="someimte now", end_time="sometime 12 hours later")
+    client.grant_access.assert_called_with(
+        role_arn=TEST_ROLE_ARN,
+        username=test_user,
+        start_time=datetime.utcnow(),
+        end_time=datetime.utcnow() + timedelta(hours=12)
+    )
