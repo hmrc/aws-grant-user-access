@@ -9,25 +9,30 @@ class PolicyCreator:
 
 
     def grant_access(self, role_arn, username, start_time, end_time):
-        self.create_iam_policy(
+        self.create_policy_response = self.create_iam_policy(
             name=f"{username}_{start_time.time()}",
             policy_document=self.generate_policy_document(role_arn=role_arn, start_time=start_time, end_time=end_time),
+        )
+        self.attach_policy_to_user(
+            username=f"{username}_{start_time.time()}",
+            policy_document_arn=self.create_policy_response,
         )
 
     def create_iam_policy(self, policy_document, name):
         client = boto3.client("iam")
-        client.create_policy(
-        PolicyName=name,
-        Path="grant-user-access",
-        PolicyDocument=json.dumps(policy_document),
-        # Description='string',
-        # Tags=[
-        #     {
-        #         'Key': 'string',
-        #         'Value': 'string'
-        #     },
-        # ]
+        response = client.create_policy(
+            PolicyName=name,
+            Path="grant-user-access",
+            PolicyDocument=json.dumps(policy_document),
+            Description='An IAM policy to grant-user-access to assume a role',
+            Tags=[
+                {
+                    'Key': 'Product',
+                    'Value': 'grant-user-access'
+                },
+            ]
         )
+        return response['Policy'].get('Arn')
 
     def generate_policy_document(self, role_arn, start_time, end_time):
         policy = {
@@ -49,4 +54,3 @@ class PolicyCreator:
 
     def attach_policy_to_user(self, policy_document_arn, username):
         pass
-
