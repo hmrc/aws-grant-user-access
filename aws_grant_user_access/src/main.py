@@ -22,4 +22,4 @@ def handle(event, context):
 
 def process_event(event, iam_client):
     validate(instance=event, schema=SCHEMA)
-    iam_client.grant_access(role_arn=event['role_arn'], username=event['username'], start_time='someimte now', end_time="sometime 12 hours later")
+    iam_client.grant_access(role_arn=event['role_arn'], username=event['username'], hours=event['approval_in_hours'])

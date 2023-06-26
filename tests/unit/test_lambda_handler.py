@@ -24,6 +24,5 @@ def test_process_event_creates_iam_policy():
     client.grant_access.assert_called_with(
         role_arn=TEST_ROLE_ARN,
         username=test_user,
-        start_time=datetime.utcnow(),
-        end_time=datetime.utcnow() + timedelta(hours=12)
+        hours=12,
     )
