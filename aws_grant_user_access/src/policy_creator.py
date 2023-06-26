@@ -7,7 +7,6 @@ AWS_IAM_TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 class PolicyCreator:
 
-
     def grant_access(self, role_arn, username, start_time, end_time):
         policy_arn = self.create_iam_policy(
             name=f"{username}_{start_time.timestamp()}",

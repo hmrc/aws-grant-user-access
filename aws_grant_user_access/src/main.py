@@ -17,9 +17,8 @@ SCHEMA = {
 
 
 def handle(event, context):
-    iam_client = PolicyCreator()
-    process_event(event, iam_client)
+    process_event(event, PolicyCreator())
 
-def process_event(event, iam_client):
+def process_event(event, policy_creator):
     validate(instance=event, schema=SCHEMA)
-    iam_client.grant_access(role_arn=event['role_arn'], username=event['username'], hours=event['approval_in_hours'])
+    policy_creator.grant_access(role_arn=event['role_arn'], username=event['username'], hours=event['approval_in_hours'])

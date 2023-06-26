@@ -19,7 +19,7 @@ def test_handler_rejects_invalid_events():
 def test_process_event_creates_iam_policy():
     client = Mock(spec=PolicyCreator)
     test_user = "test-user"
-    process_event(dict(role_arn=TEST_ROLE_ARN, username=test_user, approval_in_hours=12), iam_client=client)
+    process_event(dict(role_arn=TEST_ROLE_ARN, username=test_user, approval_in_hours=12), policy_creator=client)
 
     client.grant_access.assert_called_with(
         role_arn=TEST_ROLE_ARN,
