@@ -82,3 +82,8 @@ cover/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# Terraform
+.terraform*
+*.tfstate*
+*.tfvars
