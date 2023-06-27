@@ -46,7 +46,7 @@ def test_policy_creator_creates_policy_document():
     }
     policy_creator.create_iam_policy(policy_document=policy, name="some_name")
 
-    policies = moto_client.list_policies(PathPrefix="-grant-user-access-")["Policies"]
+    policies = moto_client.list_policies(PathPrefix="/Lambda/GrantUserAccess/")["Policies"]
     assert len(policies) == 1
     assert policies[0]["PolicyName"] == "some_name"
 
@@ -70,11 +70,11 @@ def test_policy_creator_grants_access():
         end_time=start_time,
     )
 
-    policies = moto_client.list_policies(PathPrefix="-grant-user-access-")["Policies"]
+    policies = moto_client.list_policies(PathPrefix="/Lambda/GrantUserAccess")["Policies"]
     assert len(policies) == 1
     assert policies[0]["PolicyName"] == f"test-user_{start_time.timestamp()}"
 
-    expected_policy_arn = f"arn:aws:iam::123456789012:policy-grant-user-access-test-user_{start_time.timestamp()}"
+    expected_policy_arn = f"arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user_{start_time.timestamp()}"
 
-    response = moto_client.list_attached_user_policies(PathPrefix="-grant-user-access-", UserName="test-user")
-    assert expected_policy_arn in response["AttachedPolicies"][0]["PolicyArn"]
+    response = moto_client.list_attached_user_policies(PathPrefix="/Lambda/GrantUserAccess/", UserName="test-user")
+    assert expected_policy_arn == response["AttachedPolicies"][0]["PolicyArn"]

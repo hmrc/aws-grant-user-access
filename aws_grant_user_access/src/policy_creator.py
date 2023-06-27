@@ -22,7 +22,7 @@ class PolicyCreator:
         client = boto3.client("iam")
         response = client.create_policy(
             PolicyName=name,
-            Path="-grant-user-access-",
+            Path="/Lambda/GrantUserAccess/",
             PolicyDocument=json.dumps(policy_document),
             Description="An IAM policy to grant-user-access to assume a role",
             Tags=[
