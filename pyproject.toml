@@ -11,11 +11,11 @@ packages = [{include = "aws_grant_user_access"}]
 python = "^3.11"
 boto3 = "^1.26.158"
 jsonschema = "^4.17.3"
-freezegun = "^1.2.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.2"
 moto = "^4.1.11"
+freezegun = "^1.2.2"
 
 [build-system]
 requires = ["poetry-core"]
