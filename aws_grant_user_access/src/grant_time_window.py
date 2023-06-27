@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 
 
 class GrantTimeWindow:
-
     def __init__(self, hours):
         self.__now = datetime.utcnow()
         self.__hours = hours
@@ -10,7 +9,6 @@ class GrantTimeWindow:
     @property
     def start_time(self):
         return self.__now
-
 
     @property
     def end_time(self):
