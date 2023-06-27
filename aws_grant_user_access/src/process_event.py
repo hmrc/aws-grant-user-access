@@ -1,6 +1,5 @@
 from jsonschema.validators import validate
 
-from aws_grant_user_access.src.policy_creator import PolicyCreator
 from aws_grant_user_access.src.grant_time_window import GrantTimeWindow
 
 SCHEMA = {
@@ -15,10 +14,6 @@ SCHEMA = {
      },
     "required": ["username", "role_arn", "approval_in_hours"]
  }
-
-
-def handle(event, context):
-    process_event(event, PolicyCreator())
 
 def process_event(event, policy_creator):
     validate(instance=event, schema=SCHEMA)

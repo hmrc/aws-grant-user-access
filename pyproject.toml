@@ -16,6 +16,7 @@ jsonschema = "^4.17.3"
 pytest = "^7.3.2"
 moto = "^4.1.11"
 freezegun = "^1.2.2"
+black = "^23.3.0"
 
 [build-system]
 requires = ["poetry-core"]
