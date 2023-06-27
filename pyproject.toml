@@ -11,6 +11,7 @@ packages = [{include = "aws_grant_user_access"}]
 python = "^3.11"
 boto3 = "^1.26.158"
 jsonschema = "^4.17.3"
+awslambdaric = "^2.0.4"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.2"
