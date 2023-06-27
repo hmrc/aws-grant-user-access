@@ -1,7 +1,6 @@
 from datetime import datetime, UTC, timedelta
 
 import boto3
-from freezegun import freeze_time
 from moto import mock_iam
 
 from aws_grant_user_access.src.policy_creator import PolicyCreator
@@ -44,7 +43,6 @@ def test_policy_creator_creates_policy_document():
     assert len(policies) == 1
     assert policies[0]["PolicyName"] == "some_name"
 
-@freeze_time('2023-06-21')
 @mock_iam
 def test_policy_creator_grants_access():
     moto_client = boto3.client("iam")
@@ -60,7 +58,8 @@ def test_policy_creator_grants_access():
     policy_creator.grant_access(
         role_arn=role_arn,
         username=create_user_response['User'].get('UserName'),
-        hours=1
+        start_time=start_time,
+        end_time=start_time
     )
 
     policies = moto_client.list_policies(PathPrefix="-grant-user-access-")["Policies"]

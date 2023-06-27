@@ -4,12 +4,14 @@ from datetime import datetime, timedelta
 class GrantTimeWindow:
 
     def __init__(self, hours):
-        self.hours = hours
+        self.__now = datetime.utcnow()
+        self.__hours = hours
 
     @property
     def start_time(self):
-        return datetime.utcnow()
+        return self.__now
 
 
-    def end_time(self, start_time):
-        return start_time + timedelta(self.hours)
+    @property
+    def end_time(self):
+        return self.__now + timedelta(hours=self.__hours)

@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 from unittest.mock import Mock, patch
 
 import pytest
+
+from freezegun import freeze_time
 from jsonschema.exceptions import ValidationError
 
 from aws_grant_user_access.src.main import handle, process_event, PolicyCreator
@@ -17,6 +19,7 @@ def test_handler_rejects_invalid_events():
     with pytest.raises(ValidationError):
         handle(dict(username="testuser"), dict(context=1))
 
+@freeze_time('2012-01-14 12:00:01')
 def test_process_event_creates_iam_policy():
     client = Mock(spec=PolicyCreator)
     process_event(dict(role_arn=TEST_ROLE_ARN, username=TEST_USER, approval_in_hours=12), policy_creator=client)
@@ -24,5 +27,6 @@ def test_process_event_creates_iam_policy():
     client.grant_access.assert_called_with(
         role_arn=TEST_ROLE_ARN,
         username=TEST_USER,
-        hours=12,
+        start_time=datetime(year=2012, month=1, day=14, hour=12, minute=0, second=1),
+        end_time=datetime(year=2012, month=1, day=15, hour=0, minute=0, second=1),
     )

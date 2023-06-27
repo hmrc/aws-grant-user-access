@@ -2,18 +2,16 @@ import json
 from datetime import datetime
 
 import boto3
-from aws_grant_user_access.src.grant_time_window import GrantTimeWindow
 
 AWS_IAM_TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 
 class PolicyCreator:
 
-    def grant_access(self, role_arn, username, hours):
-        time_window = GrantTimeWindow(hours=hours)
+    def grant_access(self, role_arn, username, start_time, end_time):
         policy_arn = self.create_iam_policy(
-            name=f"{username}_{datetime.timestamp(time_window.start_time)}",
-            policy_document=self.generate_policy_document(role_arn=role_arn, start_time=time_window.start_time, end_time=time_window.end_time(time_window.start_time)),
+                name=f"{username}_{datetime.timestamp(start_time)}",
+            policy_document=self.generate_policy_document(role_arn=role_arn, start_time=start_time, end_time=end_time),
         )
 
         self.attach_policy_to_user(
