@@ -32,4 +32,4 @@ COPY aws_grant_user_access/ aws_grant_user_access/
 RUN poetry install --no-root --without=dev
 
 ENTRYPOINT ["poetry", "run", "python", "-m", "awslambdaric" ]
-CMD ["app.handler"]
+CMD ["main.handler"]
