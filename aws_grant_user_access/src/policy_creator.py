@@ -7,10 +7,12 @@ AWS_IAM_TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 
 class PolicyCreator:
+    def __init__(self, iam_client):
+        self.iam_client = iam_client
     def grant_access(self, role_arn, username, start_time, end_time):
         policy_arn = self.create_iam_policy(
             name=f"{username}_{datetime.timestamp(start_time)}",
-            policy_document=self.generate_policy_document(role_arn=role_arn, start_time=start_time, end_time=end_time),
+            policy_document=PolicyCreator.generate_policy_document(role_arn=role_arn, start_time=start_time, end_time=end_time),
         )
 
         self.attach_policy_to_user(
@@ -19,8 +21,7 @@ class PolicyCreator:
         )
 
     def create_iam_policy(self, policy_document, name):
-        client = boto3.client("iam")
-        response = client.create_policy(
+        response = self.iam_client.create_policy(
             PolicyName=name,
             Path="/Lambda/GrantUserAccess/",
             PolicyDocument=json.dumps(policy_document),
@@ -31,7 +32,8 @@ class PolicyCreator:
         )
         return response["Policy"].get("Arn")
 
-    def generate_policy_document(self, role_arn, start_time, end_time):
+    @staticmethod
+    def generate_policy_document(role_arn, start_time, end_time):
         policy = {
             "Version": "2012-10-17",
             "Statement": [
@@ -50,5 +52,4 @@ class PolicyCreator:
         return policy
 
     def attach_policy_to_user(self, policy_document_arn, username):
-        client = boto3.client("iam")
-        client.attach_user_policy(UserName=username, PolicyArn=policy_document_arn)
+        self.iam_client.attach_user_policy(UserName=username, PolicyArn=policy_document_arn)

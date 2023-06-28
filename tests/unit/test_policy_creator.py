@@ -1,4 +1,5 @@
 from datetime import datetime, UTC, timedelta
+from unittest.mock import Mock
 
 import boto3
 from moto import mock_iam
@@ -7,8 +8,7 @@ from aws_grant_user_access.src.policy_creator import PolicyCreator
 
 
 def test_policy_creator_generates_policy_document():
-    policy_creator = PolicyCreator()
-    policy_document = policy_creator.generate_policy_document(
+    policy_document = PolicyCreator.generate_policy_document(
         role_arn="aws:::test",
         start_time=datetime(year=2020, month=5, day=1, hour=0, minute=0, second=0, tzinfo=UTC),
         end_time=datetime(year=2020, month=5, day=1, hour=23, minute=59, second=59, tzinfo=UTC),
@@ -36,7 +36,7 @@ def test_policy_creator_generates_policy_document():
 def test_policy_creator_creates_policy_document():
     moto_client = boto3.client("iam")
 
-    policy_creator = PolicyCreator()
+    policy_creator = PolicyCreator(moto_client)
 
     policy = {
         "Version": "2012-10-17",
@@ -54,7 +54,7 @@ def test_policy_creator_creates_policy_document():
 @mock_iam
 def test_policy_creator_grants_access():
     moto_client = boto3.client("iam")
-    policy_creator = PolicyCreator()
+    policy_creator = PolicyCreator(moto_client)
     start_time = datetime.utcnow()
     role_arn = "arn:aws:iam::123456789012:role/somerole"
 
@@ -78,3 +78,25 @@ def test_policy_creator_grants_access():
 
     response = moto_client.list_attached_user_policies(PathPrefix="/Lambda/GrantUserAccess/", UserName="test-user")
     assert expected_policy_arn == response["AttachedPolicies"][0]["PolicyArn"]
+
+
+def test_policy_is_tagged_with_expiry_time():
+    mock_client = Mock(create_policy=Mock(return_value={"Policy": {"test":"example"}}))
+
+    policy_creator = PolicyCreator(mock_client)
+    role_arn = "arn:aws:iam::123456789012:role/somerole"
+
+    policy_creator.grant_access(
+        role_arn=role_arn,
+        username="test-user",
+        start_time=datetime(year=2012, month=6, day=21, hour=12, minute=0, second=1),
+        end_time=datetime(year=2012, month=6, day=21, hour=12, minute=0, second=1),
+    )
+
+    mock_client.create_policy.assert_called_with(
+        PolicyName='test-user_1340276401.0',
+        Path='/Lambda/GrantUserAccess/',
+        PolicyDocument='{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": "sts:AssumeRole", "Resource": "arn:aws:iam::123456789012:role/somerole", "Condition": {"DateGreaterThan": {"aws:CurrentTime": "2012-06-21T12:00:01Z"}, "DateLessThan": {"aws:CurrentTime": "2012-06-21T12:00:01Z"}}}]}',
+        Description='An IAM policy to grant-user-access to assume a role',
+        Tags=[{'Key': 'Product', 'Value': 'grant-user-access'}]
+    )
