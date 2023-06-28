@@ -6,7 +6,7 @@ import pytest
 from freezegun import freeze_time
 from jsonschema.exceptions import ValidationError
 
-from aws_grant_user_access.src.policy_creator import PolicyCreator
+from aws_grant_user_access.src.policy_manager import PolicyCreator
 from aws_grant_user_access.src.process_event import process_event
 from main import handle
 

@@ -2,9 +2,10 @@ from datetime import datetime, UTC, timedelta
 from unittest.mock import Mock
 
 import boto3
+from freezegun import freeze_time
 from moto import mock_iam
 
-from aws_grant_user_access.src.policy_creator import PolicyCreator
+from aws_grant_user_access.src.policy_manager import PolicyCreator
 
 
 def test_policy_creator_generates_policy_document():
@@ -81,6 +82,7 @@ def test_policy_creator_grants_access():
 
 
 def test_policy_is_tagged_with_expiry_time():
+    # using a hand rolled mock here as moto does not return back policy tags
     mock_client = Mock(create_policy=Mock(return_value={"Policy": {"test": "example"}}))
 
     end_time = datetime(year=2012, month=1, day=15, hour=0, minute=0, second=1)
@@ -95,5 +97,48 @@ def test_policy_is_tagged_with_expiry_time():
     mock_client.create_policy.assert_called_once()
     assert mock_client.create_policy.call_args.kwargs["Tags"] == [
         {"Key": "Product", "Value": "grant-user-access"},
-        {"Key": "Expires_At", "Value": "1326585601.0"},
+        {"Key": "Expires_At", "Value": "2012-01-15T00:00:01Z"},
     ]
+
+
+def test_find_expired_policies_returns_arns_of_no_longer_needed_policies():
+    # using a hand rolled mock here as moto does not return back policy tags
+    mock_client = Mock(
+        list_policies=Mock(
+            return_value={
+                "Policies": [
+                    {
+                        "Arn": "to_delete",
+                        "DefaultVersionId": "foo",
+                        "Tags": [
+                            {"Key": "Expires_At", "Value": "2020-05-01T00:00:00Z"},
+                            {"Key": "somthing_else", "Value": "foo"},
+                        ],
+                    },
+                    {
+                        "Arn": "to_keep",
+                        "DefaultVersionId": "foo",
+                        "Tags": [
+                            {"Key": "Expires_At", "Value": "2023-05-01T00:00:00Z"},
+                        ],
+                    },
+                    {
+                        "Arn": "to_delete_also",
+                        "DefaultVersionId": "foo",
+                        "Tags": [
+                            {"Key": "Expires_At", "Value": "2021-01-01T01:01:00Z"},
+                            {"Key": "somthing_else", "Value": "foo"},
+                        ],
+                    },
+                ],
+            }
+        )
+    )
+
+    expired = PolicyCreator(mock_client).find_expired_policies(
+        current_time=datetime(year=2021, month=1, day=1, hour=1, minute=1, second=1)
+    )
+
+    mock_client.list_policies.assert_called_once_with(PathPrefix="/Lambda/GrantUserAccess/")
+
+    assert expired == ["to_delete", "to_delete_also"]
