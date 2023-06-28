@@ -81,7 +81,7 @@ def test_policy_creator_grants_access():
 
 
 def test_policy_is_tagged_with_expiry_time():
-    mock_client = Mock(create_policy=Mock(return_value={"Policy": {"test":"example"}}))
+    mock_client = Mock(create_policy=Mock(return_value={"Policy": {"test": "example"}}))
 
     end_time = datetime(year=2012, month=1, day=15, hour=0, minute=0, second=1)
 
@@ -89,11 +89,11 @@ def test_policy_is_tagged_with_expiry_time():
         role_arn="arn:aws:iam::123456789012:role/somerole",
         username="test-user",
         start_time=datetime.utcnow(),
-        end_time=end_time
+        end_time=end_time,
     )
 
     mock_client.create_policy.assert_called_once()
     assert mock_client.create_policy.call_args.kwargs["Tags"] == [
-        {'Key': 'Product', 'Value': 'grant-user-access'},
-        {'Key': 'Expires_At', 'Value': "1326585601.0"}
+        {"Key": "Product", "Value": "grant-user-access"},
+        {"Key": "Expires_At", "Value": "1326585601.0"},
     ]

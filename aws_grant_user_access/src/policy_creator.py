@@ -13,8 +13,10 @@ class PolicyCreator:
     def grant_access(self, role_arn, username, start_time, end_time):
         policy_arn = self.create_iam_policy(
             name=f"{username}_{datetime.timestamp(start_time)}",
-            policy_document=PolicyCreator.generate_policy_document(role_arn=role_arn, start_time=start_time, end_time=end_time),
-            end_time=end_time
+            policy_document=PolicyCreator.generate_policy_document(
+                role_arn=role_arn, start_time=start_time, end_time=end_time
+            ),
+            end_time=end_time,
         )
 
         self.attach_policy_to_user(

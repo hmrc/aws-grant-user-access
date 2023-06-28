@@ -38,4 +38,4 @@ def test_expired_policies_are_removed():
     # Assert only valid policies exist
     policies = moto_client.list_policies(PathPrefix="/Lambda/GrantUserAccess/")["Policies"]
 
-    #assert len(policies) == 1
+    # assert len(policies) == 1
