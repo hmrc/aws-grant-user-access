@@ -14,6 +14,7 @@ POETRY_DOCKER_MOUNT = docker run \
 	--interactive \
 	--rm \
 	--volume "$(PWD)/aws_grant_user_access:/build/aws_grant_user_access:z" \
+	--volume "$(PWD)/main.py:/build/main.py:z" \
 	--volume "$(PWD)/tests:/build/tests:z" \
 	build:local poetry run
 
