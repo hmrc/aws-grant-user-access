@@ -9,10 +9,12 @@ AWS_IAM_TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 class PolicyCreator:
     def __init__(self, iam_client):
         self.iam_client = iam_client
+
     def grant_access(self, role_arn, username, start_time, end_time):
         policy_arn = self.create_iam_policy(
             name=f"{username}_{datetime.timestamp(start_time)}",
             policy_document=PolicyCreator.generate_policy_document(role_arn=role_arn, start_time=start_time, end_time=end_time),
+            end_time=end_time
         )
 
         self.attach_policy_to_user(
@@ -20,7 +22,7 @@ class PolicyCreator:
             policy_document_arn=policy_arn,
         )
 
-    def create_iam_policy(self, policy_document, name):
+    def create_iam_policy(self, policy_document, name, end_time):
         response = self.iam_client.create_policy(
             PolicyName=name,
             Path="/Lambda/GrantUserAccess/",
@@ -28,6 +30,7 @@ class PolicyCreator:
             Description="An IAM policy to grant-user-access to assume a role",
             Tags=[
                 {"Key": "Product", "Value": "grant-user-access"},
+                {"Key": "Expires_At", "Value": str(end_time.timestamp())},
             ],
         )
         return response["Policy"].get("Arn")

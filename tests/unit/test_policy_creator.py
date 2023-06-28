@@ -44,7 +44,7 @@ def test_policy_creator_creates_policy_document():
             {"Effect": "Allow", "Action": "sts:AssumeRole", "Resource": "arn:aws:iam::123456789012:role/somerole"}
         ],
     }
-    policy_creator.create_iam_policy(policy_document=policy, name="some_name")
+    policy_creator.create_iam_policy(policy_document=policy, name="some_name", end_time=datetime.utcnow())
 
     policies = moto_client.list_policies(PathPrefix="/Lambda/GrantUserAccess/")["Policies"]
     assert len(policies) == 1
@@ -83,20 +83,17 @@ def test_policy_creator_grants_access():
 def test_policy_is_tagged_with_expiry_time():
     mock_client = Mock(create_policy=Mock(return_value={"Policy": {"test":"example"}}))
 
-    policy_creator = PolicyCreator(mock_client)
-    role_arn = "arn:aws:iam::123456789012:role/somerole"
+    end_time = datetime(year=2012, month=1, day=15, hour=0, minute=0, second=1)
 
-    policy_creator.grant_access(
-        role_arn=role_arn,
+    PolicyCreator(mock_client).grant_access(
+        role_arn="arn:aws:iam::123456789012:role/somerole",
         username="test-user",
-        start_time=datetime(year=2012, month=6, day=21, hour=12, minute=0, second=1),
-        end_time=datetime(year=2012, month=6, day=21, hour=12, minute=0, second=1),
+        start_time=datetime.utcnow(),
+        end_time=end_time
     )
 
-    mock_client.create_policy.assert_called_with(
-        PolicyName='test-user_1340276401.0',
-        Path='/Lambda/GrantUserAccess/',
-        PolicyDocument='{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": "sts:AssumeRole", "Resource": "arn:aws:iam::123456789012:role/somerole", "Condition": {"DateGreaterThan": {"aws:CurrentTime": "2012-06-21T12:00:01Z"}, "DateLessThan": {"aws:CurrentTime": "2012-06-21T12:00:01Z"}}}]}',
-        Description='An IAM policy to grant-user-access to assume a role',
-        Tags=[{'Key': 'Product', 'Value': 'grant-user-access'}]
-    )
+    mock_client.create_policy.assert_called_once()
+    assert mock_client.create_policy.call_args.kwargs["Tags"] == [
+        {'Key': 'Product', 'Value': 'grant-user-access'},
+        {'Key': 'Expires_At', 'Value': "1326585601.0"}
+    ]
