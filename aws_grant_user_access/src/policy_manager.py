@@ -1,7 +1,10 @@
 import json
 from datetime import datetime, UTC
 
-EXPIRES_AT_TAG = "Expires_At"
+PRODUCT_TAG_VALUE = "grant-user-access"
+PRODUCT_TAG_KEY = "Product"
+
+EXPIRES_AT_TAG_KEY = "Expires_At"
 
 GRANT_USER_ACCESS_PATH = "/Lambda/GrantUserAccess/"
 
@@ -33,8 +36,8 @@ class PolicyCreator:
             PolicyDocument=json.dumps(policy_document),
             Description="An IAM policy to grant-user-access to assume a role",
             Tags=[
-                {"Key": "Product", "Value": "grant-user-access"},
-                {"Key": EXPIRES_AT_TAG, "Value": end_time.strftime(AWS_IAM_TIME_FORMAT)},
+                {"Key": PRODUCT_TAG_KEY, "Value": PRODUCT_TAG_VALUE},
+                {"Key": EXPIRES_AT_TAG_KEY, "Value": end_time.strftime(AWS_IAM_TIME_FORMAT)},
             ],
         )
         return response["Policy"].get("Arn")
@@ -66,10 +69,22 @@ class PolicyCreator:
 
         expired_policies = []
         for policy in all_policies["Policies"]:
-            for tag in policy["Tags"]:
-                if tag["Key"] == EXPIRES_AT_TAG:
-                    if datetime.strptime(tag["Value"], AWS_IAM_TIME_FORMAT) < current_time:
-                        expired_policies.append(policy["Arn"])
-                        break
+            if self.is_policy_expired(policy, current_time):
+                expired_policies.append(policy["Arn"])
 
         return expired_policies
+
+    def is_policy_expired(self, policy, current_time):
+        tag_dict = self.to_dict(policy["Tags"])
+
+        return (
+            {EXPIRES_AT_TAG_KEY, PRODUCT_TAG_KEY}.issubset(set(tag_dict.keys()))
+            and tag_dict[PRODUCT_TAG_KEY] == PRODUCT_TAG_VALUE
+            and datetime.strptime(tag_dict[EXPIRES_AT_TAG_KEY], AWS_IAM_TIME_FORMAT) < current_time
+        )
+
+    def to_dict(self, tag_array):
+        tag_dict = {}
+        for tag in tag_array:
+            tag_dict[tag["Key"]] = tag["Value"]
+        return tag_dict

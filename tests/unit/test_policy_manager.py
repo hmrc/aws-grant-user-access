@@ -112,11 +112,19 @@ def test_find_expired_policies_returns_arns_of_no_longer_needed_policies():
                         "DefaultVersionId": "foo",
                         "Tags": [
                             {"Key": "Expires_At", "Value": "2020-05-01T00:00:00Z"},
-                            {"Key": "somthing_else", "Value": "foo"},
+                            {"Key": "Product", "Value": "grant-user-access"},
                         ],
                     },
                     {
                         "Arn": "to_keep",
+                        "DefaultVersionId": "foo",
+                        "Tags": [
+                            {"Key": "Expires_At", "Value": "2023-05-01T00:00:00Z"},
+                            {"Key": "Product", "Value": "grant-user-access"},
+                        ],
+                    },
+                    {
+                        "Arn": "to_keep_2",
                         "DefaultVersionId": "foo",
                         "Tags": [
                             {"Key": "Expires_At", "Value": "2023-05-01T00:00:00Z"},
@@ -127,7 +135,7 @@ def test_find_expired_policies_returns_arns_of_no_longer_needed_policies():
                         "DefaultVersionId": "foo",
                         "Tags": [
                             {"Key": "Expires_At", "Value": "2021-01-01T01:01:00Z"},
-                            {"Key": "somthing_else", "Value": "foo"},
+                            {"Key": "Product", "Value": "grant-user-access"},
                         ],
                     },
                 ],
@@ -142,3 +150,7 @@ def test_find_expired_policies_returns_arns_of_no_longer_needed_policies():
     mock_client.list_policies.assert_called_once_with(PathPrefix="/Lambda/GrantUserAccess/")
 
     assert expired == ["to_delete", "to_delete_also"]
+
+
+def test_expired_polices_are_deleted():
+    assert False, "Not yet implemented"
