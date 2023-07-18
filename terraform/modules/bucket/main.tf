@@ -20,7 +20,7 @@ module "bucket" {
   required_tags_with_restricted_values = var.required_tags_with_restricted_values
 
   log_bucket_id = var.log_bucket_id
-  tags          = {
+  tags = {
     allow_delete = false
   }
 }

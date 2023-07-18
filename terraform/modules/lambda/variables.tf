@@ -16,7 +16,7 @@ variable "environment" {
 }
 
 variable "environment_variables" {
-  default     = { Test: true }
+  default     = { Test : true }
   description = "The environment variables to set on the lambda function."
   type        = map(string)
 }

@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "ecr" {
-  name                 = var.lambda_function_name
+  name = var.lambda_function_name
   image_scanning_configuration {
     scan_on_push = true
   }
@@ -7,5 +7,5 @@ resource "aws_ecr_repository" "ecr" {
 
 resource "aws_ecr_repository_policy" "ecr_policy" {
   repository = aws_ecr_repository.ecr.id
-  policy = data.aws_iam_policy_document.ecr_pull_policy.json
+  policy     = data.aws_iam_policy_document.ecr_pull_policy.json
 }

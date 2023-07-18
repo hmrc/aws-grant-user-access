@@ -1,6 +1,6 @@
 resource "aws_iam_role" "lambda" {
-  assume_role_policy   = data.aws_iam_policy_document.lambda_assume_role.json
-  name_prefix          = substr(var.lambda_function_name, 0, 38)
+  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
+  name_prefix        = substr(var.lambda_function_name, 0, 38)
 }
 
 resource "aws_iam_role_policy" "lambda" {
