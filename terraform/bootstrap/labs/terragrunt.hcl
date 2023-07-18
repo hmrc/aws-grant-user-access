@@ -3,12 +3,12 @@ terraform {
 }
 
 locals {
-  common      = read_terragrunt_config("../../common/labs.hcl")
-  account_id  = local.common.locals.account_id
-  environment = local.common.locals.environment
-  product     = local.common.locals.product
-  tf_state_bucket_name  = local.common.locals.tf_state_bucket_name
-  tf_state_lock_dynamodb_table_name  = local.common.locals.tf_state_lock_dynamodb_table_name
+  common                            = read_terragrunt_config("../../common/labs.hcl")
+  account_id                        = local.common.locals.account_id
+  environment                       = local.common.locals.environment
+  product                           = local.common.locals.product
+  tf_state_bucket_name              = local.common.locals.tf_state_bucket_name
+  tf_state_lock_dynamodb_table_name = local.common.locals.tf_state_lock_dynamodb_table_name
 }
 
 generate "backend" {
@@ -61,9 +61,9 @@ inputs = {
   tf_state_bucket_name              = local.tf_state_bucket_name
   tf_state_lock_dynamodb_table_name = local.tf_state_lock_dynamodb_table_name
 
-  tf_read_roles           = ["arn:aws:iam::${local.account_id}:role/RoleTerraformProvisioner", "arn:aws:iam::${local.account_id}:role/RoleSecurityReadOnly"]
-  tf_list_roles           = ["arn:aws:iam::${local.account_id}:role/RoleTerraformProvisioner", "arn:aws:iam::${local.account_id}:role/RoleSecurityReadOnly"]
-  tf_metadata_read_roles  = ["arn:aws:iam::${local.account_id}:role/RoleTerraformProvisioner", "arn:aws:iam::${local.account_id}:role/RoleSecurityReadOnly"]
-  tf_write_roles          = ["arn:aws:iam::${local.account_id}:role/RoleTerraformProvisioner"]
-  tf_admin_roles          = ["arn:aws:iam::${local.account_id}:role/RoleTerraformProvisioner"]
+  tf_read_roles          = ["arn:aws:iam::${local.account_id}:role/RoleTerraformProvisioner", "arn:aws:iam::${local.account_id}:role/RoleSecurityReadOnly"]
+  tf_list_roles          = ["arn:aws:iam::${local.account_id}:role/RoleTerraformProvisioner", "arn:aws:iam::${local.account_id}:role/RoleSecurityReadOnly"]
+  tf_metadata_read_roles = ["arn:aws:iam::${local.account_id}:role/RoleTerraformProvisioner", "arn:aws:iam::${local.account_id}:role/RoleSecurityReadOnly"]
+  tf_write_roles         = ["arn:aws:iam::${local.account_id}:role/RoleTerraformProvisioner"]
+  tf_admin_roles         = ["arn:aws:iam::${local.account_id}:role/RoleTerraformProvisioner"]
 }

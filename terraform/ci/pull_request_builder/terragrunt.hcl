@@ -3,8 +3,8 @@ terraform {
 }
 
 locals {
-  common      = read_terragrunt_config("../../common/labs.hcl")
-  product     = local.common.locals.product
+  common  = read_terragrunt_config("../../common/labs.hcl")
+  product = local.common.locals.product
 }
 
 include {
@@ -20,7 +20,7 @@ inputs = {
   project_name    = "${local.product}-pr-builder"
 
   project_assume_roles = {
-    "TERRAFORM_PROVISIONER_ROLE_ARN"  = "arn:aws:iam::${get_aws_account_id()}:role/RoleTerraformProvisioner"
+    "TERRAFORM_PROVISIONER_ROLE_ARN" = "arn:aws:iam::${get_aws_account_id()}:role/RoleTerraformProvisioner"
   }
 
   vpc_config = dependency.networking.outputs.vpc_config

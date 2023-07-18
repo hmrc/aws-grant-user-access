@@ -4,8 +4,8 @@ locals {
   environment = local.common.locals.environment
   product     = local.common.locals.product
 
-  tf_state_bucket_name  = local.common.locals.tf_state_bucket_name
-  tf_state_lock_dynamodb_table_name  = local.common.locals.tf_state_lock_dynamodb_table_name
+  tf_state_bucket_name              = local.common.locals.tf_state_bucket_name
+  tf_state_lock_dynamodb_table_name = local.common.locals.tf_state_lock_dynamodb_table_name
 }
 
 generate "backend" {
