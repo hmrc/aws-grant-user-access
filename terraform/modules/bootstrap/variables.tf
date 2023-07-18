@@ -1,13 +1,7 @@
 
 variable "environment" {
-  type = string
+  type        = string
   description = "Environment name"
-}
-
-variable "github_api_token" {
-  type      = string
-  description = "Github API token for access to aws-grant-user-access repository."
-  sensitive = true
 }
 
 variable "tf_read_roles" {
@@ -41,12 +35,12 @@ variable "tf_metadata_read_roles" {
 }
 
 variable "tf_state_bucket_name" {
-  type = string
+  type        = string
   description = "The name of the Terraform state bucket"
 }
 
 variable "tf_state_lock_dynamodb_table_name" {
-  type = string
+  type        = string
   description = "The name of the Terraform state lock Dynamodb table"
 }
 

@@ -11,35 +11,23 @@ locals {
   tf_state_lock_dynamodb_table_name  = local.common.locals.tf_state_lock_dynamodb_table_name
 }
 
-generate "local" {
+generate "backend" {
   path      = "backend.tf"
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 terraform {
-  backend "local" {
-    path = "${path_relative_to_include()}/bootstrap.tfstate"
+  backend "s3" {
+    bucket         = "${local.tf_state_bucket_name}"
+    region         = "eu-west-2"
+    key            = "${path_relative_to_include()}/bootstrap.tfstate"
+    encrypt        = true
+    kms_key_id     = "alias/s3-${local.tf_state_bucket_name}"
+    dynamodb_table = "${local.tf_state_lock_dynamodb_table_name}"
+    acl            = "bucket-owner-full-control"
   }
 }
 EOF
 }
-
-# generate "backend" {
-#   path      = "backend.tf"
-#   if_exists = "overwrite_terragrunt"
-#   contents  = <<EOF
-# terraform {
-#   backend "s3" {
-#     bucket         = "${local.tf_state_bucket_name}"
-#     region         = "eu-west-2"
-#     key            = "${path_relative_to_include()}/bootstrap.tfstate"
-#     encrypt        = true
-#     kms_key_id     = "alias/s3-${local.tf_state_bucket_name}"
-#     dynamodb_table = "${local.tf_state_lock_dynamodb_table_name}"
-#     acl            = "bucket-owner-full-control"
-#   }
-# }
-# EOF
-# }
 
 generate "provider" {
   path      = "provider.tf"

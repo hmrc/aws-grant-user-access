@@ -1,9 +1,12 @@
 resource "aws_ssm_parameter" "github_api_token" {
-  count       = var.environment == "live" ? 1 : 0
   name        = "/service_accounts/github_api_token"
   description = "GitHub API Token"
   type        = "SecureString"
-  value       = var.github_api_token
+  value       = "PLACEHOLDER - Value to be updated manually"
+
+  lifecycle {
+    ignore_changes = [value]
+  }
 }
 
 resource "aws_ssm_parameter" "access_logs_bucket_id" {
