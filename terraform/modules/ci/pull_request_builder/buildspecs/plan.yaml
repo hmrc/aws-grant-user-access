@@ -1,0 +1,14 @@
+version: 0.2
+
+env:
+  shell: bash
+
+phases:
+  build:
+    commands:
+      - make all-checks
+      - ./scripts/plan.sh ci
+      - ./scripts/plan.sh labs
+      - ./scripts/plan.sh iam-labs
+      - ./scripts/plan.sh live
+      - ./scripts/plan.sh iam-live
