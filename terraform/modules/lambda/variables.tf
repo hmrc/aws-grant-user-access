@@ -4,6 +4,11 @@ variable "ecr_image_tag" {
   type        = string
 }
 
+variable "ecr_repository_url" {
+  description = "The ECR repository URL"
+  type        = string
+}
+
 variable "environment" {
   default     = "example-environment"
   description = "The name of the environment the lambda function is deployed to"

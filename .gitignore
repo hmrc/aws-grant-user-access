@@ -85,6 +85,7 @@ dmypy.json
 
 # Terraform
 .terraform*
+!.terraform-version
 *.tfstate*
 *.tfvars
 .terragrunt-cache/
