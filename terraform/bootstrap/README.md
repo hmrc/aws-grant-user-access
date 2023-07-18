@@ -25,9 +25,9 @@ EOF
 - Bootstrap resources for terraform s3 backend config (s3 bucket, dynamo table, etc)
 
 ```bash
-aws-vault exec stackset-live-RoleStacksetAdministrator -- terragrunt init
-aws-vault exec stackset-live-RoleStacksetAdministrator -- terragrunt plan
-aws-vault exec stackset-live-RoleStacksetAdministrator -- terragrunt apply
+aws-vault exec <profile> -- terragrunt init
+aws-vault exec <profile> -- terragrunt plan
+aws-vault exec <profile> -- terragrunt apply
 ```
 
 - (Optional) you may wish to verify the backend.tf and bootstrap.tfstate files
@@ -44,7 +44,7 @@ aws-vault exec stackset-live-RoleStacksetAdministrator -- terragrunt apply
 - To migrate terraform state from local backend to s3 backend, run
 
 ```bash
-aws-vault exec stackset-live-RoleStacksetAdministrator -- terragrunt init -migrate-state
+aws-vault exec <profile> -- terragrunt init -migrate-state
 ```
 
 - done ✅
@@ -54,7 +54,7 @@ aws-vault exec stackset-live-RoleStacksetAdministrator -- terragrunt init -migra
 - Run
 
 ```bash
-aws-vault exec stackset-live-RoleStacksetAdministrator -- terragrunt apply
+aws-vault exec <profile> -- terragrunt apply
 ```
 
 - done ✅

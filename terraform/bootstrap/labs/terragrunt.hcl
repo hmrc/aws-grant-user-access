@@ -4,7 +4,7 @@ terraform {
 
 locals {
   common      = read_terragrunt_config("../../common/labs.hcl")
-  account_id = local.common.locals.account_id
+  account_id  = local.common.locals.account_id
   environment = local.common.locals.environment
   product     = local.common.locals.product
   tf_state_bucket_name  = local.common.locals.tf_state_bucket_name
