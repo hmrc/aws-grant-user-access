@@ -21,7 +21,7 @@ dependency "networking" {
 inputs = {
   pipeline_name = "${local.product}-pipeline"
   src_repo      = "aws-${local.product}"
-  branch        = "INFRA-7955-pipeline"    # TODO: change to `main` once merged in
+  branch        = "INFRA-7955-pipeline" # TODO: change to `main` once merged in
 
   step_assume_roles = [
     { ci = local.labs_admin_roles },
