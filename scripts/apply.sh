@@ -9,7 +9,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 TARGET=$1
-ASSUME_ROLE_ARN="${LABS_TERRAFORM_PROVISIONER_ROLE_ARN}"
+ASSUME_ROLE_ARN="${TERRAFORM_PROVISIONER_ROLE_ARN}"
 
 set_aws_credentials() {
 	STS=$(
