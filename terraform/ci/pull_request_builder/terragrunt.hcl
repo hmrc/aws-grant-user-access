@@ -22,7 +22,7 @@ inputs = {
     "TERRAFORM_PROVISIONER_ROLE_ARN" = "arn:aws:iam::${get_aws_account_id()}:role/RoleTerraformProvisioner"
   }
 
-  src_repo    = "aws-${local.product}"
+  src_repo = "aws-${local.product}"
 
   vpc_config = dependency.networking.outputs.vpc_config
   agent_security_group_ids = [
