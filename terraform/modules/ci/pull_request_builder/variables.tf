@@ -38,6 +38,5 @@ variable "src_org" {
 }
 
 variable "src_repo" {
-  type    = string
-  default = "platsec-stackset-terraform"
+  type = string
 }
