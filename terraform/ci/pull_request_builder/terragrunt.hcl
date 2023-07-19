@@ -19,7 +19,7 @@ inputs = {
   docker_required = true
   project_name    = "${local.product}-pr-builder"
   project_assume_roles = {
-    "TERRAFORM_PROVISIONER_ROLE_ARN" = "arn:aws:iam::${get_aws_account_id()}:role/RoleTerraformProvisioner"
+    "LABS_TERRAFORM_PROVISIONER_ROLE_ARN" = "arn:aws:iam::${get_aws_account_id()}:role/RoleTerraformProvisioner"
   }
 
   src_repo = "aws-${local.product}"
