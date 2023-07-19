@@ -6,6 +6,6 @@ env:
 phases:
   build:
     commands:
-      - make all-checks
+      - make tf-checks
       - ./scripts/plan.sh ci
       - ./scripts/plan.sh labs
