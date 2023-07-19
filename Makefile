@@ -2,7 +2,10 @@ SHELL = /bin/bash
 .SHELLFLAGS = -euo pipefail -c
 
 AWS_PROFILE ?= stackset-live-RoleStacksetAdministrator
-AWS_PROFILE_CMD := aws-vault exec $${AWS_PROFILE} --
+
+ifneq (, $(strip $(shell command -v aws-vault)))
+	AWS_PROFILE_CMD := aws-vault exec $${AWS_PROFILE} --
+endif
 
 # .PHONY: $(MAKECMDGOALS)
 
