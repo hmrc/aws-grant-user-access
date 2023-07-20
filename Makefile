@@ -1,3 +1,4 @@
+.ONESHELL: # Execute all instructions in a target in one shell
 SHELL = /bin/bash
 .SHELLFLAGS = -euo pipefail -c
 
