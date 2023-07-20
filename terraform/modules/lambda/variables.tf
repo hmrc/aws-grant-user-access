@@ -32,12 +32,6 @@ variable "lambda_function_name" {
   description = "The name for this lambda function."
 }
 
-variable "lambda_git_project" {
-  default     = "https://github.com/hmrc/aws-grant-user-access"
-  description = "The URL for the GitHub project"
-  type        = string
-}
-
 variable "memory_size" {
   default     = 128
   description = "The amount of memory to allocate to the lambda function."
@@ -48,6 +42,12 @@ variable "reserved_concurrent_executions" {
   description = "The number of reserved concurrent executions for this lambda function."
   type        = number
   default     = -1
+}
+
+variable "tags" {
+  default     = {}
+  description = "Resource tags"
+  type        = map(string)
 }
 
 variable "timeout" {
