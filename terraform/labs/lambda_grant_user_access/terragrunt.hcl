@@ -12,8 +12,8 @@ include {
 }
 
 inputs = {
-  lambda_function_name = local.product
+  lambda_function_name  = local.product
   environment_variables = { Test : true }
-  timeout = 900
-  tags = { Git_Project = "https://github.com/hmrc/aws-${local.product}" }
+  timeout               = 900
+  tags                  = { Git_Project = "https://github.com/hmrc/aws-${local.product}" }
 }
