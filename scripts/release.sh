@@ -45,6 +45,8 @@ main() {
 	if [[ $(paths_have_update) != "" ]]; then
 		set_aws_credentials
 		make "container-release"
+	else
+		echo "No matching changes to build"
 	fi
 }
 
