@@ -32,7 +32,6 @@ FILTER_PATHS=(
 )
 
 paths_have_update() {
-
 	updates=$(git diff --name-only HEAD~1 HEAD)
 
 	matches=""
@@ -46,12 +45,8 @@ paths_have_update() {
 }
 
 main() {
-	if [[ $(paths_have_update) != "" ]]; then
-		set_aws_credentials
-		make "container-release"
-	else
-		echo "No matching changes to build"
-	fi
+	set_aws_credentials
+	make "container-publish"
 }
 
 main "$@"

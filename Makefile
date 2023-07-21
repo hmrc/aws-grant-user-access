@@ -2,7 +2,7 @@
 SHELL = /bin/bash
 .SHELLFLAGS = -euo pipefail -c
 
-AWS_PROFILE ?= stackset-live-RoleStacksetAdministrator
+AWS_PROFILE ?= platsec-stackset-poc-RoleTerraformProvisioner
 
 ifneq (, $(strip $(shell command -v aws-vault)))
 	AWS_PROFILE_CMD := aws-vault exec $${AWS_PROFILE} --
@@ -30,32 +30,6 @@ build:
 		--build-arg PYTHON_VERSION=$(PYTHON_VERSION) \
 		--tag build:local .
 
-fmt:
-	@$(POETRY_DOCKER_MOUNT) black --line-length 120 --exclude=.venv .
-
-fmt-check: build
-	@$(POETRY_DOCKER) black --line-length 120 --check .
-
-python-test: build
-	@$(POETRY_DOCKER) pytest
-
-test: python-test fmt-check md-check
-
-ci: test
-
-md-check:
-	@docker pull zemanlx/remark-lint:0.2.0
-	@docker run --rm -i -v $(PWD):/lint/input:ro zemanlx/remark-lint:0.2.0 --frail .
-
-container-release:
-	docker build --target lambda \
-		--file Dockerfile \
-		--build-arg PYTHON_VERSION=$(PYTHON_VERSION) \
-		--tag container-release:local .
-
-
-#---------------
-
 # Terragrunt command accessible via Docker for user convenience and portability
 # Any target that uses this should expect "terragrunt" target to have been run manually before
 TG := docker run \
@@ -80,6 +54,41 @@ terragrunt:
 		--build-arg "TF_BASE_TAG=$(shell head -n1 .terraform-version)" \
 		-f tg.Dockerfile \
 		.
+
+fmt:
+	@$(POETRY_DOCKER_MOUNT) black --line-length 120 --exclude=.venv .
+
+fmt-check: build
+	@$(POETRY_DOCKER) black --line-length 120 --check .
+
+python-test: build
+	@$(POETRY_DOCKER) pytest
+
+test: python-test fmt-check md-check
+
+ci: test
+
+md-check:
+	@docker pull zemanlx/remark-lint:0.2.0
+	@docker run --rm -i -v $(PWD):/lint/input:ro zemanlx/remark-lint:0.2.0 --frail .
+
+container-release:
+	docker build --target lambda \
+		--file Dockerfile \
+		--build-arg PYTHON_VERSION=$(PYTHON_VERSION) \
+		--tag container-release:local .
+
+IMAGE_TAG ?=
+ECR_REPO = 979783897929.dkr.ecr.eu-west-2.amazonaws.com/grant-user-access
+
+.PHONY: container-publish
+container-publish: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformProvisioner
+container-publish: container-release terragrunt
+	@docker tag container-release:local ${ECR_REPO}:${IMAGE_TAG}
+	@docker tag container-release:local ${ECR_REPO}:latest
+	@${AWS_PROFILE_CMD} $(TG) aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin ${ECR_REPO}
+	@docker push ${ECR_REPO}:${IMAGE_TAG}
+	@docker push ${ECR_REPO}:latest
 
 # Format all terraform files
 .PHONY: tf-fmt
