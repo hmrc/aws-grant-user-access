@@ -150,7 +150,3 @@ def test_find_expired_policies_returns_arns_of_no_longer_needed_policies():
     mock_client.list_policies.assert_called_once_with(PathPrefix="/Lambda/GrantUserAccess/")
 
     assert expired == ["to_delete", "to_delete_also"]
-
-
-def test_expired_polices_are_deleted():
-    assert False, "Not yet implemented"
