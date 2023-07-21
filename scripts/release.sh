@@ -25,7 +25,11 @@ set_aws_credentials() {
 	export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN
 }
 
-FILTER_PATHS=()
+FILTER_PATHS=(
+	main.py
+	tests
+	aws_grant_user_access
+)
 
 paths_have_update() {
 
