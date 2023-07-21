@@ -46,7 +46,8 @@ paths_have_update() {
 
 main() {
 	set_aws_credentials
-	make "container-publish"
+	IMAGE_TAG=$(git describe --dirty="-$(date +%Y%m%d%H%M%S)" --always) \
+		make "container-publish"
 }
 
 main "$@"
