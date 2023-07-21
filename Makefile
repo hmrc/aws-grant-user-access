@@ -89,6 +89,11 @@ container-publish: container-release terragrunt
 	@${AWS_PROFILE_CMD} $(TG) aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin ${ECR_REPO}
 	@docker push ${ECR_REPO}:${IMAGE_TAG}
 	@docker push ${ECR_REPO}:latest
+	@${AWS_PROFILE_CMD} $(TG) aws ssm put-parameter \
+    --name "/ecr/latest/grant-user-access" \
+    --type "String" \
+    --value "${IMAGE_TAG}" \
+    --overwrite
 
 # Format all terraform files
 .PHONY: tf-fmt
