@@ -12,5 +12,6 @@ module "lambda" {
   environment           = var.environment
   environment_variables = var.environment_variables
   lambda_function_name  = var.lambda_function_name
+  ecr_image_tag         = aws_ssm_parameter.grant_user_access.value
   tags                  = var.tags
 }

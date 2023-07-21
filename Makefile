@@ -86,7 +86,8 @@ container-publish: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformProvi
 container-publish: container-release terragrunt
 	@docker tag container-release:local ${ECR_REPO}:${IMAGE_TAG}
 	@docker tag container-release:local ${ECR_REPO}:latest
-	@${AWS_PROFILE_CMD} $(TG) aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin ${ECR_REPO}
+	@${AWS_PROFILE_CMD} $(TG) aws ecr get-login-password --region eu-west-2 \
+		| docker login --username AWS --password-stdin ${ECR_REPO}
 	@docker push ${ECR_REPO}:${IMAGE_TAG}
 	@docker push ${ECR_REPO}:latest
 	@${AWS_PROFILE_CMD} $(TG) aws ssm put-parameter \
