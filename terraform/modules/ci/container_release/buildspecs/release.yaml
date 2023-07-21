@@ -6,4 +6,4 @@ env:
 phases:
   build:
     commands:
-      - make container-release
+      - ./scripts/release.sh
