@@ -58,6 +58,12 @@ variable "project_iam_policy_arns" {
   description = "ARNs of additional iam policies to be attached to Codebuild service role"
 }
 
+variable "project_compute_type" {
+  type        = string
+  default     = "BUILD_GENERAL1_SMALL"
+  description = "The Codebuild project compute type"
+}
+
 variable "github_webhook_events" {
   type        = list(string)
   default     = ["PULL_REQUEST_MERGED"]
