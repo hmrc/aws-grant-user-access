@@ -19,3 +19,9 @@ variable "tags" {
   description = "Resource tags"
   type        = map(string)
 }
+
+variable "timeout_in_seconds" {
+  default     = 900
+  description = "How long the lambda is allowed to run in seconds, before timing out."
+  type        = number
+}
