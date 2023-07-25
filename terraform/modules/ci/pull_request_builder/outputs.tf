@@ -1,7 +1,7 @@
 output "name" {
-  value = aws_codebuild_project.build.name
+  value = module.builder.name
 }
 
 output "arn" {
-  value = aws_codebuild_project.build.arn
+  value = module.builder.arn
 }

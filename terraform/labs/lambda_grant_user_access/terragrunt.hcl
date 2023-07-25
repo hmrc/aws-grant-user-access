@@ -12,7 +12,7 @@ include {
 }
 
 inputs = {
-  lambda_function_name  = local.product
-  timeout_in_seconds    = 900
-  tags                  = { Git_Project = "https://github.com/hmrc/aws-${local.product}" }
+  lambda_function_name = local.product
+  timeout_in_seconds   = 900
+  tags                 = { Git_Project = "https://github.com/hmrc/aws-${local.product}" }
 }

@@ -40,3 +40,9 @@ variable "src_org" {
 variable "src_repo" {
   type = string
 }
+
+variable "src_branch" {
+  type        = string
+  default     = "^main"
+  description = "Source repository branch"
+}
