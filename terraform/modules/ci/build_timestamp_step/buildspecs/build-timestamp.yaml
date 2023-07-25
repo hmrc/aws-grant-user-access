@@ -1,0 +1,11 @@
+version: 0.2
+
+env:
+  shell: bash
+  exported-variables:
+    - BUILD_TIMESTAMP
+
+phases:
+  build:
+    commands:
+      - export BUILD_TIMESTAMP="$(date --utc '+%Y-%m-%d_%H-%M-%S')"

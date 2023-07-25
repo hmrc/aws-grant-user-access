@@ -1,0 +1,12 @@
+version: 0.2
+
+env:
+  shell: bash
+
+phases:
+  build:
+    commands:
+      - make ci
+      - make tf-checks
+      - ./scripts/plan.sh ci
+      - ./scripts/plan.sh labs
