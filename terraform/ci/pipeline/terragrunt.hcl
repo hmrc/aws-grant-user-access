@@ -34,5 +34,5 @@ inputs = {
     dependency.networking.outputs.ci_agent_to_internet_sg_id
   ]
 
-  step_timeout_in_minutes = 60
+  step_timeout_in_minutes = 30
 }
