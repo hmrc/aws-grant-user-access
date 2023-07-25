@@ -16,10 +16,6 @@ variable "branch" {
   default = "main"
 }
 
-# variable "sns_topic_arn" {
-#   type = string
-# }
-
 variable "step_timeout_in_minutes" {
   default = 15
 }

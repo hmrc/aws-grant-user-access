@@ -5,7 +5,7 @@ resource "aws_lambda_function" "this" {
   package_type                   = "Image"
   image_uri                      = "${var.ecr_repository_url}:${var.ecr_image_tag}"
   publish                        = true
-  timeout                        = var.timeout
+  timeout                        = var.timeout_in_seconds
   reserved_concurrent_executions = var.reserved_concurrent_executions
 
   image_config {

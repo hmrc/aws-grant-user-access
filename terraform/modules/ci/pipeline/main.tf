@@ -12,5 +12,4 @@ module "common" {
   github_token         = data.aws_ssm_parameter.github_api_token.value
   access_log_bucket_id = local.access_log_bucket_id
   admin_role           = local.tf_admin_role
-  # sns_topic_arn        = var.sns_topic_arn
 }
