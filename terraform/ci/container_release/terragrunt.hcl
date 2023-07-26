@@ -23,7 +23,7 @@ inputs = {
   }
 
   src_repo   = "aws-${local.product}"
-  src_branch = "INFRA-7955-pipeline"
+  src_branch = "main"
 
   vpc_config = dependency.networking.outputs.vpc_config
   agent_security_group_ids = [
