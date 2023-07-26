@@ -1,6 +1,6 @@
 locals {
   bucket_name          = "ci-${substr(var.project_name, 0, 32)}"
-  access_log_bucket_id = data.aws_ssm_parameter.access_logs_bucket_id.value
+  access_log_bucket_id = data.aws_ssm_parameter.access_log_bucket_id.value
 }
 
 module "builder_bucket" {

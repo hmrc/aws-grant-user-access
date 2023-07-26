@@ -44,7 +44,7 @@ variable "tf_state_lock_dynamodb_table_name" {
   description = "The name of the Terraform state lock Dynamodb table"
 }
 
-variable "log_bucket_id" {
+variable "log_bucket_name" {
   type        = string
   description = "The name of the access logs bucket"
 }

@@ -1,7 +1,7 @@
 locals {
   step_assume_roles    = merge(var.step_assume_roles...)
   tf_admin_role        = local.step_assume_roles["labs"]["TERRAFORM_PROVISIONER_ROLE_ARN"]
-  access_log_bucket_id = data.aws_ssm_parameter.access_logs_bucket_id.value
+  access_log_bucket_id = data.aws_ssm_parameter.access_log_bucket_id.value
 }
 
 module "common" {
