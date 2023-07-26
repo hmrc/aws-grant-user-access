@@ -10,9 +10,6 @@ resource "aws_dynamodb_table" "terraform" {
   }
 }
 
-locals {
-  log_bucket_name = var.environment == "live" ? module.access_log_bucket.id : var.log_bucket_name
-}
 module "access_log_bucket" {
   count       = var.environment == "live" ? 1 : 0
   source      = "../access_log_bucket"
