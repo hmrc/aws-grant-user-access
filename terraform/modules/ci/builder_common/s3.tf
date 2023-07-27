@@ -1,5 +1,5 @@
 locals {
-  bucket_name          = "ci-${substr(var.project_name, 0, 32)}"
+  bucket_name          = "ci-${substr(var.project_name, 0, 60)}"
   access_log_bucket_id = data.aws_ssm_parameter.access_log_bucket_id.value
 
   current_provisioner_role = data.aws_iam_session_context.current.issuer_arn
