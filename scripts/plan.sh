@@ -16,10 +16,10 @@ set_aws_credentials() {
 		assume_role_arn="${LABS_TERRAFORM_PROVISIONER_ROLE_ARN}"
 		;;
 	live)
-		assume_role_arn="${LIVE_TERRAFORM_PROVISIONER_ROLE_ARN}"
+		assume_role_arn="${LIVE_TERRAFORM_PLANNER_ROLE_ARN}"
 		;;
 	*)
-		assume_role_arn="${LIVE_TERRAFORM_PROVISIONER_ROLE_ARN}"
+		assume_role_arn="${LIVE_TERRAFORM_PLANNER_ROLE_ARN}"
 		;;
 	esac
 	STS=$(
