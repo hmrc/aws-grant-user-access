@@ -1,5 +1,7 @@
 locals {
-  bucket_name = "ci-${substr(local.pipeline_name, 0, 32)}"
+  bucket_name              = "ci-${substr(local.pipeline_name, 0, 32)}"
+  current_provisioner_role = data.aws_iam_session_context.current.issuer_arn
+  admins                   = sort(distinct([var.admin_role, local.current_provisioner_role]))
 }
 
 module "codepipeline_bucket" {
@@ -72,7 +74,7 @@ data "aws_iam_policy_document" "bucket_policy" {
     condition {
       test     = "StringNotLike"
       variable = "aws:PrincipalArn"
-      values   = [var.admin_role]
+      values   = local.admins
     }
   }
 }
