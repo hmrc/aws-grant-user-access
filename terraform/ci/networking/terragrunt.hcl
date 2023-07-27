@@ -3,7 +3,7 @@ terraform {
 }
 
 locals {
-  common      = read_terragrunt_config(find_in_parent_folders("common/labs.hcl"))
+  common      = read_terragrunt_config(find_in_parent_folders("common/live.hcl"))
   environment = local.common.locals.environment
   product     = local.common.locals.product
 
