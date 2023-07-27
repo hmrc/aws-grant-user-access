@@ -2,7 +2,7 @@
 SHELL = /bin/bash
 .SHELLFLAGS = -euo pipefail -c
 
-AWS_PROFILE ?= platsec-stackset-poc-RoleTerraformProvisioner
+AWS_PROFILE ?= auth-RoleTerraformApplier
 
 ifneq (, $(strip $(shell command -v aws-vault)))
 	AWS_PROFILE_CMD := aws-vault exec $${AWS_PROFILE} --
@@ -116,7 +116,8 @@ validate: validate-ci
 
 .PHONY: validate-%
 validate-labs: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformProvisioner
-validate-ci: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformProvisioner
+validate-live: export AWS_PROFILE := auth-RoleTerraformPlanner
+validate-ci: export AWS_PROFILE := auth-RoleTerraformPlanner
 validate-%: terragrunt
 	@cd ./terraform/$*
 	@find . -type d -name '.terragrunt-cache' | xargs -I {} rm -rf {}
@@ -126,8 +127,9 @@ validate-%: terragrunt
 
 # Run plan for labs or live environment
 .PHONY: plan-%
-plan-ci: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformProvisioner
 plan-labs: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformProvisioner
+plan-live: export AWS_PROFILE := auth-RoleTerraformPlanner
+plan-ci: export AWS_PROFILE := auth-RoleTerraformPlanner
 plan-%: tf-fmt
 	@cd ./terraform/$*
 	@find . -type d -name '.terragrunt-cache' | xargs -I {} rm -rf {}
@@ -136,8 +138,9 @@ plan-%: tf-fmt
 
 # Run apply for labs or live environment
 .PHONY: apply-%
-apply-ci: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformProvisioner
 apply-labs: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformProvisioner
+apply-live: export AWS_PROFILE := auth-RoleTerraformApplier
+apply-ci: export AWS_PROFILE := auth-RoleTerraformApplier
 apply-%: terragrunt
 	@cd ./terraform/$*
 	@find . -type d -name '.terragrunt-cache' | xargs -I {} rm -rf {}

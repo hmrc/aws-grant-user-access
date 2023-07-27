@@ -3,10 +3,6 @@ locals {
   managed_policy_arns = length(var.project_assume_roles) == 0 ? local.default_policy_arns : concat(local.default_policy_arns, [aws_iam_policy.project_assume_roles[0].arn])
 }
 
-data "aws_caller_identity" "current" {}
-
-data "aws_region" "current" {}
-
 data "aws_iam_policy_document" "codebuild_assume_role" {
   statement {
     principals {

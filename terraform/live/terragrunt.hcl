@@ -15,7 +15,7 @@ terraform {
   backend "s3" {
     bucket         = "${local.tf_state_bucket_name}"
     region         = "eu-west-2"
-    key            = "ci/${path_relative_to_include()}.tfstate"
+    key            = "labs/${path_relative_to_include()}.tfstate"
     encrypt        = true
     kms_key_id     = "alias/s3-${local.tf_state_bucket_name}"
     dynamodb_table = "${local.tf_state_lock_dynamodb_table_name}"
@@ -49,4 +49,9 @@ terraform {
   }
 }
   EOF
+}
+
+
+inputs = {
+  environment = local.environment
 }
