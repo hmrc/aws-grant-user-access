@@ -9,12 +9,22 @@ set -euo pipefail
 IFS=$'\n\t'
 
 TARGET=$1
-ASSUME_ROLE_ARN="${LABS_TERRAFORM_PROVISIONER_ROLE_ARN}"
 
 set_aws_credentials() {
+	case "${TARGET}" in
+	labs)
+		assume_role_arn="${LABS_TERRAFORM_PROVISIONER_ROLE_ARN}"
+		;;
+	live)
+		assume_role_arn="${LIVE_TERRAFORM_PROVISIONER_ROLE_ARN}"
+		;;
+	*)
+		assume_role_arn="${LIVE_TERRAFORM_PROVISIONER_ROLE_ARN}"
+		;;
+	esac
 	STS=$(
 		aws sts assume-role \
-			--role-arn "${ASSUME_ROLE_ARN}" \
+			--role-arn "${assume_role_arn}" \
 			--role-session-name "${CODEBUILD_INITIATOR#*/}-${CODEBUILD_BUILD_NUMBER}" \
 			--query "Credentials"
 	)

@@ -95,4 +95,28 @@ resource "aws_codepipeline" "codepipeline" {
     }
   }
 
+  stage {
+    name = "apply-live"
+
+    action {
+      name            = "apply-live"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      input_artifacts = ["source_output"]
+      version         = "1"
+
+      configuration = {
+        ProjectName = module.apply_step["live"].name
+        EnvironmentVariables = jsonencode([
+          {
+            name  = "COMMIT_ID"
+            value = "#{SourceVariables.CommitId}"
+            type  = "PLAINTEXT"
+          }
+        ])
+      }
+    }
+  }
+
 }
