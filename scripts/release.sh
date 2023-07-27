@@ -8,7 +8,7 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-ASSUME_ROLE_ARN="${LABS_TERRAFORM_PROVISIONER_ROLE_ARN}"
+ASSUME_ROLE_ARN="${LIVE_TERRAFORM_APPLIER_ROLE_ARN}"
 
 set_aws_credentials() {
 	STS=$(
