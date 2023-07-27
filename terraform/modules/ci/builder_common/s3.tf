@@ -1,6 +1,10 @@
 locals {
   bucket_name          = "ci-${substr(var.project_name, 0, 32)}"
   access_log_bucket_id = data.aws_ssm_parameter.access_log_bucket_id.value
+
+  current_provisioner_role = data.aws_iam_session_context.current.issuer_arn
+  project_assume_roles     = [for k, v in var.project_assume_roles : v]
+  admins                   = sort(distinct(concat(local.project_assume_roles, [local.current_provisioner_role])))
 }
 
 module "builder_bucket" {
@@ -73,7 +77,7 @@ data "aws_iam_policy_document" "bucket_policy" {
     condition {
       test     = "StringNotLike"
       variable = "aws:PrincipalArn"
-      values   = [for k, v in var.project_assume_roles : v]
+      values   = local.admins
     }
   }
 }

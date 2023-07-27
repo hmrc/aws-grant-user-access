@@ -3,8 +3,11 @@ terraform {
 }
 
 locals {
-  common  = read_terragrunt_config(find_in_parent_folders("common/labs.hcl"))
+  common  = read_terragrunt_config(find_in_parent_folders("common/live.hcl"))
   product = local.common.locals.product
+
+  labs_common  = read_terragrunt_config(find_in_parent_folders("common/labs.hcl"))
+  labs_account_id = local.labs_common.locals.account_id
 }
 
 include {
@@ -19,7 +22,9 @@ inputs = {
   docker_required = true
   project_name    = "${local.product}-pr-builder"
   project_assume_roles = {
-    "LABS_TERRAFORM_PROVISIONER_ROLE_ARN" = "arn:aws:iam::${get_aws_account_id()}:role/RoleTerraformProvisioner"
+    "LABS_TERRAFORM_PROVISIONER_ROLE_ARN" = "arn:aws:iam::${local.labs_account_id}:role/RoleTerraformProvisioner"
+    "LIVE_TERRAFORM_APPLIER_ROLE_ARN" = "arn:aws:iam::${get_aws_account_id()}:role/RoleTerraformApplier"
+    "LIVE_TERRAFORM_PLANNER_ROLE_ARN" = "arn:aws:iam::${get_aws_account_id()}:role/RoleTerraformPlanner"
   }
 
   src_repo   = "aws-${local.product}"
