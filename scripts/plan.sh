@@ -17,6 +17,7 @@ set_aws_credentials() {
 		;;
 	live)
 		# assume_role_arn="${LIVE_TERRAFORM_PLANNER_ROLE_ARN}"
+		#
 		assume_role_arn="${LIVE_TERRAFORM_APPLIER_ROLE_ARN}"
 		;;
 	*)
