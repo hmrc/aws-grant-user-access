@@ -79,16 +79,16 @@ container-release:
 		--tag container-release:local .
 
 IMAGE_TAG ?=
-ECR_REPO = 979783897929.dkr.ecr.eu-west-2.amazonaws.com/grant-user-access
+ECR_REPO = 638924580364.dkr.ecr.eu-west-2.amazonaws.com/grant-user-access
 
 .PHONY: container-publish
-container-publish: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformProvisioner
+container-publish: export AWS_PROFILE := auth-RoleTerraformApplier
 container-publish: container-release terragrunt
 	@docker tag container-release:local ${ECR_REPO}:${IMAGE_TAG}
 	@docker tag container-release:local ${ECR_REPO}:latest
 	@${AWS_PROFILE_CMD} $(TG) aws ecr get-login-password --region eu-west-2 \
 		| docker login --username AWS --password-stdin ${ECR_REPO}
-	@docker push ${ECR_REPO}:${IMAGE_TAG}
+	docker push ${ECR_REPO}:${IMAGE_TAG}
 	@docker push ${ECR_REPO}:latest
 	@${AWS_PROFILE_CMD} $(TG) aws ssm put-parameter \
     --name "/ecr/latest/grant-user-access" \

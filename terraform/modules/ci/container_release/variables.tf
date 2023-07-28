@@ -46,3 +46,8 @@ variable "src_branch" {
   default     = "^main"
   description = "Source repository branch"
 }
+
+variable "ecr_repository_arn" {
+  type        = string
+  description = "The ARN that identifies the container image repository"
+}

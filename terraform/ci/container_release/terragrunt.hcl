@@ -37,4 +37,5 @@ inputs = {
     dependency.networking.outputs.ci_agent_to_internet_sg_id
   ]
   timeout_in_minutes = 30
+  ecr_repository_arn = "arn:aws:ecr:eu-west-2:${local.live_account_id}:repository/${local.product}"
 }
