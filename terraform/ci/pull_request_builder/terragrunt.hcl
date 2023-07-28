@@ -29,7 +29,7 @@ inputs = {
   }
 
   src_repo   = "aws-${local.product}"
-  src_branch = null
+  src_branch = ""
 
   vpc_config = dependency.networking.outputs.vpc_config
   agent_security_group_ids = [
