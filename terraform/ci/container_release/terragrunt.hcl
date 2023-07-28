@@ -3,11 +3,11 @@ terraform {
 }
 
 locals {
-  common  = read_terragrunt_config(find_in_parent_folders("common/live.hcl"))
-  product = local.common.locals.product
+  common          = read_terragrunt_config(find_in_parent_folders("common/live.hcl"))
+  product         = local.common.locals.product
   live_account_id = local.common.locals.account_id
 
-  labs_common  = read_terragrunt_config(find_in_parent_folders("common/labs.hcl"))
+  labs_common     = read_terragrunt_config(find_in_parent_folders("common/labs.hcl"))
   labs_account_id = local.labs_common.locals.account_id
 }
 
@@ -24,8 +24,8 @@ inputs = {
   project_name    = "${local.product}-container-release-builder"
   project_assume_roles = {
     "LABS_TERRAFORM_PROVISIONER_ROLE_ARN" = "arn:aws:iam::${local.labs_account_id}:role/RoleTerraformProvisioner"
-    "LIVE_TERRAFORM_APPLIER_ROLE_ARN" = "arn:aws:iam::${local.live_account_id}:role/RoleTerraformApplier"
-    "LIVE_TERRAFORM_PLANNER_ROLE_ARN" = "arn:aws:iam::${local.live_account_id}:role/RoleTerraformPlanner"
+    "LIVE_TERRAFORM_APPLIER_ROLE_ARN"     = "arn:aws:iam::${local.live_account_id}:role/RoleTerraformApplier"
+    "LIVE_TERRAFORM_PLANNER_ROLE_ARN"     = "arn:aws:iam::${local.live_account_id}:role/RoleTerraformPlanner"
   }
 
   src_repo   = "aws-${local.product}"
