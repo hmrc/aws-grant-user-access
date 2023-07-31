@@ -115,7 +115,7 @@ tf-checks: tf-fmt-check  md-check
 validate: validate-ci
 
 .PHONY: validate-%
-validate-labs: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformProvisioner
+validate-labs: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformPlanner
 validate-live: export AWS_PROFILE := auth-RoleTerraformPlanner
 validate-ci: export AWS_PROFILE := auth-RoleTerraformPlanner
 validate-%: terragrunt
@@ -127,7 +127,7 @@ validate-%: terragrunt
 
 # Run plan for labs or live environment
 .PHONY: plan-%
-plan-labs: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformProvisioner
+plan-labs: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformPlanner
 plan-live: export AWS_PROFILE := auth-RoleTerraformPlanner
 plan-ci: export AWS_PROFILE := auth-RoleTerraformPlanner
 plan-%: tf-fmt
@@ -138,7 +138,7 @@ plan-%: tf-fmt
 
 # Run apply for labs or live environment
 .PHONY: apply-%
-apply-labs: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformProvisioner
+apply-labs: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformApplier
 apply-live: export AWS_PROFILE := auth-RoleTerraformApplier
 apply-ci: export AWS_PROFILE := auth-RoleTerraformApplier
 apply-%: terragrunt
