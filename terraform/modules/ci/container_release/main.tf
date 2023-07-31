@@ -9,6 +9,7 @@ module "builder" {
   project_environment_variables = var.project_environment_variables
   project_iam_policy_arns       = [aws_iam_policy.ecr.arn]
   timeout_in_minutes            = var.timeout_in_minutes
+  github_webhook_events         = ["PULL_REQUEST_MERGED"]
   src_repo                      = var.src_repo
   src_branch                    = var.src_branch
   buildspec                     = file("${path.module}/buildspecs/release.yaml")

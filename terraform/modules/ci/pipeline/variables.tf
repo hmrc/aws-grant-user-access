@@ -24,9 +24,10 @@ variable "step_assume_roles" {
   type = list(map(map(string)))
 }
 
-variable "admin_role" {
-  type        = string
-  description = "IAM role to allow admin access to bucket"
+variable "admin_roles" {
+  type        = list(string)
+  description = "A list of roles to allow admin access to bucket"
+  default     = []
 }
 
 variable "agent_security_group_ids" {

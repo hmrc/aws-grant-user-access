@@ -10,5 +10,5 @@ module "common" {
   src_repo             = var.src_repo
   github_token         = data.aws_ssm_parameter.github_api_token.value
   access_log_bucket_id = local.access_log_bucket_id
-  admin_role           = var.admin_role
+  admin_roles          = var.admin_roles
 }

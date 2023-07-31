@@ -25,7 +25,8 @@ variable "access_log_bucket_id" {
   type        = string
 }
 
-variable "admin_role" {
-  description = "The role for bucket policy admin"
-  type        = string
+variable "admin_roles" {
+  type        = list(string)
+  description = "A list of roles to allow admin access to bucket"
+  default     = []
 }
