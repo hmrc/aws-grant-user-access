@@ -32,9 +32,9 @@ inputs = {
   branch        = "main"
 
   step_assume_roles = [
-    { ci = local.labs_admin_roles },
     { labs = local.labs_admin_roles },
     { live = local.live_admin_roles },
+    { ci = local.live_admin_roles },
   ]
   admin_role = local.live_admin_roles["TERRAFORM_APPLIER_ROLE_ARN"]
 
