@@ -9,5 +9,5 @@ phases:
       - make ci
       - make tf-checks
       - ./scripts/plan.sh ci
-      # - ./scripts/plan.sh labs
+      - ./scripts/plan.sh labs
       - ./scripts/plan.sh live
