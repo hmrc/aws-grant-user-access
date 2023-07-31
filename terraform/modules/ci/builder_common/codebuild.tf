@@ -1,7 +1,3 @@
-locals {
-  github_event_patterns = ["PULL_REQUEST_CREATED", "PULL_REQUEST_UPDATED", "PULL_REQUEST_REOPENED"]
-}
-
 resource "aws_codebuild_project" "build" {
   name          = var.project_name
   description   = "For ${var.project_name}"
@@ -75,7 +71,7 @@ resource "aws_codebuild_webhook" "build" {
   filter_group {
     filter {
       type    = "EVENT"
-      pattern = join(",", local.github_event_patterns)
+      pattern = join(",", var.github_webhook_events)
     }
   }
 }
