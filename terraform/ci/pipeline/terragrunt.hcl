@@ -15,6 +15,7 @@ locals {
   live_account_id = local.common.locals.account_id
   live_admin_roles = {
     "TERRAFORM_APPLIER_ROLE_ARN" = "arn:aws:iam::${local.live_account_id}:role/RoleTerraformApplier"
+    "TERRAFORM_PLANNER_ROLE_ARN" = "arn:aws:iam::${local.live_account_id}:role/RoleTerraformPlanner"
   }
 }
 
@@ -36,7 +37,7 @@ inputs = {
     { live = local.live_admin_roles },
     { ci = local.live_admin_roles },
   ]
-  admin_role = local.live_admin_roles["TERRAFORM_APPLIER_ROLE_ARN"]
+  admin_roles = [for k, v in local.live_admin_roles : v]
 
   vpc_config = dependency.networking.outputs.vpc_config
   agent_security_group_ids = [

@@ -24,6 +24,7 @@ inputs = {
   project_name    = "${local.product}-container-release-builder"
   project_assume_roles = {
     "LIVE_TERRAFORM_APPLIER_ROLE_ARN" = "arn:aws:iam::${local.live_account_id}:role/RoleTerraformApplier"
+    "LIVE_TERRAFORM_PLANNER_ROLE_ARN" = "arn:aws:iam::${local.live_account_id}:role/RoleTerraformPlanner"
   }
 
   src_repo   = "aws-${local.product}"
