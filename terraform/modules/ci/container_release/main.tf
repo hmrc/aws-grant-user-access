@@ -7,6 +7,7 @@ module "builder" {
   docker_required               = var.docker_required
   project_assume_roles          = var.project_assume_roles
   project_environment_variables = var.project_environment_variables
+  project_iam_policy_arns       = [aws_iam_policy.ecr.arn]
   timeout_in_minutes            = var.timeout_in_minutes
   src_repo                      = var.src_repo
   src_branch                    = var.src_branch
