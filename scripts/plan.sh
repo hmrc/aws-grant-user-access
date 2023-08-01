@@ -3,7 +3,7 @@
 # Note: The following environment variables are set by PR build job
 #   - CODEBUILD_INITIATOR
 #   - CODEBUILD_BUILD_NUMBER
-#   - TERRAFORM_PROVISIONER_ROLE_ARN
+#   - *_TERRAFORM_PLANNER_ROLE_ARN
 
 set -euo pipefail
 IFS=$'\n\t'
