@@ -3,12 +3,12 @@
 # Note: The following environment variables are set by container-release build job
 #   - CODEBUILD_INITIATOR
 #   - CODEBUILD_BUILD_NUMBER
-#   - TERRAFORM_PROVISIONER_ROLE_ARN
+#   - TERRAFORM_APPLIER_ROLE_ARN
 
 set -euo pipefail
 IFS=$'\n\t'
 
-ASSUME_ROLE_ARN="${LIVE_TERRAFORM_APPLIER_ROLE_ARN}"
+ASSUME_ROLE_ARN="${TERRAFORM_APPLIER_ROLE_ARN}"
 
 set_aws_credentials() {
 	STS=$(
