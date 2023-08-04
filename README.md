@@ -19,7 +19,8 @@ This project aims to grant assume-role access to an IAM user for a given AWS Rol
 
 - [PR build job](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/638924580364/projects/grant-user-access-pr-builder/history?region=eu-west-2)
 - [Deployment pipeline](https://eu-west-2.console.aws.amazon.com/codesuite/codepipeline/pipelines/grant-user-access-pipeline/view?region=eu-west-2)
-- [Container Release Builder](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/638924580364/projects/grant-user-access-container-release-builder/history?region=eu-west-2) - release changes to `aws_grant_user_access` python code
+- [Container Release Builder](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/638924580364/projects/grant-user-access-container-release-builder/history?region=eu-west-2) 
+  - release changes to `aws_grant_user_access` python code
 
 ### How is the CI/CD pipeline configured?
 
@@ -68,7 +69,6 @@ provides several key improvements over using Terraform directly. For example Ter
 code much DRYer than otherwise possible. For more details check out the [Terragrunt website](https://terragrunt.gruntwork.io/).
 By design we *do not* invoke Terraform directly, instead we invoke Terragrunt.
 
-
 #### aws-vault tool
 
 Install [aws-vault tool](https://github.com/99designs/aws-vault#installing).
@@ -78,7 +78,6 @@ brew install --cask aws-vault
 ```
 
 See https://github.com/99designs/aws-vault#installing for installation steps on Linux and Windows
-
 
 #### Terraform
 
