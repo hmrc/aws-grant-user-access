@@ -5,10 +5,10 @@ terraform {
 locals {
   common          = read_terragrunt_config(find_in_parent_folders("common/live.hcl"))
   product         = local.common.locals.product
-  live_account_id = local.common.locals.account_id
+  live_account_id = get_env("LIVE_ACCOUNT_ID")
 
   labs_common     = read_terragrunt_config(find_in_parent_folders("common/labs.hcl"))
-  labs_account_id = local.labs_common.locals.account_id
+  labs_account_id = get_env("LABS_ACCOUNT_ID")
 }
 
 include {

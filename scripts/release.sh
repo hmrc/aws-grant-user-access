@@ -45,6 +45,7 @@ paths_have_update() {
 }
 
 main() {
+	echo "Publishing container image to account with ID: ${LIVE_ACCOUNT_ID}"
 	set_aws_credentials
 	IMAGE_TAG="$(git describe --always)-$(date +%Y%m%d%H%M%S)" \
 		make "container-publish"

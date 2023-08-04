@@ -7,13 +7,13 @@ locals {
   product = local.common.locals.product
 
   labs_common     = read_terragrunt_config(find_in_parent_folders("common/labs.hcl"))
-  labs_account_id = local.labs_common.locals.account_id
+  labs_account_id = get_env("LABS_ACCOUNT_ID")
   labs_admin_roles = {
     "TERRAFORM_APPLIER_ROLE_ARN" = "arn:aws:iam::${local.labs_account_id}:role/RoleTerraformApplier"
     "TERRAFORM_PLANNER_ROLE_ARN" = "arn:aws:iam::${local.labs_account_id}:role/RoleTerraformPlanner"
   }
 
-  live_account_id = local.common.locals.account_id
+  live_account_id = get_env("LIVE_ACCOUNT_ID")
   live_admin_roles = {
     "TERRAFORM_APPLIER_ROLE_ARN" = "arn:aws:iam::${local.live_account_id}:role/RoleTerraformApplier"
     "TERRAFORM_PLANNER_ROLE_ARN" = "arn:aws:iam::${local.live_account_id}:role/RoleTerraformPlanner"

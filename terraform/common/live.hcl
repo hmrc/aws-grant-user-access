@@ -1,5 +1,4 @@
 locals {
-  account_id  = "638924580364" # auth account
   environment = "live"
   product     = "grant-user-access"
 

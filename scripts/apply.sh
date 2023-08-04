@@ -11,6 +11,9 @@ IFS=$'\n\t'
 TARGET=$1
 ASSUME_ROLE_ARN="${TERRAFORM_APPLIER_ROLE_ARN}"
 
+# a simple way to check for presence of *_ACCOUNT_IDS env vars that should be exported by codebuild
+_SUPPORTED_ACCOUNT_IDS="${LABS_ACCOUNT_ID} ${LIVE_ACCOUNT_ID}"
+
 set_aws_credentials() {
 	STS=$(
 		aws sts assume-role \

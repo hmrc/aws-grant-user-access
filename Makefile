@@ -3,12 +3,14 @@ SHELL = /bin/bash
 .SHELLFLAGS = -euo pipefail -c
 
 AWS_PROFILE ?= auth-RoleTerraformApplier
+IMAGE_TAG ?=
+LIVE_ACCOUNT_ID ?=
+LABS_ACCOUNT_ID ?=
+ECR_REPO = ${LIVE_ACCOUNT_ID}.dkr.ecr.eu-west-2.amazonaws.com/grant-user-access
 
 ifneq (, $(strip $(shell command -v aws-vault)))
 	AWS_PROFILE_CMD := aws-vault exec $${AWS_PROFILE} --
 endif
-
-# .PHONY: $(MAKECMDGOALS)
 
 PYTHON_VERSION = $(shell head -1 .python-version)
 
@@ -78,12 +80,14 @@ container-release:
 		--build-arg PYTHON_VERSION=$(PYTHON_VERSION) \
 		--tag container-release:local .
 
-IMAGE_TAG ?=
-ECR_REPO = 638924580364.dkr.ecr.eu-west-2.amazonaws.com/grant-user-access
+check-image_tag:
+ifndef IMAGE_TAG
+	$(error "IMAGE_TAG env var not set")
+endif
 
 .PHONY: container-publish
 container-publish: export AWS_PROFILE := auth-RoleTerraformApplier
-container-publish: container-release terragrunt
+container-publish: check-image_tag check-live container-release terragrunt
 	@docker tag container-release:local ${ECR_REPO}:${IMAGE_TAG}
 	@docker tag container-release:local ${ECR_REPO}:latest
 	@${AWS_PROFILE_CMD} $(TG) aws ecr get-login-password --region eu-west-2 \
@@ -95,6 +99,16 @@ container-publish: container-release terragrunt
     --type "String" \
     --value "${IMAGE_TAG}" \
     --overwrite
+
+check-live:
+ifndef LIVE_ACCOUNT_ID
+	$(error "LIVE_ACCOUNT_ID env var not set")
+endif
+
+check-labs:
+ifndef LABS_ACCOUNT_ID
+	$(error "LABS_ACCOUNT_ID env var not set")
+endif
 
 # Format all terraform files
 .PHONY: tf-fmt
@@ -118,7 +132,7 @@ validate: validate-ci
 validate-labs: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformPlanner
 validate-live: export AWS_PROFILE := auth-RoleTerraformPlanner
 validate-ci: export AWS_PROFILE := auth-RoleTerraformPlanner
-validate-%: terragrunt
+validate-%: check-% terragrunt
 	@cd ./terraform/$*
 	@find . -type d -name '.terragrunt-cache' | xargs -I {} rm -rf {}
 	@$(AWS_PROFILE_CMD) $(TG) terragrunt run-all init
@@ -130,7 +144,7 @@ validate-%: terragrunt
 plan-labs: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformPlanner
 plan-live: export AWS_PROFILE := auth-RoleTerraformPlanner
 plan-ci: export AWS_PROFILE := auth-RoleTerraformPlanner
-plan-%: tf-fmt
+plan-%: check-% tf-fmt
 	@cd ./terraform/$*
 	@find . -type d -name '.terragrunt-cache' | xargs -I {} rm -rf {}
 	@$(AWS_PROFILE_CMD) $(TG) terragrunt run-all init
@@ -141,8 +155,23 @@ plan-%: tf-fmt
 apply-labs: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformApplier
 apply-live: export AWS_PROFILE := auth-RoleTerraformApplier
 apply-ci: export AWS_PROFILE := auth-RoleTerraformApplier
-apply-%: terragrunt
+apply-%: check-% terragrunt
 	@cd ./terraform/$*
 	@find . -type d -name '.terragrunt-cache' | xargs -I {} rm -rf {}
 	@$(AWS_PROFILE_CMD) $(TG) terragrunt run-all init
 	@$(AWS_PROFILE_CMD) $(TG) terragrunt run-all apply --terragrunt-non-interactive
+
+# Bootstrap labs or live environment for terraform deployment
+.PHONY: bootstrap-%
+bootstrap-labs: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformApplier
+bootstrap-live: export AWS_PROFILE := auth-RoleTerraformApplier
+bootstrap-%: check-labs check-live terragrunt
+	@cd ./terraform/bootstrap/$*
+	@find . -type d -name '.terragrunt-cache' | xargs -I {} rm -rf {}
+	@$(AWS_PROFILE_CMD) $(TG) terragrunt init
+ifeq ($(MAKECMDGOALS), bootstrap-labs)
+	@$(AWS_PROFILE_CMD) $(TG) terragrunt apply
+else
+	@$(AWS_PROFILE_CMD) $(TG) terragrunt apply \
+		-var environment_account_ids="{\"labs\": \"${LABS_ACCOUNT_ID}\", \"live\": \"${LIVE_ACCOUNT_ID}\"}"
+endif

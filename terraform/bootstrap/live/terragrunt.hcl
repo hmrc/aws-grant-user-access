@@ -4,7 +4,7 @@ terraform {
 
 locals {
   common                            = read_terragrunt_config(find_in_parent_folders("common/live.hcl"))
-  account_id                        = local.common.locals.account_id
+  account_id                        = get_env("LIVE_ACCOUNT_ID", get_aws_account_id())
   environment                       = local.common.locals.environment
   product                           = local.common.locals.product
   tf_state_bucket_name              = local.common.locals.tf_state_bucket_name
