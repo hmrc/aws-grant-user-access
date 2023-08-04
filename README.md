@@ -19,7 +19,8 @@ This project aims to grant assume-role access to an IAM user for a given AWS Rol
 
 - [PR build job](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/638924580364/projects/grant-user-access-pr-builder/history?region=eu-west-2)
 - [Deployment pipeline](https://eu-west-2.console.aws.amazon.com/codesuite/codepipeline/pipelines/grant-user-access-pipeline/view?region=eu-west-2)
-- [Container Release Builder](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/638924580364/projects/grant-user-access-container-release-builder/history?region=eu-west-2) - release changes to `aws_grant_user_access` python code
+- [Container Release Builder](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/638924580364/projects/grant-user-access-container-release-builder/history?region=eu-west-2)
+  - release changes to `aws_grant_user_access` python code
 
 ### How is the CI/CD pipeline configured?
 
@@ -28,9 +29,19 @@ This project aims to grant assume-role access to an IAM user for a given AWS Rol
 
 ## Making Terraform code changes
 
-Remember to run `make tf-fmt` after updating Terraform/Terragrunt files in this repository to fix any styling violations.
-
 See [Setting up locally](#setting-up-locally) section below for relevant tools needed locally. 
+
+It is recommended to run command below after updating Terraform/Terragrunt files in this repository run
+
+```bash
+make tf-checks
+```
+
+To fix any linting violations
+
+```bash
+make tf-fmt
+```
 
 ## How do I bootstrap an environment for terraform deployment?
 
@@ -41,7 +52,8 @@ See [Setting up locally](#setting-up-locally) section below for relevant tools n
 
 ## How do I plan/apply terraform to an environment?
 
-There is [CI/CD pipeline](#cicd-pipeline) in place to test and apply new changes. However, in the event there is a need to run/test applying terraform resources locally use the command below
+There is [CI/CD pipeline](#cicd-pipeline) in place to test and apply new changes. However, in the event there is a
+need to run/test applying terraform resources locally use the command below
 
 ```bash
 <ENV>_ACCOUNT_ID=123456789012 \
@@ -68,7 +80,6 @@ provides several key improvements over using Terraform directly. For example Ter
 code much DRYer than otherwise possible. For more details check out the [Terragrunt website](https://terragrunt.gruntwork.io/).
 By design we *do not* invoke Terraform directly, instead we invoke Terragrunt.
 
-
 #### aws-vault tool
 
 Install [aws-vault tool](https://github.com/99designs/aws-vault#installing).
@@ -78,7 +89,6 @@ brew install --cask aws-vault
 ```
 
 See https://github.com/99designs/aws-vault#installing for installation steps on Linux and Windows
-
 
 #### Terraform
 

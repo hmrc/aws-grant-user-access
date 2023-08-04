@@ -42,6 +42,8 @@ TG := docker run \
 	--env AWS_ACCESS_KEY_ID \
 	--env AWS_SECRET_ACCESS_KEY \
 	--env AWS_SESSION_TOKEN \
+	--env LIVE_ACCOUNT_ID \
+	--env LABS_ACCOUNT_ID \
 	--env TF_LOG \
 	--env TERRAGRUNT_DOWNLOAD="${PWD}/terraform/.terragrunt-cache" \
 	--user "$(shell id -u):$(shell id -g)" \
@@ -110,6 +112,8 @@ ifndef LABS_ACCOUNT_ID
 	$(error "LABS_ACCOUNT_ID env var not set")
 endif
 
+check-ci: check-live
+
 # Format all terraform files
 .PHONY: tf-fmt
 tf-fmt: terragrunt
@@ -172,6 +176,6 @@ bootstrap-%: check-labs check-live terragrunt
 ifeq ($(MAKECMDGOALS), bootstrap-labs)
 	@$(AWS_PROFILE_CMD) $(TG) terragrunt apply
 else
-	@$(AWS_PROFILE_CMD) $(TG) terragrunt apply \
+	@$(AWS_PROFILE_CMD) $(TG) terragrunt apply -auto-approve\
 		-var environment_account_ids="{\"labs\": \"${LABS_ACCOUNT_ID}\", \"live\": \"${LIVE_ACCOUNT_ID}\"}"
 endif
