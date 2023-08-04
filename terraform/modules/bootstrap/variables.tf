@@ -4,6 +4,11 @@ variable "environment" {
   description = "Environment name"
 }
 
+variable "environment_account_ids" {
+  type        = map(string)
+  description = "Map of AWS Account ID per environment"
+}
+
 variable "tf_read_roles" {
   type        = list(string)
   description = "A list of roles to allow read access to bucket objects"

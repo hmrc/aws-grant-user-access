@@ -4,7 +4,7 @@ terraform {
 
 locals {
   common                            = read_terragrunt_config(find_in_parent_folders("common/labs.hcl"))
-  account_id                        = local.common.locals.account_id
+  account_id                        = get_env("LABS_ACCOUNT_ID", get_aws_account_id())
   environment                       = local.common.locals.environment
   product                           = local.common.locals.product
   tf_state_bucket_name              = local.common.locals.tf_state_bucket_name
@@ -57,6 +57,7 @@ terraform {
 
 inputs = {
   environment                       = local.environment
+  environment_account_ids           = {}
   log_bucket_name                   = "stackset-access-logs-${local.environment}-${md5(local.environment)}"
   tf_state_bucket_name              = local.tf_state_bucket_name
   tf_state_lock_dynamodb_table_name = local.tf_state_lock_dynamodb_table_name

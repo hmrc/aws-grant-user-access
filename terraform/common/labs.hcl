@@ -1,5 +1,4 @@
 locals {
-  account_id  = "979783897929"
   environment = "labs"
   product     = "grant-user-access"
 

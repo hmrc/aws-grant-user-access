@@ -9,22 +9,25 @@ set -euo pipefail
 IFS=$'\n\t'
 
 TARGET=$1
+case "${TARGET}" in
+labs)
+	ASSUME_ROLE_ARN="${LABS_TERRAFORM_PLANNER_ROLE_ARN}"
+	;;
+live)
+	ASSUME_ROLE_ARN="${LIVE_TERRAFORM_PLANNER_ROLE_ARN}"
+	;;
+*)
+	ASSUME_ROLE_ARN="${LIVE_TERRAFORM_PLANNER_ROLE_ARN}"
+	;;
+esac
+
+# a simple way to check for presence of *_ACCOUNT_IDS env vars that should be exported by codebuild
+_SUPPORTED_ACCOUNT_IDS="${LABS_ACCOUNT_ID} ${LIVE_ACCOUNT_ID}"
 
 set_aws_credentials() {
-	case "${TARGET}" in
-	labs)
-		assume_role_arn="${LABS_TERRAFORM_PLANNER_ROLE_ARN}"
-		;;
-	live)
-		assume_role_arn="${LIVE_TERRAFORM_PLANNER_ROLE_ARN}"
-		;;
-	*)
-		assume_role_arn="${LIVE_TERRAFORM_PLANNER_ROLE_ARN}"
-		;;
-	esac
 	STS=$(
 		aws sts assume-role \
-			--role-arn "${assume_role_arn}" \
+			--role-arn "${ASSUME_ROLE_ARN}" \
 			--role-session-name "${CODEBUILD_INITIATOR#*/}-${CODEBUILD_BUILD_NUMBER}" \
 			--query "Credentials"
 	)

@@ -40,6 +40,15 @@ data "aws_iam_policy_document" "build" {
       "${var.s3_bucket_arn}/*/build_outp/*"
     ]
   }
+
+  statement {
+    actions = [
+      "ssm:GetParameters",
+    ]
+    resources = [
+      "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/*"
+    ]
+  }
 }
 
 resource "aws_iam_policy" "build" {

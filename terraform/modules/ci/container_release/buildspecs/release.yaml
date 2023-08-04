@@ -2,6 +2,8 @@ version: 0.2
 
 env:
   shell: bash
+  parameter-store:
+    LIVE_ACCOUNT_ID: "/live/account_id"
 
 phases:
   build:
