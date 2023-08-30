@@ -1,6 +1,6 @@
 ARG PYTHON_VERSION
 
-FROM python:${PYTHON_VERSION}-slim AS base
+FROM dockerhub.tax.service.gov.uk/python:${PYTHON_VERSION}-slim AS base
 
 WORKDIR /build
 
