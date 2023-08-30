@@ -60,7 +60,7 @@ def test_policy_creator_grants_access():
     role_arn = "arn:aws:iam::123456789012:role/somerole"
 
     create_user_response = moto_client.create_user(
-        UserName="test-user",
+        UserName="test-user-2",
         PermissionsBoundary="engineering-boundary",
     )
 
@@ -73,11 +73,13 @@ def test_policy_creator_grants_access():
 
     policies = moto_client.list_policies(PathPrefix="/Lambda/GrantUserAccess")["Policies"]
     assert len(policies) == 1
-    assert policies[0]["PolicyName"] == f"test-user_{start_time.timestamp()}"
+    assert policies[0]["PolicyName"] == f"test-user-2_{start_time.timestamp()}"
 
-    expected_policy_arn = f"arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user_{start_time.timestamp()}"
+    expected_policy_arn = (
+        f"arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-2_{start_time.timestamp()}"
+    )
 
-    response = moto_client.list_attached_user_policies(PathPrefix="/Lambda/GrantUserAccess/", UserName="test-user")
+    response = moto_client.list_attached_user_policies(PathPrefix="/Lambda/GrantUserAccess/", UserName="test-user-2")
     assert expected_policy_arn == response["AttachedPolicies"][0]["PolicyArn"]
 
 
@@ -89,7 +91,7 @@ def test_policy_is_tagged_with_expiry_time():
 
     PolicyCreator(mock_client).grant_access(
         role_arn="arn:aws:iam::123456789012:role/somerole",
-        username="test-user",
+        username="test-user-2",
         start_time=datetime.utcnow(),
         end_time=end_time,
     )
