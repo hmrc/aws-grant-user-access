@@ -14,6 +14,8 @@ SCHEMA = {
 
 
 def process_event(event, policy_creator):
+    # policy_creator.delete_expired_policies(time_window.start_time)
+
     validate(instance=event, schema=SCHEMA)
     for user in event["username"]:
         time_window = GrantTimeWindow(hours=event["approval_in_hours"])
