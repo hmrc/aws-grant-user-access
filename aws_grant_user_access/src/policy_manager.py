@@ -100,6 +100,6 @@ class PolicyCreator:
             self.iam_client.detach_user_policy(UserName=attached_user, PolicyArn=policy)
 
     def delete_expired_policies(self, current_time):
-        self.detach_expired_policies_from_users()
+        self.detach_expired_policies_from_users(current_time)
         for policy in self.find_expired_policies(current_time):
-            self.iam_client.delete_policy(policy)
+            self.iam_client.delete_policy(PolicyArn=policy)
