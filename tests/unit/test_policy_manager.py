@@ -27,7 +27,6 @@ GET_POLICY = {
     }
 }
 
-
 LIST_POLICIES = {
     "Policies": [
         {
@@ -190,14 +189,17 @@ def test_get_policy_name():
 def test_detach_expired_policies_from_users():
     mock_client = Mock(
         list_policies=Mock(return_value=LIST_POLICIES),
-        get_policy = Mock(return_value=GET_POLICY),
+        get_policy=Mock(return_value=GET_POLICY),
+        detach_user_policy=Mock()
     )
 
-    detached = PolicyCreator(mock_client).detach_expired_policies_from_users(
+    PolicyCreator(mock_client).detach_expired_policies_from_users(
         current_time=datetime(year=2021, month=1, day=1, hour=1, minute=1, second=1)
     )
 
-    detached.assert_called_with(
+    mock_client.detach_user_policy.assert_any_call(
         UserName="test-user-3",
         PolicyArn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057"
     )
+
+    assert 2 == mock_client.detach_user_policy.call_count
