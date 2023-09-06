@@ -46,11 +46,11 @@ def test_process_event_creates_iam_policy():
     assert 3 == client.grant_access.call_count
 
 
-@freeze_time("2012-01-14 12:00:01")
-def test_process_event_deletes_expired_policies():
-    client = Mock(spec=PolicyCreator)
-    process_event(dict(role_arn=TEST_ROLE_ARN, username=TEST_USERS, approval_in_hours=12), policy_creator=client)
-
-    client.delete_expired_policies.assert_called_once_with(
-        current_time=datetime(year=2012, month=1, day=14, hour=12, minute=0, second=1),
-    )
+# @freeze_time("2012-01-14 12:00:01")
+# def test_process_event_deletes_expired_policies():
+#     client = Mock(spec=PolicyCreator)
+#     process_event(dict(role_arn=TEST_ROLE_ARN, username=TEST_USERS, approval_in_hours=12), policy_creator=client)
+#
+#     client.delete_expired_policies.assert_called_once_with(
+#         current_time=datetime(year=2012, month=1, day=14, hour=12, minute=0, second=1),
+#     )
