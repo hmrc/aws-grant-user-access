@@ -29,7 +29,7 @@ data "aws_iam_policy_document" "lambda" {
     effect = "Allow"
 
     resources = [
-      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/Lambda/GrantUserAccess/*",
+      "*",
     ]
 
     actions = [
