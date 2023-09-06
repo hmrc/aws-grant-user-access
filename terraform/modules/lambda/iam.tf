@@ -45,4 +45,16 @@ data "aws_iam_policy_document" "lambda" {
       "iam:TagPolicy",
     ]
   }
+
+  statement {
+    sid    = "Logging"
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+    resources = ["arn:aws:logs:*:*:*"]
+  }
 }
