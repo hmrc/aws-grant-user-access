@@ -7,6 +7,64 @@ from moto import mock_iam
 
 from aws_grant_user_access.src.policy_manager import PolicyCreator
 
+GET_POLICY = {
+    "Policy": {
+        "PolicyName": "test-user-3_1693482856.642057",
+        "PolicyId": "ABCDEFGHIJKLMNOP01234",
+        "Arn": "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057",
+        "Path": "/Lambda/GrantUserAccess/",
+        "DefaultVersionId": "v1",
+        "AttachmentCount": 1,
+        "PermissionsBoundaryUsageCount": 0,
+        "IsAttachable": "true",
+        "Description": "An IAM policy to grant-user-access to assume a role",
+        "CreateDate": "2020-05-01T00:00:00+00:00",
+        "UpdateDate": "2020-05-01T00:00:00+00:00",
+        "Tags": [
+            {"Key": "Expires_At", "Value": "2020-05-02T00:00:00+00:00"},
+            {"Key": "Product", "Value": "grant-user-access"},
+        ],
+    }
+}
+
+LIST_POLICIES = {
+    "Policies": [
+        {
+            "PolicyName": "test-user-3_1693482856.642057",
+            "Arn": "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057",
+            "DefaultVersionId": "foo",
+            "Tags": [
+                {"Key": "Expires_At", "Value": "2020-05-01T00:00:00Z"},
+                {"Key": "Product", "Value": "grant-user-access"},
+            ],
+        },
+        {
+            "Arn": "to_keep",
+            "DefaultVersionId": "foo",
+            "Tags": [
+                {"Key": "Expires_At", "Value": "2023-05-01T00:00:00Z"},
+                {"Key": "Product", "Value": "grant-user-access"},
+            ],
+        },
+        {
+            "Arn": "to_keep_2",
+            "DefaultVersionId": "foo",
+            "Tags": [
+                {"Key": "Expires_At", "Value": "2023-05-01T00:00:00Z"},
+            ],
+        },
+        {
+            "PolicyName": "to-delete-also.1693482856.642057",
+            "Arn": "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/to-delete-also.1693482856.642057",
+            "DefaultVersionId": "foo",
+            "Tags": [
+                {"Key": "Expires_At", "Value": "2021-01-01T01:01:00Z"},
+                {"Key": "Product", "Value": "grant-user-access"},
+            ],
+        },
+    ],
+}
+
 
 def test_policy_creator_generates_policy_document():
     policy_document = PolicyCreator.generate_policy_document(
@@ -105,45 +163,7 @@ def test_policy_is_tagged_with_expiry_time():
 
 def test_find_expired_policies_returns_arns_of_no_longer_needed_policies():
     # using a hand rolled mock here as moto does not return back policy tags
-    mock_client = Mock(
-        list_policies=Mock(
-            return_value={
-                "Policies": [
-                    {
-                        "Arn": "to_delete",
-                        "DefaultVersionId": "foo",
-                        "Tags": [
-                            {"Key": "Expires_At", "Value": "2020-05-01T00:00:00Z"},
-                            {"Key": "Product", "Value": "grant-user-access"},
-                        ],
-                    },
-                    {
-                        "Arn": "to_keep",
-                        "DefaultVersionId": "foo",
-                        "Tags": [
-                            {"Key": "Expires_At", "Value": "2023-05-01T00:00:00Z"},
-                            {"Key": "Product", "Value": "grant-user-access"},
-                        ],
-                    },
-                    {
-                        "Arn": "to_keep_2",
-                        "DefaultVersionId": "foo",
-                        "Tags": [
-                            {"Key": "Expires_At", "Value": "2023-05-01T00:00:00Z"},
-                        ],
-                    },
-                    {
-                        "Arn": "to_delete_also",
-                        "DefaultVersionId": "foo",
-                        "Tags": [
-                            {"Key": "Expires_At", "Value": "2021-01-01T01:01:00Z"},
-                            {"Key": "Product", "Value": "grant-user-access"},
-                        ],
-                    },
-                ],
-            }
-        )
-    )
+    mock_client = Mock(list_policies=Mock(return_value=LIST_POLICIES))
 
     expired = PolicyCreator(mock_client).find_expired_policies(
         current_time=datetime(year=2021, month=1, day=1, hour=1, minute=1, second=1)
@@ -151,4 +171,53 @@ def test_find_expired_policies_returns_arns_of_no_longer_needed_policies():
 
     mock_client.list_policies.assert_called_once_with(PathPrefix="/Lambda/GrantUserAccess/")
 
-    assert expired == ["to_delete", "to_delete_also"]
+    assert expired == [
+        "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057",
+        "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/to-delete-also.1693482856.642057",
+    ]
+
+
+def test_get_policy_name():
+    mock_client = Mock(get_policy=Mock(return_value=GET_POLICY))
+
+    policy_name = PolicyCreator(mock_client).get_policy_name(
+        policy_arn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057"
+    )
+    assert policy_name == "test-user-3_1693482856.642057"
+
+
+def test_detach_expired_policies_from_users():
+    mock_client = Mock(
+        list_policies=Mock(return_value=LIST_POLICIES),
+        get_policy=Mock(return_value=GET_POLICY),
+        detach_user_policy=Mock(),
+    )
+
+    PolicyCreator(mock_client).detach_expired_policies_from_users(
+        current_time=datetime(year=2021, month=1, day=1, hour=1, minute=1, second=1)
+    )
+
+    mock_client.detach_user_policy.assert_any_call(
+        UserName="test-user-3",
+        PolicyArn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057",
+    )
+
+    assert 2 == mock_client.detach_user_policy.call_count
+
+
+def test_delete_expired_policies():
+    mock_client = Mock(
+        list_policies=Mock(return_value=LIST_POLICIES),
+        get_policy=Mock(return_value=GET_POLICY),
+        delete_policy=Mock(),
+    )
+
+    PolicyCreator(mock_client).delete_expired_policies(
+        current_time=datetime(year=2021, month=1, day=1, hour=1, minute=1, second=1)
+    )
+
+    mock_client.delete_policy.assert_any_call(
+        PolicyArn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057"
+    )
+
+    assert 2 == mock_client.delete_policy.call_count

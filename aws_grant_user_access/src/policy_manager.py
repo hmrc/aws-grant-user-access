@@ -88,3 +88,18 @@ class PolicyCreator:
         for tag in tag_array:
             tag_dict[tag["Key"]] = tag["Value"]
         return tag_dict
+
+    def get_policy_name(self, policy_arn):
+        policy_details = self.iam_client.get_policy(PolicyArn=policy_arn)
+        return policy_details["Policy"]["PolicyName"]
+
+    def detach_expired_policies_from_users(self, current_time):
+        for policy in self.find_expired_policies(current_time):
+            policy_name = self.get_policy_name(policy_arn=policy)
+            attached_user = policy_name.partition("_")[0]
+            self.iam_client.detach_user_policy(UserName=attached_user, PolicyArn=policy)
+
+    def delete_expired_policies(self, current_time):
+        self.detach_expired_policies_from_users(current_time)
+        for policy in self.find_expired_policies(current_time):
+            self.iam_client.delete_policy(PolicyArn=policy)
