@@ -47,7 +47,7 @@ data "aws_iam_policy_document" "lambda" {
   }
 
   statement {
-    sid = "Logging"
+    sid    = "Logging"
     effect = "Allow"
 
     actions = [
