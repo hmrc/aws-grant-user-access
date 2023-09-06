@@ -29,13 +29,20 @@ data "aws_iam_policy_document" "lambda" {
     effect = "Allow"
 
     resources = [
-      "*",
+      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/Lambda/GrantUserAccess/*",
     ]
 
     actions = [
-      "iam:CreatePolicy",
-      "iam:TagPolicy",
       "iam:AttachUserPolicy",
+      "iam:CreatePolicy",
+      "iam:DeletePolicy",
+      "iam:DetachUserPolicy",
+      "iam:GetPolicy",
+      "iam:ListEntitiesForPolicy",
+      "iam:ListPolicyTags",
+      "iam:ListPolicies",
+      "iam:ListPolicyVersions",
+      "iam:TagPolicy",
     ]
   }
 }
