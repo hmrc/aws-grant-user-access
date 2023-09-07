@@ -96,6 +96,23 @@ resource "aws_codepipeline" "codepipeline" {
   }
 
   stage {
+    name = "approve-live"
+
+    action {
+      name     = "approve-live"
+      category = "Approval"
+      owner    = "AWS"
+      provider = "Manual"
+      version  = "1"
+
+      configuration = {
+        ExternalEntityLink : "https://github.com/${var.src_org}/${var.src_repo}/commit/#{SourceVariables.CommitId}"
+        CustomData : "#{SourceVariables.CommitMessage}"
+      }
+    }
+  }
+
+  stage {
     name = "apply-live"
 
     action {
