@@ -8,7 +8,17 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-ASSUME_ROLE_ARN="${TERRAFORM_APPLIER_ROLE_ARN}"
+TARGET=$1
+case "${TARGET}" in
+labs)
+	ASSUME_ROLE_ARN="${LABS_TERRAFORM_APPLIER_ROLE_ARN}"
+	ACCOUNT_ID="${LABS_ACCOUNT_ID}"
+	;;
+live)
+	ASSUME_ROLE_ARN="${LIVE_TERRAFORM_APPLIER_ROLE_ARN}"
+	ACCOUNT_ID="${LIVE_ACCOUNT_ID}"
+	;;
+esac
 
 set_aws_credentials() {
 	STS=$(
@@ -45,10 +55,10 @@ paths_have_update() {
 }
 
 main() {
-	echo "Publishing container image to account with ID: ${LIVE_ACCOUNT_ID}"
+	echo "Publishing container image to account with ID: ${ACCOUNT_ID}"
 	set_aws_credentials
 	IMAGE_TAG="$(git describe --always)-$(date +%Y%m%d%H%M%S)" \
-		make "container-publish"
+		make "container-publish-${TARGET}"
 }
 
 main "$@"

@@ -6,7 +6,7 @@ AWS_PROFILE ?= auth-RoleTerraformApplier
 IMAGE_TAG ?=
 LIVE_ACCOUNT_ID ?=
 LABS_ACCOUNT_ID ?=
-ECR_REPO = ${LIVE_ACCOUNT_ID}.dkr.ecr.eu-west-2.amazonaws.com/grant-user-access
+ECR_REPO = dkr.ecr.eu-west-2.amazonaws.com/grant-user-access
 
 ifneq (, $(strip $(shell command -v aws-vault)))
 	AWS_PROFILE_CMD := aws-vault exec $${AWS_PROFILE} --
@@ -87,15 +87,16 @@ ifndef IMAGE_TAG
 	$(error "IMAGE_TAG env var not set")
 endif
 
-.PHONY: container-publish
-container-publish: export AWS_PROFILE := auth-RoleTerraformApplier
-container-publish: check-image_tag check-live container-release terragrunt
-	@docker tag container-release:local ${ECR_REPO}:${IMAGE_TAG}
-	@docker tag container-release:local ${ECR_REPO}:latest
+.PHONY: container-publish-%
+container-publish-labs: export AWS_PROFILE := auth-RoleTerraformApplier ACCOUNT_ID := ${LABS_ACCOUNT_ID}
+container-publish-live: export AWS_PROFILE := auth-RoleTerraformApplier ACCOUNT_ID := ${LIVE_ACCOUNT_ID}
+container-publish-%: check-image_tag check-live container-release terragrunt
+	@docker tag container-release:local ${ACCOUNT_ID}.${ECR_REPO}:${IMAGE_TAG}
+	@docker tag container-release:local ${ACCOUNT_ID}.${ECR_REPO}:latest
 	@${AWS_PROFILE_CMD} $(TG) aws ecr get-login-password --region eu-west-2 \
-		| docker login --username AWS --password-stdin ${ECR_REPO}
-	docker push ${ECR_REPO}:${IMAGE_TAG}
-	@docker push ${ECR_REPO}:latest
+		| docker login --username AWS --password-stdin ${ACCOUNT_ID}.${ECR_REPO}
+	docker push ${ACCOUNT_ID}.${ECR_REPO}:${IMAGE_TAG}
+	@docker push ${ACCOUNT_ID}.${ECR_REPO}:latest
 	@${AWS_PROFILE_CMD} $(TG) aws ssm put-parameter \
     --name "/ecr/latest/grant-user-access" \
     --type "String" \

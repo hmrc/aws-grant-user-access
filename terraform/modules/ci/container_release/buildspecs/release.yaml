@@ -4,8 +4,10 @@ env:
   shell: bash
   parameter-store:
     LIVE_ACCOUNT_ID: "/live/account_id"
+    LABS_ACCOUNT_ID: "/labs/account_id"
 
 phases:
   build:
     commands:
-      - ./scripts/release.sh
+      - ./scripts/release.sh labs
+      - ./scripts/release.sh live
