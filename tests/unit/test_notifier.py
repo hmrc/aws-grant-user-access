@@ -1,4 +1,6 @@
-from aws_grant_user_access.src.notifier import SNSMessagePublisher, Message
+import json
+from aws_grant_user_access.src.data.data import AWS_REGION
+from aws_grant_user_access.src.notifier import SNSMessagePublisher, SNSMessage
 from aws_grant_user_access.src.grant_time_window import GrantTimeWindow
 import boto3
 
@@ -9,22 +11,34 @@ from datetime import datetime, timedelta
 from freezegun import freeze_time
 
 
-sns_backend = sns_backends[DEFAULT_ACCOUNT_ID]["eu-west-2"]
+TEST_ROLE_ARN = "arn:aws:iam::123456789012:role/RoleUserAccess"
+TEST_USERS = ["test-user-1", "test-user-2", "test-user-3"]
+TEST_SNS_MESSAGE = {
+    "detailType": "GrantUserAccessLambda",
+    "roleArn": TEST_ROLE_ARN,
+    "grantor": "",
+    "usernames": TEST_USERS,
+    "startTime": "2012-01-14T12:00:01Z",
+    "endTime": "2012-01-14T13:00:01Z"
+}
+
+
+sns_backend = sns_backends[DEFAULT_ACCOUNT_ID][AWS_REGION]
 
 
 @mock_sns
 def test_publish_sns_message():
-    mock_client = boto3.client("sns", region_name="eu-west-2")
-    topic_arn = mock_client.create_topic(Name="grant-user-access-topic")["TopicArn"]
+    mock_client = boto3.client("sns", region_name=AWS_REGION)
+    sns_topic_arn = mock_client.create_topic(Name="grant-user-access-topic")["TopicArn"]
     publisher = SNSMessagePublisher(mock_client)
-    response = publisher.publish_sns_message(topic_arn=topic_arn, message="a message from the future")
+    response = publisher.publish_sns_message(sns_topic_arn=sns_topic_arn, message=json.dumps(TEST_SNS_MESSAGE))
 
     assert isinstance(response, dict)
     message_id = response.get("MessageId", None)
     assert isinstance(message_id, str)
 
-    all_send_notifications = sns_backend.topics[topic_arn].sent_notifications
-    assert all_send_notifications[0][1] == "a message from the future"
+    all_send_notifications = sns_backend.topics[sns_topic_arn].sent_notifications
+    assert all_send_notifications[0][1] == json.dumps(TEST_SNS_MESSAGE)
 
 
 @freeze_time("2012-06-27 12:00:01")
@@ -32,12 +46,17 @@ def test_generate_message():
     role_arn = "RoleArn"
     grantor = "super.user01"
     usernames = ["test.user01", "test.user02"]
-    start_time = datetime(year=2012, month=6, day=27, hour=12, minute=0, second=1)
-    end_time = datetime(year=2012, month=6, day=27, hour=14, minute=0, second=1)
-    message = f"Temporary access to {role_arn} between {start_time} and {end_time} has been granted to the following users by {grantor}: {', '.join(usernames)}"
+    message = {
+        "detailType": "GrantUserAccessLambda",
+        "roleArn": role_arn,
+        "grantor": grantor,
+        "usernames": usernames,
+        "startTime": '2012-06-27T12:00:01Z',
+        "endTime": '2012-06-27T14:00:01Z',
+    }
 
     assert (
-        Message.generate_message(
+        SNSMessage.generate(
             grantor=grantor, usernames=usernames, role_arn=role_arn, time_window=GrantTimeWindow(hours=2)
         )
         == message
