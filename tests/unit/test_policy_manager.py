@@ -66,7 +66,7 @@ LIST_POLICIES = {
 }
 
 
-def test_policy_creator_generates_policy_document():
+def test_policy_creator_generates_policy_document() -> None:
     policy_document = PolicyCreator.generate_policy_document(
         role_arn="aws:::test",
         start_time=datetime(year=2020, month=5, day=1, hour=0, minute=0, second=0, tzinfo=UTC),
@@ -92,7 +92,7 @@ def test_policy_creator_generates_policy_document():
 
 
 @mock_iam
-def test_policy_creator_creates_policy_document():
+def test_policy_creator_creates_policy_document() -> None:
     moto_client = boto3.client("iam")
 
     policy_creator = PolicyCreator(moto_client)
@@ -111,7 +111,7 @@ def test_policy_creator_creates_policy_document():
 
 
 @mock_iam
-def test_policy_creator_grants_access():
+def test_policy_creator_grants_access() -> None:
     moto_client = boto3.client("iam")
     policy_creator = PolicyCreator(moto_client)
     start_time = datetime.utcnow()
@@ -141,7 +141,7 @@ def test_policy_creator_grants_access():
     assert expected_policy_arn == response["AttachedPolicies"][0]["PolicyArn"]
 
 
-def test_policy_is_tagged_with_expiry_time():
+def test_policy_is_tagged_with_expiry_time() -> None:
     # using a hand rolled mock here as moto does not return back policy tags
     mock_client = Mock(create_policy=Mock(return_value={"Policy": {"test": "example"}}))
 
@@ -161,7 +161,7 @@ def test_policy_is_tagged_with_expiry_time():
     ]
 
 
-def test_find_expired_policies_returns_arns_of_no_longer_needed_policies():
+def test_find_expired_policies_returns_arns_of_no_longer_needed_policies() -> None:
     # using a hand rolled mock here as moto does not return back policy tags
     mock_client = Mock(list_policies=Mock(return_value=LIST_POLICIES))
 
@@ -177,7 +177,7 @@ def test_find_expired_policies_returns_arns_of_no_longer_needed_policies():
     ]
 
 
-# def test_get_policy_name():
+# def test_get_policy_name() -> None:
 #     mock_client = Mock(get_policy=Mock(return_value=GET_POLICY))
 #
 #     policy_name = PolicyCreator(mock_client).get_policy_name(
@@ -186,7 +186,7 @@ def test_find_expired_policies_returns_arns_of_no_longer_needed_policies():
 #     assert policy_name == "test-user-3_1693482856.642057"
 
 
-# def test_detach_expired_policies_from_users():
+# def test_detach_expired_policies_from_users() -> None:
 #     mock_client = Mock(
 #         list_policies=Mock(return_value=LIST_POLICIES),
 #         get_policy=Mock(return_value=GET_POLICY),
@@ -205,7 +205,7 @@ def test_find_expired_policies_returns_arns_of_no_longer_needed_policies():
 #     assert 2 == mock_client.detach_user_policy.call_count
 
 
-# def test_delete_expired_policies():
+# def test_delete_expired_policies() -> None:
 #     mock_client = Mock(
 #         list_policies=Mock(return_value=LIST_POLICIES),
 #         get_policy=Mock(return_value=GET_POLICY),
