@@ -1,4 +1,6 @@
 import json
+from typing import Any, Dict, List
+
 from datetime import datetime, UTC
 
 PRODUCT_TAG_VALUE = "grant-user-access"
@@ -12,10 +14,10 @@ AWS_IAM_TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 
 class PolicyCreator:
-    def __init__(self, iam_client):
+    def __init__(self, iam_client) -> None:
         self.iam_client = iam_client
 
-    def grant_access(self, role_arn, username, start_time, end_time):
+    def grant_access(self, role_arn: str, username: str, start_time: str, end_time: str) -> None:
         policy_arn = self.create_iam_policy(
             name=f"{username}_{datetime.timestamp(start_time)}",
             policy_document=PolicyCreator.generate_policy_document(
@@ -29,7 +31,7 @@ class PolicyCreator:
             policy_document_arn=policy_arn,
         )
 
-    def create_iam_policy(self, policy_document, name, end_time):
+    def create_iam_policy(self, policy_document: Dict, name: str, end_time: str) -> str:
         response = self.iam_client.create_policy(
             PolicyName=name,
             Path=GRANT_USER_ACCESS_PATH,
@@ -43,7 +45,7 @@ class PolicyCreator:
         return response["Policy"].get("Arn")
 
     @staticmethod
-    def generate_policy_document(role_arn, start_time, end_time):
+    def generate_policy_document(role_arn: str, start_time: str, end_time: str) -> Dict[str, Any]:
         policy = {
             "Version": "2012-10-17",
             "Statement": [
@@ -61,10 +63,10 @@ class PolicyCreator:
 
         return policy
 
-    def attach_policy_to_user(self, policy_document_arn, username):
+    def attach_policy_to_user(self, policy_document_arn: str, username: str) -> None:
         self.iam_client.attach_user_policy(UserName=username, PolicyArn=policy_document_arn)
 
-    def find_expired_policies(self, current_time):
+    def find_expired_policies(self, current_time: str) -> List:
         all_policies = self.iam_client.list_policies(PathPrefix=GRANT_USER_ACCESS_PATH)
 
         expired_policies = []
@@ -74,7 +76,7 @@ class PolicyCreator:
 
         return expired_policies
 
-    def is_policy_expired(self, policy, current_time):
+    def is_policy_expired(self, policy: Dict, current_time: str) -> Any:
         tag_dict = self.to_dict(policy["Tags"])
 
         return (
@@ -83,23 +85,23 @@ class PolicyCreator:
             and datetime.strptime(tag_dict[EXPIRES_AT_TAG_KEY], AWS_IAM_TIME_FORMAT) < current_time
         )
 
-    def to_dict(self, tag_array):
+    def to_dict(self, tag_array: List) -> Dict[str, Any]:
         tag_dict = {}
         for tag in tag_array:
             tag_dict[tag["Key"]] = tag["Value"]
         return tag_dict
 
-    def get_policy_name(self, policy_arn):
+    def get_policy_name(self, policy_arn, str) -> str:
         policy_details = self.iam_client.get_policy(PolicyArn=policy_arn)
         return policy_details["Policy"]["PolicyName"]
 
-    def detach_expired_policies_from_users(self, current_time):
+    def detach_expired_policies_from_users(self, current_time: str) -> None:
         for policy in self.find_expired_policies(current_time):
             policy_name = self.get_policy_name(policy_arn=policy)
             attached_user = policy_name.partition("_")[0]
             self.iam_client.detach_user_policy(UserName=attached_user, PolicyArn=policy)
 
-    def delete_expired_policies(self, current_time):
+    def delete_expired_policies(self, current_time: str) -> None:
         self.detach_expired_policies_from_users(current_time)
         for policy in self.find_expired_policies(current_time):
             self.iam_client.delete_policy(PolicyArn=policy)

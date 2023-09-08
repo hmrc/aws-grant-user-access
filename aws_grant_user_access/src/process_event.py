@@ -1,4 +1,5 @@
 from jsonschema.validators import validate
+from typing import Any, Dict
 
 from aws_grant_user_access.src.grant_time_window import GrantTimeWindow
 
@@ -13,7 +14,7 @@ SCHEMA = {
 }
 
 
-def process_event(event, policy_creator):
+def process_event(event: Dict, policy_creator) -> None:
     validate(instance=event, schema=SCHEMA)
     time_window = GrantTimeWindow(hours=event["approval_in_hours"])
 
