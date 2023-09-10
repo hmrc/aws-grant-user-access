@@ -1,3 +1,4 @@
+import logging
 from os import environ
 from typing import Callable, Dict, Set, List
 from aws_grant_user_access.src.clients.aws_client_factory import AwsClientFactory
@@ -31,3 +32,13 @@ class Config:
             return environ[key]
         except KeyError:
             raise MissingConfigException(f"environment variable {key}") from None
+
+    @staticmethod
+    def configure_logging() -> logging.Logger:
+        logger = logging.getLogger()
+        logger.setLevel(Config.get_log_level())
+        logging.getLogger("botocore").setLevel(logging.ERROR)
+        logging.getLogger("boto3").setLevel(logging.ERROR)
+        logging.getLogger("requests").setLevel(logging.ERROR)
+        logging.getLogger("urllib3").setLevel(logging.ERROR)
+        return logger

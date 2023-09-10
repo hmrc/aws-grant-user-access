@@ -20,7 +20,7 @@ TEST_SNS_MESSAGE = {
     "grantor": "",
     "usernames": TEST_USERS,
     "startTime": "2012-01-14T12:00:01Z",
-    "endTime": "2012-01-14T13:00:01Z"
+    "endTime": "2012-01-14T13:00:01Z",
 }
 
 
@@ -48,7 +48,6 @@ def test_process_event_creates_iam_policy(_mock_policy_creator):
     )
 
 
-
 @freeze_time("2012-01-14 12:00:01")
 @patch("aws_grant_user_access.src.process_event.PolicyCreator")
 def test_process_event_deletes_expired_policies(_mock_policy_creator):
@@ -60,6 +59,7 @@ def test_process_event_deletes_expired_policies(_mock_policy_creator):
         current_time=datetime(year=2012, month=1, day=14, hour=12, minute=0, second=1),
     )
 
+
 @freeze_time("2012-01-14 12:00:01")
 @patch.dict(os.environ, {"SNS_TOPIC_ARN": "SnsTopicArn"})
 @patch("aws_grant_user_access.src.process_event.SNSMessagePublisher")
@@ -69,11 +69,12 @@ def test_publish_sns_message_with_a_sns_topic_arn_set(_mock_sns_message_publishe
 
     publisher = _mock_sns_message_publisher.return_value
     publisher.publish_sns_message.return_value = Mock()
-    publish_sns_message(event=dict(role_arn=TEST_ROLE_ARN, usernames=TEST_USERS, approval_in_hours=12), time_window=time_window)
+    publish_sns_message(
+        event=dict(role_arn=TEST_ROLE_ARN, usernames=TEST_USERS, approval_in_hours=12), time_window=time_window
+    )
 
     publisher.publish_sns_message.assert_called_once_with(
-        sns_topic_arn="SnsTopicArn",
-        message=json.dumps(TEST_SNS_MESSAGE)
+        sns_topic_arn="SnsTopicArn", message=json.dumps(TEST_SNS_MESSAGE)
     )
 
 
@@ -85,6 +86,8 @@ def test_publish_sns_message_with_no_sns_topic_arn_set(_mock_sns_message_publish
 
     publisher = _mock_sns_message_publisher.return_value
     publisher.publish_sns_message.return_value = Mock()
-    publish_sns_message(event=dict(role_arn=TEST_ROLE_ARN, usernames=TEST_USERS, approval_in_hours=12), time_window=time_window)
+    publish_sns_message(
+        event=dict(role_arn=TEST_ROLE_ARN, usernames=TEST_USERS, approval_in_hours=12), time_window=time_window
+    )
 
-    assert publisher.publish_sns_message.call_count == 0 
+    assert publisher.publish_sns_message.call_count == 0

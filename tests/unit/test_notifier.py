@@ -19,7 +19,7 @@ TEST_SNS_MESSAGE = {
     "grantor": "",
     "usernames": TEST_USERS,
     "startTime": "2012-01-14T12:00:01Z",
-    "endTime": "2012-01-14T13:00:01Z"
+    "endTime": "2012-01-14T13:00:01Z",
 }
 
 
@@ -51,8 +51,8 @@ def test_generate_message():
         "roleArn": role_arn,
         "grantor": grantor,
         "usernames": usernames,
-        "startTime": '2012-06-27T12:00:01Z',
-        "endTime": '2012-06-27T14:00:01Z',
+        "startTime": "2012-06-27T12:00:01Z",
+        "endTime": "2012-06-27T14:00:01Z",
     }
 
     assert (

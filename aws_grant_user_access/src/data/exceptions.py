@@ -9,6 +9,7 @@ class AwsClientException(GrantUserAccessException):
 class ClientFactoryException(GrantUserAccessException):
     pass
 
+
 class MissingConfigException(GrantUserAccessException):
     pass
 

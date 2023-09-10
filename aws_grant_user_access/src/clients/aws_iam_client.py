@@ -8,23 +8,26 @@ class AwsIamClient:
     def __init__(self, boto_iam: BaseClient):
         self._iam = boto_iam
 
-    def create_policy(self, policy_name: str, path: str, policy_document: str, description: str, tags: List[Dict[str, str]]) -> str:
+    def create_policy(
+        self, policy_name: str, path: str, policy_document: str, description: str, tags: List[Dict[str, str]]
+    ) -> str:
         return boto_try(
-            lambda: str(self._iam.create_policy(
+            lambda: str(
+                self._iam.create_policy(
                     PolicyName=policy_name,
                     Path=path,
                     PolicyDocument=policy_document,
                     Description=description,
                     Tags=tags,
-                )
-            )["Policy"].get("Arn"),
+                )["Policy"].get("Arn")
+            ),
             f"failed to create policy {policy_name}",
         )
 
-    def attach_user_policy(self, username: str, policy_document_arn: str) -> None:
+    def attach_user_policy(self, username: str, policy_arn: str) -> None:
         return boto_try(
-            lambda: self._iam.attach_user_policy(UserName=username, PolicyArn=policy_document_arn),
-            f"failed to attach policy {policy_document_arn} to {username}",
+            lambda: self._iam.attach_user_policy(UserName=username, PolicyArn=policy_arn),
+            f"failed to attach policy {policy_arn} to {username}",
         )
 
     def list_policies(self, path_prefix: str) -> Dict[str, Any]:
@@ -41,7 +44,7 @@ class AwsIamClient:
 
     def detach_user_policy(self, username: str, policy_arn: str) -> None:
         return boto_try(
-            lambda: self._iam.detach_user_policy(Username=username, PolicyArn=policy_arn),
+            lambda: self._iam.detach_user_policy(UserName=username, PolicyArn=policy_arn),
             f"failed to detach {policy_arn} policy from {username}",
         )
 

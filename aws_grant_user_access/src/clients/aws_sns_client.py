@@ -9,6 +9,6 @@ class AwsSnsClient:
 
     def publish(self, sns_topic_arn: str, message: str) -> Dict:
         return boto_try(
-            lambda: Dict(self._sns.publish(TopicArn=sns_topic_arn, Message=message)),
+            lambda: dict(self._sns.publish(TopicArn=sns_topic_arn, Message=message)),
             f"failed to publish a message to {sns_topic_arn}",
         )
