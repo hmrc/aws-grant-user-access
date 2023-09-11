@@ -5,7 +5,7 @@ from botocore.client import BaseClient
 
 
 class AwsIamClient:
-    def __init__(self, boto_iam: BaseClient):
+    def __init__(self, boto_iam: BaseClient) -> None:
         self._iam = boto_iam
 
     def create_policy(
@@ -24,7 +24,7 @@ class AwsIamClient:
             f"failed to create policy {policy_name}",
         )
 
-    def attach_user_policy(self, username: str, policy_arn: str) -> None:
+    def attach_user_policy(self, username: str, policy_arn: str) -> Any:
         return boto_try(
             lambda: self._iam.attach_user_policy(UserName=username, PolicyArn=policy_arn),
             f"failed to attach policy {policy_arn} to {username}",
@@ -42,13 +42,13 @@ class AwsIamClient:
             f"failed to get {policy_arn} policy",
         )
 
-    def detach_user_policy(self, username: str, policy_arn: str) -> None:
+    def detach_user_policy(self, username: str, policy_arn: str) -> Any:
         return boto_try(
             lambda: self._iam.detach_user_policy(UserName=username, PolicyArn=policy_arn),
             f"failed to detach {policy_arn} policy from {username}",
         )
 
-    def delete_policy(self, policy_arn: str) -> None:
+    def delete_policy(self, policy_arn: str) -> Any:
         return boto_try(
             lambda: self._iam.delete_policy(PolicyArn=policy_arn),
             f"failed to delete {policy_arn} policy",

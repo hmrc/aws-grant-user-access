@@ -26,7 +26,7 @@ TEST_SNS_MESSAGE = {
 
 @freeze_time("2012-01-14 12:00:01")
 @patch("aws_grant_user_access.src.process_event.PolicyCreator")
-def test_process_event_creates_iam_policy(_mock_policy_creator):
+def test_process_event_creates_iam_policy(_mock_policy_creator: Mock) -> None:
     policy_creator = _mock_policy_creator.return_value
     policy_creator.grant_access.return_value = Mock()
     process_event(dict(role_arn=TEST_ROLE_ARN, usernames=TEST_USERS, approval_in_hours=12))
@@ -50,7 +50,7 @@ def test_process_event_creates_iam_policy(_mock_policy_creator):
 
 @freeze_time("2012-01-14 12:00:01")
 @patch("aws_grant_user_access.src.process_event.PolicyCreator")
-def test_process_event_deletes_expired_policies(_mock_policy_creator):
+def test_process_event_deletes_expired_policies(_mock_policy_creator: Mock) -> None:
     policy_creator = _mock_policy_creator.return_value
     policy_creator.delete_expired_policies.return_value = Mock()
     process_event(dict(role_arn=TEST_ROLE_ARN, usernames=TEST_USERS, approval_in_hours=12))
@@ -63,7 +63,7 @@ def test_process_event_deletes_expired_policies(_mock_policy_creator):
 @freeze_time("2012-01-14 12:00:01")
 @patch.dict(os.environ, {"SNS_TOPIC_ARN": "SnsTopicArn"})
 @patch("aws_grant_user_access.src.process_event.SNSMessagePublisher")
-def test_publish_sns_message_with_a_sns_topic_arn_set(_mock_sns_message_publisher):
+def test_publish_sns_message_with_a_sns_topic_arn_set(_mock_sns_message_publisher: Mock) -> None:
     time_window = GrantTimeWindow(hours=1)
     message = SNSMessage.generate(grantor="", usernames=TEST_USERS, role_arn=TEST_ROLE_ARN, time_window=time_window)
 
@@ -80,7 +80,7 @@ def test_publish_sns_message_with_a_sns_topic_arn_set(_mock_sns_message_publishe
 
 @freeze_time("2012-01-14 12:00:01")
 @patch("aws_grant_user_access.src.process_event.SNSMessagePublisher")
-def test_publish_sns_message_with_no_sns_topic_arn_set(_mock_sns_message_publisher):
+def test_publish_sns_message_with_no_sns_topic_arn_set(_mock_sns_message_publisher: Mock) -> None:
     time_window = GrantTimeWindow(hours=1)
     message = SNSMessage.generate(grantor="", usernames=TEST_USERS, role_arn=TEST_ROLE_ARN, time_window=time_window)
 

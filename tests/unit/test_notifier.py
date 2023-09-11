@@ -27,7 +27,7 @@ sns_backend = sns_backends[DEFAULT_ACCOUNT_ID][AWS_REGION]
 
 
 @mock_sns
-def test_publish_sns_message():
+def test_publish_sns_message() -> None:
     mock_client = boto3.client("sns", region_name=AWS_REGION)
     sns_topic_arn = mock_client.create_topic(Name="grant-user-access-topic")["TopicArn"]
     publisher = SNSMessagePublisher(mock_client)
@@ -42,7 +42,7 @@ def test_publish_sns_message():
 
 
 @freeze_time("2012-06-27 12:00:01")
-def test_generate_message():
+def test_generate_message() -> None:
     role_arn = "RoleArn"
     grantor = "super.user01"
     usernames = ["test.user01", "test.user02"]

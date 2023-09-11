@@ -75,8 +75,14 @@ python-test: build
 		--no-header \
 		tests
 
+mypy: build
+	@$(POETRY_DOCKER) mypy --strict .
 
-test: python-test fmt-check md-check
+bandit: build
+	@$(POETRY_DOCKER) bandit -c bandit.yaml -r -q .
+
+
+test: python-test fmt-check md-check mypy bandit
 
 ci: test
 
