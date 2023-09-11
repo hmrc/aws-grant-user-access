@@ -91,7 +91,7 @@ class PolicyCreator:
             tag_dict[tag["Key"]] = tag["Value"]
         return tag_dict
 
-    def get_policy_name(self, policy_arn, str) -> str:
+    def get_policy_name(self, policy_arn: str) -> str:
         policy_details = self.iam_client.get_policy(PolicyArn=policy_arn)
         return policy_details["Policy"]["PolicyName"]
 
