@@ -3,7 +3,7 @@ from typing import Any
 
 
 class GrantTimeWindow:
-    def __init__(self, hours: str) -> None:
+    def __init__(self, hours: str):
         self.__now = datetime.utcnow()
         self.__hours = hours
 
@@ -14,3 +14,7 @@ class GrantTimeWindow:
     @property
     def end_time(self) -> str:
         return self.__now + timedelta(hours=self.__hours)
+
+    @property
+    def aws_start_time(self) -> str:
+        return self.__now
