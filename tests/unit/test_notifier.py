@@ -27,7 +27,7 @@ TEST_SNS_MESSAGE = {
 sns_backend = sns_backends[DEFAULT_ACCOUNT_ID][AWS_REGION]
 
 
-@mock_sns # type: ignore
+@mock_sns  # type: ignore
 def test_publish_sns_message() -> None:
     moto_client = boto3.client("sns", region_name=AWS_REGION)
     sns_topic_arn = moto_client.create_topic(Name="grant-user-access-topic")["TopicArn"]

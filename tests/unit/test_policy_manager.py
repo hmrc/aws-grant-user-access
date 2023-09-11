@@ -92,7 +92,7 @@ def test_policy_creator_generates_policy_document() -> None:
     assert policy_document == expected_result
 
 
-@mock_iam # type: ignore
+@mock_iam  # type: ignore
 def test_policy_creator_creates_policy_document() -> None:
     moto_client = boto3.client("iam")
 
@@ -111,7 +111,7 @@ def test_policy_creator_creates_policy_document() -> None:
     assert policies[0]["PolicyName"] == "some_name"
 
 
-@mock_iam # type: ignore
+@mock_iam  # type: ignore
 def test_policy_creator_grants_access() -> None:
     moto_client = boto3.client("iam")
     policy_creator = PolicyCreator(AwsIamClient(moto_client))
@@ -163,7 +163,7 @@ def test_policy_is_tagged_with_expiry_time() -> None:
     ]
 
 
-@mock_iam # type: ignore
+@mock_iam  # type: ignore
 def test_find_expired_policies_returns_arns_of_no_longer_needed_policies() -> None:
     # using a hand rolled mock here as moto does not return back policy tags
     mock_client = Mock(list_policies=Mock(return_value=LIST_POLICIES))

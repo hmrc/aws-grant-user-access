@@ -14,7 +14,3 @@ class GrantTimeWindow:
     @property
     def end_time(self) -> datetime:
         return self.__now + timedelta(hours=self.__hours)
-
-    @property
-    def aws_start_time(self) -> str:
-        return self.__now

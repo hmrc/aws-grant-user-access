@@ -13,6 +13,7 @@ EXPIRES_AT_TAG_KEY = "Expires_At"
 
 GRANT_USER_ACCESS_PATH = "/Lambda/GrantUserAccess/"
 
+
 class PolicyCreator:
     def __init__(self, iam_client: AwsIamClient) -> None:
         self.iam_client = iam_client
