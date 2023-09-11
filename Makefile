@@ -88,7 +88,7 @@ ifndef IMAGE_TAG
 endif
 
 .PHONY: container-publish-%
-container-publish-labs: export AWS_PROFILE := auth-RoleTerraformApplier ACCOUNT_ID := ${LABS_ACCOUNT_ID}
+container-publish-labs: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformApplier ACCOUNT_ID := ${LABS_ACCOUNT_ID}
 container-publish-live: export AWS_PROFILE := auth-RoleTerraformApplier ACCOUNT_ID := ${LIVE_ACCOUNT_ID}
 container-publish-%: check-image_tag check-live container-release terragrunt
 	@docker tag container-release:local ${ACCOUNT_ID}.${ECR_REPO}:${IMAGE_TAG}
