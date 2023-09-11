@@ -200,7 +200,6 @@ def test_detach_expired_policies_from_users() -> None:
         current_time=datetime(year=2021, month=1, day=1, hour=1, minute=1, second=1)
     )
 
-    print(mock_client.detach_user_policy.mock_calls)
     mock_client.detach_user_policy.assert_any_call(
         username="test-user-3",
         policy_arn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057",
