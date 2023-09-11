@@ -22,5 +22,5 @@ class SNSMessagePublisher:
     def __init__(self, sns_client: AwsSnsClient) -> None:
         self.sns_client = sns_client
 
-    def publish_sns_message(self, sns_topic_arn: str, message: str) -> Dict[str, Any]:
+    def publish_sns_message(self, sns_topic_arn: str, message: str) -> Dict[str, str]:
         return self.sns_client.publish(sns_topic_arn=sns_topic_arn, message=message)

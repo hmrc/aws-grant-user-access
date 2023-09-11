@@ -1,4 +1,5 @@
 import json
+from aws_grant_user_access.src.clients.aws_sns_client import AwsSnsClient
 from aws_grant_user_access.src.data.data import AWS_REGION
 from aws_grant_user_access.src.notifier import SNSMessagePublisher, SNSMessage
 from aws_grant_user_access.src.grant_time_window import GrantTimeWindow
@@ -28,10 +29,11 @@ sns_backend = sns_backends[DEFAULT_ACCOUNT_ID][AWS_REGION]
 
 @mock_sns
 def test_publish_sns_message() -> None:
-    mock_client = boto3.client("sns", region_name=AWS_REGION)
-    sns_topic_arn = mock_client.create_topic(Name="grant-user-access-topic")["TopicArn"]
-    publisher = SNSMessagePublisher(mock_client)
-    response = publisher.publish_sns_message(sns_topic_arn=sns_topic_arn, message=json.dumps(TEST_SNS_MESSAGE))
+    moto_client = boto3.client("sns", region_name=AWS_REGION)
+    sns_topic_arn = moto_client.create_topic(Name="grant-user-access-topic")["TopicArn"]
+    response = SNSMessagePublisher(AwsSnsClient(moto_client)).publish_sns_message(
+        sns_topic_arn=sns_topic_arn, message=json.dumps(TEST_SNS_MESSAGE)
+    )
 
     assert isinstance(response, dict)
     message_id = response.get("MessageId", None)
