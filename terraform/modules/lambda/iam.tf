@@ -57,4 +57,6 @@ data "aws_iam_policy_document" "lambda" {
     ]
     resources = ["arn:aws:logs:*:*:*"]
   }
+
+  # TODO: add statement with permissions to publish to SNS topic
 }

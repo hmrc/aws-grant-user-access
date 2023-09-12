@@ -1,5 +1,6 @@
 from datetime import datetime, UTC, timedelta
 from unittest.mock import Mock
+from aws_grant_user_access.src.clients.aws_iam_client import AwsIamClient
 
 import boto3
 from freezegun import freeze_time
@@ -91,11 +92,11 @@ def test_policy_creator_generates_policy_document() -> None:
     assert policy_document == expected_result
 
 
-@mock_iam
+@mock_iam  # type: ignore
 def test_policy_creator_creates_policy_document() -> None:
     moto_client = boto3.client("iam")
 
-    policy_creator = PolicyCreator(moto_client)
+    policy_creator = PolicyCreator(AwsIamClient(moto_client))
 
     policy = {
         "Version": "2012-10-17",
@@ -110,10 +111,10 @@ def test_policy_creator_creates_policy_document() -> None:
     assert policies[0]["PolicyName"] == "some_name"
 
 
-@mock_iam
+@mock_iam  # type: ignore
 def test_policy_creator_grants_access() -> None:
     moto_client = boto3.client("iam")
-    policy_creator = PolicyCreator(moto_client)
+    policy_creator = PolicyCreator(AwsIamClient(moto_client))
     start_time = datetime.utcnow()
     role_arn = "arn:aws:iam::123456789012:role/somerole"
 
@@ -155,12 +156,14 @@ def test_policy_is_tagged_with_expiry_time() -> None:
     )
 
     mock_client.create_policy.assert_called_once()
-    assert mock_client.create_policy.call_args.kwargs["Tags"] == [
+    print(mock_client.create_policy.mock_calls)
+    assert mock_client.create_policy.call_args.kwargs["tags"] == [
         {"Key": "Product", "Value": "grant-user-access"},
         {"Key": "Expires_At", "Value": "2012-01-15T00:00:01Z"},
     ]
 
 
+@mock_iam  # type: ignore
 def test_find_expired_policies_returns_arns_of_no_longer_needed_policies() -> None:
     # using a hand rolled mock here as moto does not return back policy tags
     mock_client = Mock(list_policies=Mock(return_value=LIST_POLICIES))
@@ -169,9 +172,7 @@ def test_find_expired_policies_returns_arns_of_no_longer_needed_policies() -> No
         current_time=datetime(year=2021, month=1, day=1, hour=1, minute=1, second=1)
     )
 
-    print(expired)
-
-    mock_client.list_policies.assert_called_once_with(PathPrefix="/Lambda/GrantUserAccess/")
+    mock_client.list_policies.assert_called_once_with(path_prefix="/Lambda/GrantUserAccess/")
 
     assert expired == [
         "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057",
@@ -200,8 +201,8 @@ def test_detach_expired_policies_from_users() -> None:
     )
 
     mock_client.detach_user_policy.assert_any_call(
-        UserName="test-user-3",
-        PolicyArn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057",
+        username="test-user-3",
+        policy_arn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057",
     )
 
     assert 2 == mock_client.detach_user_policy.call_count
@@ -219,7 +220,7 @@ def test_delete_expired_policies() -> None:
     )
 
     mock_client.delete_policy.assert_any_call(
-        PolicyArn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057"
+        policy_arn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057"
     )
 
     assert 2 == mock_client.delete_policy.call_count

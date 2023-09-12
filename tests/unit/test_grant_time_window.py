@@ -4,10 +4,8 @@ from aws_grant_user_access.src.grant_time_window import GrantTimeWindow
 
 
 @freeze_time("2012-06-21 12:00:01")
-def test_time_window() -> None:
+def test_time_window_start_time() -> None:
     grant_time_window = GrantTimeWindow(hours=1)
-    print(grant_time_window.start_time)
-    print(datetime.utcnow())
     assert grant_time_window.start_time == datetime.utcnow()
     assert grant_time_window.start_time == datetime(year=2012, month=6, day=21, hour=12, minute=0, second=1)
 

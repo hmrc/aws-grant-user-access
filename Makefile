@@ -13,6 +13,7 @@ ifneq (, $(strip $(shell command -v aws-vault)))
 endif
 
 PYTHON_VERSION = $(shell head -1 .python-version)
+PYTHON_COVERAGE_FAIL_UNDER_PERCENT = 100
 
 POETRY_DOCKER = docker run \
 	--interactive \
@@ -66,9 +67,22 @@ fmt-check: build
 	@$(POETRY_DOCKER) black --line-length 120 --check .
 
 python-test: build
-	@$(POETRY_DOCKER) pytest
+	@$(POETRY_DOCKER) pytest \
+		--cov=aws_grant_user_access/src \
+		--cov-fail-under=$(PYTHON_COVERAGE_FAIL_UNDER_PERCENT) \
+		--no-cov-on-fail \
+		--cov-report "term-missing:skip-covered" \
+		--no-header \
+		tests
 
-test: python-test fmt-check md-check
+mypy: build
+	@$(POETRY_DOCKER) mypy --strict .
+
+bandit: build
+	@$(POETRY_DOCKER) bandit -c bandit.yaml -r -q .
+
+
+test: python-test fmt-check md-check mypy bandit
 
 ci: test
 
