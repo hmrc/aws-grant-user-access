@@ -25,3 +25,9 @@ variable "timeout_in_seconds" {
   description = "How long the lambda is allowed to run in seconds, before timing out."
   type        = number
 }
+
+variable "sns_topic_arn" {
+  default     = null
+  description = "SNS Topic ARN to publish message to"
+  type        = string
+}
