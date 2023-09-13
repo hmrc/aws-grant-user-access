@@ -34,6 +34,7 @@ data "aws_iam_policy_document" "lambda" {
 
     actions = [
       "iam:AttachUserPolicy",
+      "iam:ListAttachedUserPolicies",
       "iam:CreatePolicy",
       "iam:DeletePolicy",
       "iam:DetachUserPolicy",
