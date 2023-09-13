@@ -1,70 +1,14 @@
 from datetime import datetime, UTC, timedelta
-from unittest.mock import Mock
+from unittest.mock import Mock, call
 from aws_grant_user_access.src.clients.aws_iam_client import AwsIamClient
+from typing import Any, Dict
 
 import boto3
 from freezegun import freeze_time
 from moto import mock_iam
 
 from aws_grant_user_access.src.policy_manager import PolicyCreator
-
-GET_POLICY = {
-    "Policy": {
-        "PolicyName": "test-user-3_1693482856.642057",
-        "PolicyId": "ABCDEFGHIJKLMNOP01234",
-        "Arn": "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057",
-        "Path": "/Lambda/GrantUserAccess/",
-        "DefaultVersionId": "v1",
-        "AttachmentCount": 1,
-        "PermissionsBoundaryUsageCount": 0,
-        "IsAttachable": "true",
-        "Description": "An IAM policy to grant-user-access to assume a role",
-        "CreateDate": "2020-05-01T00:00:00+00:00",
-        "UpdateDate": "2020-05-01T00:00:00+00:00",
-        "Tags": [
-            {"Key": "Expires_At", "Value": "2020-05-02T00:00:00+00:00"},
-            {"Key": "Product", "Value": "grant-user-access"},
-        ],
-    }
-}
-
-LIST_POLICIES = {
-    "Policies": [
-        {
-            "PolicyName": "test-user-3_1693482856.642057",
-            "Arn": "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057",
-            "DefaultVersionId": "foo",
-            "Tags": [
-                {"Key": "Expires_At", "Value": "2020-05-01T00:00:00Z"},
-                {"Key": "Product", "Value": "grant-user-access"},
-            ],
-        },
-        {
-            "Arn": "to_keep",
-            "DefaultVersionId": "foo",
-            "Tags": [
-                {"Key": "Expires_At", "Value": "2023-05-01T00:00:00Z"},
-                {"Key": "Product", "Value": "grant-user-access"},
-            ],
-        },
-        {
-            "Arn": "to_keep_2",
-            "DefaultVersionId": "foo",
-            "Tags": [
-                {"Key": "Expires_At", "Value": "2023-05-01T00:00:00Z"},
-            ],
-        },
-        {
-            "PolicyName": "to-delete-also.1693482856.642057",
-            "Arn": "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/to-delete-also.1693482856.642057",
-            "DefaultVersionId": "foo",
-            "Tags": [
-                {"Key": "Expires_At", "Value": "2021-01-01T01:01:00Z"},
-                {"Key": "Product", "Value": "grant-user-access"},
-            ],
-        },
-    ],
-}
+import tests.unit.responses.test_iam_policies as resp
 
 
 def test_policy_creator_generates_policy_document() -> None:
@@ -156,23 +100,40 @@ def test_policy_is_tagged_with_expiry_time() -> None:
     )
 
     mock_client.create_policy.assert_called_once()
-    print(mock_client.create_policy.mock_calls)
     assert mock_client.create_policy.call_args.kwargs["tags"] == [
         {"Key": "Product", "Value": "grant-user-access"},
         {"Key": "Expires_At", "Value": "2012-01-15T00:00:01Z"},
     ]
 
 
+def _get_policy(policy_arn: str) -> Dict[str, Any]:
+    return resp.POLICIES_MAP[policy_arn]
+
+
+def _list_policies(path_prefix: str) -> Dict[str, Any]:
+    valid_policies = [policy for policy in resp.LIST_POLICIES["Policies"] if path_prefix in policy["Arn"]]
+    return {"Policies": valid_policies}
+
+
 @mock_iam  # type: ignore
 def test_find_expired_policies_returns_arns_of_no_longer_needed_policies() -> None:
-    # using a hand rolled mock here as moto does not return back policy tags
-    mock_client = Mock(list_policies=Mock(return_value=LIST_POLICIES))
+    mock_client = Mock(
+        list_policies=Mock(side_effect=_list_policies),
+        get_policy=Mock(side_effect=_get_policy),
+    )
 
     expired = PolicyCreator(mock_client).find_expired_policies(
         current_time=datetime(year=2021, month=1, day=1, hour=1, minute=1, second=1)
     )
-
     mock_client.list_policies.assert_called_once_with(path_prefix="/Lambda/GrantUserAccess/")
+    mock_client.get_policy.assert_has_calls(
+        [
+            call(policy_arn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057"),
+            call(policy_arn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/to-delete-also.1693482856.642057"),
+            call(policy_arn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/to_keep"),
+        ],
+        any_order=True,
+    )
 
     assert expired == [
         "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057",
@@ -180,8 +141,18 @@ def test_find_expired_policies_returns_arns_of_no_longer_needed_policies() -> No
     ]
 
 
+def test_is_policy_expired_returns_true() -> None:
+    mock_client = Mock(get_policy=Mock(side_effect=_get_policy))
+
+    is_expired = PolicyCreator(mock_client).is_policy_expired(
+        policy_arn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057",
+        current_time=datetime(year=2021, month=1, day=1, hour=1, minute=1, second=1),
+    )
+    assert is_expired == True
+
+
 def test_get_policy_name() -> None:
-    mock_client = Mock(get_policy=Mock(return_value=GET_POLICY))
+    mock_client = Mock(get_policy=Mock(side_effect=_get_policy))
 
     policy_name = PolicyCreator(mock_client).get_policy_name(
         policy_arn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057"
@@ -191,8 +162,8 @@ def test_get_policy_name() -> None:
 
 def test_detach_expired_policies_from_users() -> None:
     mock_client = Mock(
-        list_policies=Mock(return_value=LIST_POLICIES),
-        get_policy=Mock(return_value=GET_POLICY),
+        list_policies=Mock(return_value=resp.LIST_POLICIES),
+        get_policy=Mock(side_effect=_get_policy),
         detach_user_policy=Mock(),
     )
 
@@ -210,8 +181,8 @@ def test_detach_expired_policies_from_users() -> None:
 
 def test_delete_expired_policies() -> None:
     mock_client = Mock(
-        list_policies=Mock(return_value=LIST_POLICIES),
-        get_policy=Mock(return_value=GET_POLICY),
+        list_policies=Mock(return_value=resp.LIST_POLICIES),
+        get_policy=Mock(side_effect=_get_policy),
         delete_policy=Mock(),
     )
 
