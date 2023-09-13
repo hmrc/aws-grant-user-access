@@ -1,5 +1,5 @@
 from datetime import datetime, UTC, timedelta
-from unittest.mock import Mock
+from unittest.mock import Mock, call
 from aws_grant_user_access.src.clients.aws_iam_client import AwsIamClient
 from typing import Any, Dict
 
@@ -110,10 +110,15 @@ def _get_policy(policy_arn: str) -> Dict[str, Any]:
     return resp.POLICIES_MAP[policy_arn]
 
 
+def _list_policies(path_prefix: str) -> Dict[str, Any]:
+    valid_policies = [policy for policy in resp.LIST_POLICIES["Policies"] if path_prefix in policy["Arn"]]
+    return {"Policies": valid_policies}
+
+
 @mock_iam  # type: ignore
 def test_find_expired_policies_returns_arns_of_no_longer_needed_policies() -> None:
     mock_client = Mock(
-        list_policies=Mock(return_value=resp.LIST_POLICIES),
+        list_policies=Mock(side_effect=_list_policies),
         get_policy=Mock(side_effect=_get_policy),
     )
 
@@ -121,6 +126,14 @@ def test_find_expired_policies_returns_arns_of_no_longer_needed_policies() -> No
         current_time=datetime(year=2021, month=1, day=1, hour=1, minute=1, second=1)
     )
     mock_client.list_policies.assert_called_once_with(path_prefix="/Lambda/GrantUserAccess/")
+    mock_client.get_policy.assert_has_calls(
+        [
+            call(policy_arn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057"),
+            call(policy_arn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/to-delete-also.1693482856.642057"),
+            call(policy_arn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/to_keep"),
+        ],
+        any_order=True,
+    )
 
     assert expired == [
         "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057",
