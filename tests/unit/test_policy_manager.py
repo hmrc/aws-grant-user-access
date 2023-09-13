@@ -210,7 +210,7 @@ def test_delete_expired_policies() -> None:
     assert 2 == mock_client.delete_policy.call_count
 
 
-def test_get_attached_user_policy_arns():
+def test_get_attached_user_policy_arns() -> None:
     mock_client = Mock(
         list_attached_user_policies=Mock(return_value=resp.LIST_ATTACHED_USER_POLICIES),
     )
