@@ -55,3 +55,9 @@ variable "timeout_in_seconds" {
   description = "How long the lambda is allowed to run in seconds, before timing out."
   type        = number
 }
+
+variable "policy_arns" {
+  default     = []
+  description = "Additional IAM Policy ARNs to attach to lambda iam role"
+  type        = list(string)
+}
