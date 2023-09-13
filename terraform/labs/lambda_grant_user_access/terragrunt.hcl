@@ -14,6 +14,5 @@ include {
 inputs = {
   lambda_function_name  = local.product
   timeout_in_seconds    = 900
-  environment_variables = { SNS_TOPIC_ARN : "platsec-compliance-topic-arn-in-platsec-prod" }
   tags                  = { Git_Project = "https://github.com/hmrc/aws-${local.product}" }
 }
