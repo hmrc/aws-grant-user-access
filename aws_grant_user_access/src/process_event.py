@@ -28,6 +28,7 @@ def process_event(event: Dict[str, Any]) -> None:
     validate(instance=event, schema=SCHEMA)
     time_window = GrantTimeWindow(hours=event["approval_in_hours"])
     policy_creator = PolicyCreator(config.get_iam_client())
+    policy_creator.detach_expired_policies_from_users(current_time=time_window.start_time)
     policy_creator.delete_expired_policies(current_time=time_window.start_time)
 
     for user in event["usernames"]:

@@ -53,3 +53,11 @@ class AwsIamClient:
             lambda: self._iam.delete_policy(PolicyArn=policy_arn),
             f"failed to delete {policy_arn} policy",
         )
+
+    def list_attached_user_policies(self, username: str, path_prefix: str) -> List[Dict[str, str]]:
+        return boto_try(
+            lambda: self._iam.list_attached_user_policies(UserName=username, PathPrefix=path_prefix)[
+                "AttachedPolicies"
+            ],
+            f"failed to list attached user policies for {username}",
+        )
