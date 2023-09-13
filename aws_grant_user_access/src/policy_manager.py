@@ -97,9 +97,17 @@ class PolicyCreator:
         for policy_arn in self.find_expired_policies(current_time):
             policy_name = self.get_policy_name(policy_arn=policy_arn)
             attached_user = policy_name.partition("_")[0]
-            self.iam_client.detach_user_policy(username=attached_user, policy_arn=policy_arn)
+            if policy_arn in self.get_attached_user_policy_arns(
+                username=attached_user, path_prefix=GRANT_USER_ACCESS_PATH
+            ):
+                self.iam_client.detach_user_policy(username=attached_user, policy_arn=policy_arn)
 
     def delete_expired_policies(self, current_time: datetime) -> None:
-        self.detach_expired_policies_from_users(current_time)
         for policy_arn in self.find_expired_policies(current_time):
             self.iam_client.delete_policy(policy_arn=policy_arn)
+
+    def get_attached_user_policy_arns(self, username: str, path_prefix: str) -> List[str]:
+        return [
+            policy["PolicyArn"]
+            for policy in self.iam_client.list_attached_user_policies(username=username, path_prefix=path_prefix)
+        ]

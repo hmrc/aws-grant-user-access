@@ -16,8 +16,8 @@ LIST_POLICIES = {
             "DefaultVersionId": "v1",
         },
         {
-            "PolicyName": "to-delete-also.1693482856.642057",
-            "Arn": "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/to-delete-also.1693482856.642057",
+            "PolicyName": "test-user-4_1693482856.642057",
+            "Arn": "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-4_1693482856.642057",
             "DefaultVersionId": "v1",
         },
     ],
@@ -80,11 +80,11 @@ POLICIES_MAP = {
             ],
         },
     },
-    "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/to-delete-also.1693482856.642057": {
+    "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-4_1693482856.642057": {
         "Policy": {
-            "PolicyName": "to-delete-also.1693482856.642057",
+            "PolicyName": "test-user-4_1693482856.642057",
             "PolicyId": "ABCDEFGHIJKLMNOP01234",
-            "Arn": "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/to-delete-also.1693482856.642057",
+            "Arn": "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-4_1693482856.642057",
             "Path": "/Lambda/GrantUserAccess/",
             "DefaultVersionId": "v1",
             "AttachmentCount": 1,
@@ -100,3 +100,18 @@ POLICIES_MAP = {
         },
     },
 }
+
+LIST_ATTACHED_USER_POLICIES = [
+    {
+        "PolicyName": "test-user-3_1693482856.642057",
+        "PolicyArn": "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057",
+    },
+    {
+        "PolicyName": "test-user-4_1693482856.642057",
+        "PolicyArn": "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-4_1693482856.642057",
+    },
+    {
+        "PolicyName": "to_keep",
+        "PolicyArn": "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/to_keep",
+    },
+]

@@ -129,7 +129,7 @@ def test_find_expired_policies_returns_arns_of_no_longer_needed_policies() -> No
     mock_client.get_policy.assert_has_calls(
         [
             call(policy_arn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057"),
-            call(policy_arn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/to-delete-also.1693482856.642057"),
+            call(policy_arn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-4_1693482856.642057"),
             call(policy_arn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/to_keep"),
         ],
         any_order=True,
@@ -137,7 +137,7 @@ def test_find_expired_policies_returns_arns_of_no_longer_needed_policies() -> No
 
     assert expired == [
         "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057",
-        "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/to-delete-also.1693482856.642057",
+        "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-4_1693482856.642057",
     ]
 
 
@@ -162,8 +162,9 @@ def test_get_policy_name() -> None:
 
 def test_detach_expired_policies_from_users() -> None:
     mock_client = Mock(
-        list_policies=Mock(return_value=resp.LIST_POLICIES),
         get_policy=Mock(side_effect=_get_policy),
+        list_policies=Mock(side_effect=_list_policies),
+        list_attached_user_policies=Mock(return_value=resp.LIST_ATTACHED_USER_POLICIES),
         detach_user_policy=Mock(),
     )
 
@@ -176,7 +177,19 @@ def test_detach_expired_policies_from_users() -> None:
         policy_arn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057",
     )
 
-    assert 2 == mock_client.detach_user_policy.call_count
+    mock_client.detach_user_policy.assert_has_calls(
+        [
+            call(
+                username="test-user-3",
+                policy_arn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057",
+            ),
+            call(
+                username="test-user-4",
+                policy_arn="arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-4_1693482856.642057",
+            ),
+        ],
+        any_order=True,
+    )
 
 
 def test_delete_expired_policies() -> None:
@@ -195,3 +208,22 @@ def test_delete_expired_policies() -> None:
     )
 
     assert 2 == mock_client.delete_policy.call_count
+
+
+def test_get_attached_user_policy_arns():
+    mock_client = Mock(
+        list_attached_user_policies=Mock(return_value=resp.LIST_ATTACHED_USER_POLICIES),
+    )
+
+    arns = PolicyCreator(mock_client).get_attached_user_policy_arns(
+        username="test.user", path_prefix="/Lambda/GrantUserAccess/"
+    )
+    mock_client.list_attached_user_policies.assert_called_once_with(
+        username="test.user", path_prefix="/Lambda/GrantUserAccess/"
+    )
+
+    assert arns == [
+        "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-3_1693482856.642057",
+        "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/test-user-4_1693482856.642057",
+        "arn:aws:iam::123456789012:policy/Lambda/GrantUserAccess/to_keep",
+    ]

@@ -53,3 +53,11 @@ def test_delete_policy() -> None:
     mock_client = Mock()
     AwsIamClient(mock_client).delete_policy(policy_arn="aws::policy/test_policy")
     mock_client.delete_policy.assert_called_once_with(PolicyArn="aws::policy/test_policy")
+
+
+def test_list_attached_user_policies() -> None:
+    mock_client = Mock(list_attached_user_policies=Mock(return_value={"AttachedPolicies": []}))
+    AwsIamClient(mock_client).list_attached_user_policies(username="test.user", path_prefix="/lambda/grant_user_access")
+    mock_client.list_attached_user_policies.assert_called_once_with(
+        UserName="test.user", PathPrefix="/lambda/grant_user_access"
+    )
