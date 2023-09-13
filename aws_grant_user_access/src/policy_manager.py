@@ -8,9 +8,7 @@ from aws_grant_user_access.src.clients.aws_iam_client import AwsIamClient
 
 PRODUCT_TAG_VALUE = "grant-user-access"
 PRODUCT_TAG_KEY = "Product"
-
 EXPIRES_AT_TAG_KEY = "Expires_At"
-
 GRANT_USER_ACCESS_PATH = "/Lambda/GrantUserAccess/"
 
 
@@ -71,13 +69,14 @@ class PolicyCreator:
 
         expired_policies = []
         for policy in all_policies["Policies"]:
-            if self.is_policy_expired(policy, current_time):
+            if self.is_policy_expired(policy_arn=policy["Arn"], current_time=current_time):
                 expired_policies.append(policy["Arn"])
 
         return expired_policies
 
-    def is_policy_expired(self, policy: Dict[str, Any], current_time: datetime) -> bool:
-        tag_dict = self.to_dict(policy["Tags"])
+    def is_policy_expired(self, policy_arn: str, current_time: datetime) -> bool:
+        tags = self.iam_client.get_policy(policy_arn=policy_arn)["Policy"]["Tags"]
+        tag_dict = self.to_dict(tags)
 
         return (
             {EXPIRES_AT_TAG_KEY, PRODUCT_TAG_KEY}.issubset(set(tag_dict.keys()))
