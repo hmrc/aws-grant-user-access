@@ -7,18 +7,35 @@ from aws_grant_user_access.src.grant_time_window import GrantTimeWindow
 
 
 class SNSMessage:
-    @staticmethod
-    def generate(account: str, region: str, role_arn: str, grantor: str, usernames: List[str], hours: int, start_time: datetime, end_time: datetime) -> Dict[str, Any]:
+    def __init__(
+        self,
+        account: str,
+        region: str,
+        role_arn: str,
+        grantor: str,
+        usernames: List[str],
+        hours: int,
+        time_window: GrantTimeWindow,
+    ) -> None:
+        self.account = account
+        self.region = region
+        self.role_arn = role_arn
+        self.grantor = grantor
+        self.usernames = usernames
+        self.hours = hours
+        self.time_window = time_window
+
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "detailType": "GrantUserAccessLambda",
-            "account": account,
-            "region": region,
-            "roleArn": role_arn,
-            "grantor": grantor,
-            "usernames": usernames,
-            "hours": hours,
-            "startTime": start_time.strftime(AWS_IAM_TIME_FORMAT),
-            "endTime": end_time.strftime(AWS_IAM_TIME_FORMAT),
+            "account": self.account,
+            "region": self.region,
+            "roleArn": self.role_arn,
+            "grantor": self.grantor,
+            "usernames": self.usernames,
+            "hours": self.hours,
+            "startTime": self.time_window.start_time.strftime(AWS_IAM_TIME_FORMAT),
+            "endTime": self.time_window.end_time.strftime(AWS_IAM_TIME_FORMAT),
         }
 
 
