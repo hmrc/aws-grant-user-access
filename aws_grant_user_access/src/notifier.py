@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any, Dict, List
 from aws_grant_user_access.src.clients.aws_sns_client import AwsSnsClient
 from aws_grant_user_access.src.data.data import AWS_IAM_TIME_FORMAT
@@ -7,14 +8,17 @@ from aws_grant_user_access.src.grant_time_window import GrantTimeWindow
 
 class SNSMessage:
     @staticmethod
-    def generate(grantor: str, usernames: List[str], role_arn: str, time_window: GrantTimeWindow) -> Dict[str, Any]:
+    def generate(account: str, region: str, role_arn: str, grantor: str, usernames: List[str], hours: int, start_time: datetime, end_time: datetime) -> Dict[str, Any]:
         return {
             "detailType": "GrantUserAccessLambda",
+            "account": account,
+            "region": region,
             "roleArn": role_arn,
             "grantor": grantor,
             "usernames": usernames,
-            "startTime": time_window.start_time.strftime(AWS_IAM_TIME_FORMAT),
-            "endTime": time_window.end_time.strftime(AWS_IAM_TIME_FORMAT),
+            "hours": hours,
+            "startTime": start_time.strftime(AWS_IAM_TIME_FORMAT),
+            "endTime": end_time.strftime(AWS_IAM_TIME_FORMAT),
         }
 
 
