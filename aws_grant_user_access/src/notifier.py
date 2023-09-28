@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from aws_grant_user_access.src.clients.aws_sns_client import AwsSnsClient
 from aws_grant_user_access.src.data.data import AWS_IAM_TIME_FORMAT
 
@@ -12,7 +12,7 @@ class SNSMessage:
         account: str,
         region: str,
         role_arn: str,
-        grantor: str,
+        grantor: Optional[str],
         usernames: List[str],
         hours: int,
         time_window: GrantTimeWindow,
