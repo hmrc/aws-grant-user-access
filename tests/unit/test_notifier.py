@@ -16,9 +16,12 @@ TEST_ROLE_ARN = "arn:aws:iam::123456789012:role/RoleUserAccess"
 TEST_USERS = ["test-user-1", "test-user-2", "test-user-3"]
 TEST_SNS_MESSAGE = {
     "detailType": "GrantUserAccessLambda",
+    "account": "123456789012",
+    "region": "eu-west-2",
     "roleArn": TEST_ROLE_ARN,
-    "grantor": "",
+    "grantor": "approval.user",
     "usernames": TEST_USERS,
+    "hours": 1,
     "startTime": "2012-01-14T12:00:01Z",
     "endTime": "2012-01-14T13:00:01Z",
 }
@@ -43,23 +46,32 @@ def test_publish_sns_message() -> None:
     assert all_send_notifications[0][1] == json.dumps(TEST_SNS_MESSAGE)
 
 
-@freeze_time("2012-06-27 12:00:01")
-def test_generate_message() -> None:
+@freeze_time("2012-01-14 12:00:01")
+def test_sns_message_to_dict() -> None:
     role_arn = "RoleArn"
     grantor = "super.user01"
     usernames = ["test.user01", "test.user02"]
     message = {
         "detailType": "GrantUserAccessLambda",
-        "roleArn": role_arn,
-        "grantor": grantor,
-        "usernames": usernames,
-        "startTime": "2012-06-27T12:00:01Z",
-        "endTime": "2012-06-27T14:00:01Z",
+        "account": "123456789012",
+        "region": "eu-west-2",
+        "roleArn": "arn:aws:iam::123456789012:role/RoleUserAccess",
+        "grantor": "super.user01",
+        "usernames": ["test.user01", "test.user02"],
+        "hours": 2,
+        "startTime": "2012-01-14T12:00:01Z",
+        "endTime": "2012-01-14T14:00:01Z",
     }
 
     assert (
-        SNSMessage.generate(
-            grantor=grantor, usernames=usernames, role_arn=role_arn, time_window=GrantTimeWindow(hours=2)
-        )
+        SNSMessage(
+            account="123456789012",
+            region="eu-west-2",
+            role_arn="arn:aws:iam::123456789012:role/RoleUserAccess",
+            grantor="super.user01",
+            usernames=["test.user01", "test.user02"],
+            hours=2,
+            time_window=GrantTimeWindow(hours=2),
+        ).to_dict()
         == message
     )

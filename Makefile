@@ -14,6 +14,7 @@ endif
 
 PYTHON_VERSION = $(shell head -1 .python-version)
 PYTHON_COVERAGE_FAIL_UNDER_PERCENT = 100
+PYTHON_SRC = *.py aws_grant_user_access/src/ tests/
 
 POETRY_DOCKER = docker run \
 	--interactive \
@@ -61,10 +62,10 @@ terragrunt:
 		.
 
 fmt:
-	@$(POETRY_DOCKER_MOUNT) black --line-length 120 --exclude=.venv .
+	@$(POETRY_DOCKER_MOUNT) black --line-length 120 --exclude=.venv $(PYTHON_SRC)
 
 fmt-check: build
-	@$(POETRY_DOCKER) black --line-length 120 --check .
+	@$(POETRY_DOCKER) black --line-length 120 --check $(PYTHON_SRC)
 
 python-test: build
 	@$(POETRY_DOCKER) pytest \
@@ -76,10 +77,10 @@ python-test: build
 		tests
 
 mypy: build
-	@$(POETRY_DOCKER) mypy --strict .
+	@$(POETRY_DOCKER) mypy --strict $(PYTHON_SRC)
 
 bandit: build
-	@$(POETRY_DOCKER) bandit -c bandit.yaml -r -q .
+	@$(POETRY_DOCKER) bandit -c bandit.yaml -r -q $(PYTHON_SRC)
 
 
 test: python-test fmt-check md-check mypy bandit

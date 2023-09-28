@@ -22,7 +22,7 @@ SCHEMA = {
 config = Config()
 
 
-def process_event(event: Dict[str, Any]) -> None:
+def process_event(event: Dict[str, Any], context: Any) -> None:
     logger = Config.configure_logging()
 
     validate(instance=event, schema=SCHEMA)
@@ -41,19 +41,29 @@ def process_event(event: Dict[str, Any]) -> None:
 
     logger.info(f"Access to {event['role_arn']} granted to {event['usernames']} for {event['approval_in_hours']} hours")
 
-    publish_sns_message(event, time_window)
+    region = context.invoked_function_arn.split(":")[3]
+    account = context.invoked_function_arn.split(":")[4]
+
+    publish_sns_message(
+        message=SNSMessage(
+            account=account,
+            region=region,
+            role_arn=event["role_arn"],
+            grantor=None,  # A placeholder until "grantor" is implemented
+            usernames=event["usernames"],
+            hours=int(event["approval_in_hours"]),
+            time_window=time_window,
+        )
+    )
 
 
-def publish_sns_message(event: Dict[str, Any], time_window: GrantTimeWindow) -> None:
+def publish_sns_message(message: SNSMessage) -> None:
     try:
         sns_topic_arn = config.get_sns_topic_arn()
     except MissingConfigException as error:
         sns_topic_arn = None
 
     if sns_topic_arn:
-        message = SNSMessage.generate(
-            grantor="", usernames=event["usernames"], role_arn=event["role_arn"], time_window=time_window
-        )
         SNSMessagePublisher(config.get_sns_client()).publish_sns_message(
-            sns_topic_arn=sns_topic_arn, message=json.dumps(message)
+            sns_topic_arn=sns_topic_arn, message=json.dumps(message.to_dict())
         )
