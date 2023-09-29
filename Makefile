@@ -6,6 +6,7 @@ AWS_PROFILE ?= auth-RoleTerraformApplier
 IMAGE_TAG ?=
 LIVE_ACCOUNT_ID ?=
 LABS_ACCOUNT_ID ?=
+GRANT_USER_ACCESS_SNS_TOPIC_ARN ?=
 ECR_REPO = dkr.ecr.eu-west-2.amazonaws.com/grant-user-access
 
 ifneq (, $(strip $(shell command -v aws-vault)))
@@ -183,17 +184,24 @@ apply-%: check-% terragrunt
 	@$(AWS_PROFILE_CMD) $(TG) terragrunt run-all init
 	@$(AWS_PROFILE_CMD) $(TG) terragrunt run-all apply --terragrunt-non-interactive
 
+check-bootstrap: check-labs check-live
+ifndef GRANT_USER_ACCESS_SNS_TOPIC_ARN
+	$(error "GRANT_USER_ACCESS_SNS_TOPIC_ARN env var not set")
+endif
+
 # Bootstrap labs or live environment for terraform deployment
 .PHONY: bootstrap-%
 bootstrap-labs: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformApplier
 bootstrap-live: export AWS_PROFILE := auth-RoleTerraformApplier
-bootstrap-%: check-labs check-live terragrunt
+bootstrap-%: check-bootstrap terragrunt
 	@cd ./terraform/bootstrap/$*
 	@find . -type d -name '.terragrunt-cache' | xargs -I {} rm -rf {}
 	@$(AWS_PROFILE_CMD) $(TG) terragrunt init
 ifeq ($(MAKECMDGOALS), bootstrap-labs)
-	@$(AWS_PROFILE_CMD) $(TG) terragrunt apply
+	@$(AWS_PROFILE_CMD) $(TG) terragrunt apply \
+		-var grant_user_access_sns_topic_arn="${GRANT_USER_ACCESS_SNS_TOPIC_ARN}"
 else
 	@$(AWS_PROFILE_CMD) $(TG) terragrunt apply -auto-approve\
-		-var environment_account_ids="{\"labs\": \"${LABS_ACCOUNT_ID}\", \"live\": \"${LIVE_ACCOUNT_ID}\"}"
+		-var environment_account_ids="{\"labs\": \"${LABS_ACCOUNT_ID}\", \"live\": \"${LIVE_ACCOUNT_ID}\"}" \
+		-var grant_user_access_sns_topic_arn="${GRANT_USER_ACCESS_SNS_TOPIC_ARN}"
 endif

@@ -12,7 +12,9 @@ include {
 }
 
 inputs = {
-  lambda_function_name = local.product
-  timeout_in_seconds   = 900
-  tags                 = { Git_Project = "https://github.com/hmrc/aws-${local.product}" }
+  lambda_function_name           = local.product
+  timeout_in_seconds             = 900
+  sns_topic_parameter_store_name = "/${local.product}/sns_topic_arn"
+  environment_variables          = { "LOG_LEVEL" : "INFO" }
+  tags                           = { Git_Project = "https://github.com/hmrc/aws-${local.product}" }
 }

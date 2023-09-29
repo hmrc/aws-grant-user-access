@@ -26,8 +26,8 @@ variable "timeout_in_seconds" {
   type        = number
 }
 
-variable "sns_topic_arn" {
+variable "sns_topic_parameter_store_name" {
   default     = null
-  description = "SNS Topic ARN to publish message to"
+  description = "Name of parameter store containing SNS Topic ARN"
   type        = string
 }
