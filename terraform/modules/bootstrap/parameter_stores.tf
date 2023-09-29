@@ -23,3 +23,10 @@ resource "aws_ssm_parameter" "account_id" {
   type        = "String"
   value       = each.value
 }
+
+resource "aws_ssm_parameter" "grant_user_access_sns_topic" {
+  name        = "/grant-user-access/sns_topic_arn"
+  description = "Arn of SNS Topic grant-user-access-lambda publishes to"
+  type        = "String"
+  value       = var.grant_user_access_sns_topic_arn
+}

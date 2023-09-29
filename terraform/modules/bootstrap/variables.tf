@@ -53,3 +53,8 @@ variable "log_bucket_name" {
   type        = string
   description = "The name of the access logs bucket"
 }
+
+variable "grant_user_access_sns_topic_arn" {
+  type        = string
+  description = "Arn of SNS Topic grant-user-access-lambda publishes to"
+}
