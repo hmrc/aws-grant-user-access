@@ -12,7 +12,6 @@ class SNSMessage:
         account: str,
         region: str,
         role_arn: str,
-        grantor: Optional[str],
         usernames: List[str],
         hours: int,
         time_window: GrantTimeWindow,
@@ -20,7 +19,6 @@ class SNSMessage:
         self.account = account
         self.region = region
         self.role_arn = role_arn
-        self.grantor = grantor
         self.usernames = usernames
         self.hours = hours
         self.time_window = time_window
@@ -31,7 +29,6 @@ class SNSMessage:
             "account": self.account,
             "region": self.region,
             "roleArn": self.role_arn,
-            "grantor": self.grantor,
             "usernames": self.usernames,
             "hours": self.hours,
             "startTime": self.time_window.start_time.strftime(AWS_IAM_TIME_FORMAT),

@@ -19,7 +19,6 @@ TEST_SNS_MESSAGE = {
     "account": "123456789012",
     "region": "eu-west-2",
     "roleArn": TEST_ROLE_ARN,
-    "grantor": "approval.user",
     "usernames": TEST_USERS,
     "hours": 1,
     "startTime": "2012-01-14T12:00:01Z",
@@ -49,14 +48,12 @@ def test_publish_sns_message() -> None:
 @freeze_time("2012-01-14 12:00:01")
 def test_sns_message_to_dict() -> None:
     role_arn = "RoleArn"
-    grantor = "super.user01"
     usernames = ["test.user01", "test.user02"]
     message = {
         "detailType": "GrantUserAccessLambda",
         "account": "123456789012",
         "region": "eu-west-2",
         "roleArn": "arn:aws:iam::123456789012:role/RoleUserAccess",
-        "grantor": "super.user01",
         "usernames": ["test.user01", "test.user02"],
         "hours": 2,
         "startTime": "2012-01-14T12:00:01Z",
@@ -68,7 +65,6 @@ def test_sns_message_to_dict() -> None:
             account="123456789012",
             region="eu-west-2",
             role_arn="arn:aws:iam::123456789012:role/RoleUserAccess",
-            grantor="super.user01",
             usernames=["test.user01", "test.user02"],
             hours=2,
             time_window=GrantTimeWindow(hours=2),
