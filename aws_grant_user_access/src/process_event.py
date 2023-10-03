@@ -49,7 +49,6 @@ def process_event(event: Dict[str, Any], context: Any) -> None:
             account=account,
             region=region,
             role_arn=event["role_arn"],
-            grantor=None,  # A placeholder until "grantor" is implemented
             usernames=event["usernames"],
             hours=int(event["approval_in_hours"]),
             time_window=time_window,
