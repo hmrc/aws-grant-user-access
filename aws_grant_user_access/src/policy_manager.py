@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 from aws_grant_user_access.src.data.data import AWS_IAM_TIME_FORMAT
 
 from aws_grant_user_access.src.clients.aws_iam_client import AwsIamClient
+from aws_grant_user_access.src.data.exceptions import AwsClientException
 
 
 PRODUCT_TAG_VALUE = "grant-user-access"
@@ -97,9 +98,16 @@ class PolicyCreator:
         for policy_arn in self.find_expired_policies(current_time):
             policy_name = self.get_policy_name(policy_arn=policy_arn)
             attached_user = policy_name.partition("_")[0]
-            if policy_arn in self.get_attached_user_policy_arns(
-                username=attached_user, path_prefix=GRANT_USER_ACCESS_PATH
-            ):
+            try:
+                attached_user_policy_arns = self.get_attached_user_policy_arns(
+                    username=attached_user, path_prefix=GRANT_USER_ACCESS_PATH
+                )
+            except AwsClientException as err:
+                if "NoSuchEntity" in str(err):
+                    return
+                else:
+                    raise err
+            if policy_arn in attached_user_policy_arns:
                 self.iam_client.detach_user_policy(username=attached_user, policy_arn=policy_arn)
 
     def delete_expired_policies(self, current_time: datetime) -> None:

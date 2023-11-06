@@ -1,10 +1,13 @@
 from datetime import datetime, UTC, timedelta
 from unittest.mock import Mock, call
+
+import pytest
 from aws_grant_user_access.src.clients.aws_iam_client import AwsIamClient
 from typing import Any, Dict
 
 import boto3
 from freezegun import freeze_time
+from aws_grant_user_access.src.data.exceptions import AwsClientException
 from moto import mock_iam
 
 from aws_grant_user_access.src.policy_manager import PolicyCreator
@@ -190,6 +193,43 @@ def test_detach_expired_policies_from_users() -> None:
         ],
         any_order=True,
     )
+
+
+def test_detach_expired_policies_from_users_error() -> None:
+    mock_client = Mock(
+        get_policy=Mock(side_effect=_get_policy),
+        list_policies=Mock(side_effect=_list_policies),
+        list_attached_user_policies=Mock(
+            side_effect=AwsClientException(
+                "failed to list attached user policies for test.user: An error occurred (InvalidInput) when calling the ListAttachedUserPolicies operation"
+            )
+        ),
+        detach_user_policy=Mock(),
+    )
+
+    with pytest.raises(AwsClientException):
+        PolicyCreator(mock_client).detach_expired_policies_from_users(
+            current_time=datetime(year=2021, month=1, day=1, hour=1, minute=1, second=1)
+        )
+
+
+def test_detach_expired_policies_from_users_error_no_such_entity() -> None:
+    mock_client = Mock(
+        get_policy=Mock(side_effect=_get_policy),
+        list_policies=Mock(side_effect=_list_policies),
+        list_attached_user_policies=Mock(
+            side_effect=AwsClientException(
+                "failed to list attached user policies for test.user: An error occurred (NoSuchEntity) when calling the ListAttachedUserPolicies operation: The user with name test.user cannot be found."
+            )
+        ),
+        detach_user_policy=Mock(),
+    )
+
+    PolicyCreator(mock_client).detach_expired_policies_from_users(
+        current_time=datetime(year=2021, month=1, day=1, hour=1, minute=1, second=1)
+    )
+
+    mock_client.detach_user_policy.assert_not_called()
 
 
 def test_delete_expired_policies() -> None:
