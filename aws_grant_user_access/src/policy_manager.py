@@ -104,7 +104,7 @@ class PolicyCreator:
                 )
             except AwsClientException as err:
                 if "NoSuchEntity" in str(err):
-                    return
+                    continue
                 else:
                     raise err
             if policy_arn in attached_user_policy_arns:
