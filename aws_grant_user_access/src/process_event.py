@@ -22,10 +22,14 @@ SCHEMA = {
 config = Config()
 
 
-def process_event(event: Dict[str, Any], context: Any) -> None:
+def process_event(event: Dict[str, Any], context: Any) -> str:
     logger = Config.configure_logging()
 
     validate(instance=event, schema=SCHEMA)
+    if not 1 <= event["approval_in_hours"] <= 12:
+        message = f"Invalid time period specified: {event['approval_in_hours']} hours. Valid input is 1-12 hours"
+        logger.info(message)
+        return message
     time_window = GrantTimeWindow(hours=event["approval_in_hours"])
     policy_creator = PolicyCreator(config.get_iam_client())
     policy_creator.detach_expired_policies_from_users(current_time=time_window.start_time)
