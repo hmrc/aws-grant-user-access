@@ -108,3 +108,13 @@ def test_publish_sns_message_with_no_sns_topic_arn_set(_mock_sns_message_publish
     publish_sns_message(message=sns_message)
 
     assert publisher.publish_sns_message.call_count == 0
+
+
+@patch("aws_grant_user_access.src.process_event.SNSMessagePublisher")
+def test_invalid_time_window(_mock_policy_creator: Mock) -> None:
+    context = Mock()
+
+    assert (
+        process_event(dict(role_arn=TEST_ROLE_ARN, usernames=TEST_USERS, approval_in_hours=8761), context)
+        == "Invalid time period specified: 8761 hours. Valid input is 1-8760 hours"
+    )

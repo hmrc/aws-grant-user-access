@@ -22,10 +22,13 @@ SCHEMA = {
 config = Config()
 
 
-def process_event(event: Dict[str, Any], context: Any) -> None:
+def process_event(event: Dict[str, Any], context: Any) -> str:
     logger = Config.configure_logging()
-
     validate(instance=event, schema=SCHEMA)
+    if not 1 <= event["approval_in_hours"] <= 8760:
+        retmsg = f"Invalid time period specified: {event['approval_in_hours']} hours. Valid input is 1-8760 hours"
+        logger.info(retmsg)
+        return retmsg
     time_window = GrantTimeWindow(hours=event["approval_in_hours"])
     policy_creator = PolicyCreator(config.get_iam_client())
     policy_creator.detach_expired_policies_from_users(current_time=time_window.start_time)
@@ -38,8 +41,8 @@ def process_event(event: Dict[str, Any], context: Any) -> None:
             start_time=time_window.start_time,
             end_time=time_window.end_time,
         )
-
-    logger.info(f"Access to {event['role_arn']} granted to {event['usernames']} for {event['approval_in_hours']} hours")
+    retmsg = f"Access to {event['role_arn']} granted to {event['usernames']} for {event['approval_in_hours']} hours"
+    logger.info(retmsg)
 
     region = context.invoked_function_arn.split(":")[3]
     account = context.invoked_function_arn.split(":")[4]
@@ -54,6 +57,7 @@ def process_event(event: Dict[str, Any], context: Any) -> None:
             time_window=time_window,
         )
     )
+    return retmsg
 
 
 def publish_sns_message(message: SNSMessage) -> None:
