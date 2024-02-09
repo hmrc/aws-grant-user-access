@@ -61,3 +61,18 @@ def test_list_attached_user_policies() -> None:
     mock_client.list_attached_user_policies.assert_called_once_with(
         UserName="test.user", PathPrefix="/lambda/grant_user_access"
     )
+
+def test_get_user() -> None:
+    mock_client = Mock()
+    AwsIamClient(mock_client).get_user(user_name="test-user-1")
+    mock_client.get_user.assert_called_once_with(UserName="test-user-1")
+
+def test_get_role() -> None:
+    mock_client = Mock()
+    AwsIamClient(mock_client).get_role(role_name="role_engineer_user_access")
+    mock_client.get_role.assert_called_once_with(RoleName="role_engineer_user_access")
+
+def test_list_groups_for_user() -> None:
+    mock_client = Mock()
+    AwsIamClient(mock_client).list_groups_for_user(user_name="test-engineer-1")
+    mock_client.list_groups_for_user.assert_called_once_with(UserName="test-engineer-1")

@@ -25,6 +25,19 @@ TEST_SNS_MESSAGE = {
     "endTime": "2012-01-14T13:00:01Z",
 }
 
+TEST_ENGINEER_ROLE_ARN = "arn:aws:iam::123456789012:role/RoleEngineerUserAccess"
+TEST_ENGINEER_USERS = ["test-engineer-1", "test-user-2", "test-user-3"]
+TEST_VALID_SNS_MESSAGE = {
+    "detailType": "GrantUserAccessLambda",
+    "account": "123456789012",
+    "region": "eu-west-2",
+    "roleArn": TEST_ENGINEER_ROLE_ARN,
+    "usernames": TEST_ENGINEER_USERS,
+    "hours": 1,
+    "startTime": "2012-01-14T12:00:01Z",
+    "endTime": "2012-01-14T13:00:01Z",
+}
+
 
 @freeze_time("2012-01-14 12:00:01")
 @patch("aws_grant_user_access.src.process_event.PolicyCreator")
@@ -34,20 +47,20 @@ def test_process_event_creates_iam_policy(_mock_policy_creator: Mock) -> None:
 
     policy_creator = _mock_policy_creator.return_value
     policy_creator.grant_access.return_value = Mock()
-    process_event(dict(role_arn=TEST_ROLE_ARN, usernames=TEST_USERS, approval_in_hours=12), context)
+    process_event(dict(role_arn=TEST_ENGINEER_ROLE_ARN, usernames=TEST_ENGINEER_USERS, approval_in_hours=12), context)
 
-    assert 3 == policy_creator.grant_access.call_count
+    assert 1 == policy_creator.grant_access.call_count
 
     policy_creator.grant_access.assert_any_call(
-        role_arn=TEST_ROLE_ARN,
-        username=TEST_USERS[1],
+        role_arn=TEST_ENGINEER_ROLE_ARN,
+        username=TEST_ENGINEER_USERS[1],
         start_time=datetime(year=2012, month=1, day=14, hour=12, minute=0, second=1),
         end_time=datetime(year=2012, month=1, day=15, hour=0, minute=0, second=1),
     )
 
     policy_creator.grant_access.assert_any_call(
-        role_arn=TEST_ROLE_ARN,
-        username=TEST_USERS[0],
+        role_arn=TEST_ENGINEER_ROLE_ARN,
+        username=TEST_ENGINEER_USERS[0],
         start_time=datetime(year=2012, month=1, day=14, hour=12, minute=0, second=1),
         end_time=datetime(year=2012, month=1, day=15, hour=0, minute=0, second=1),
     )
