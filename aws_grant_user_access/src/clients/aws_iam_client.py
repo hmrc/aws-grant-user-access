@@ -79,4 +79,3 @@ class AwsIamClient:
             lambda: self._iam.list_groups_for_user(UserName=user_name),
             f"failed to get list of groups for {user_name}",
         )
-

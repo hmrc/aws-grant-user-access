@@ -1,18 +1,19 @@
 from datetime import datetime, timedelta
 import json
 import os
+import boto3
+from moto import mock_iam
 from unittest.mock import Mock, patch
 from aws_grant_user_access.src.grant_time_window import GrantTimeWindow
 from aws_grant_user_access.src.notifier import SNSMessage
 from aws_grant_user_access.src.process_event import process_event, publish_sns_message
 
-import pytest
-
+from typing import Any
 from freezegun import freeze_time
 
-from aws_grant_user_access.src.policy_manager import PolicyCreator
 
-TEST_ROLE_ARN = "arn:aws:iam::123456789012:role/RoleUserAccess"
+TEST_ROLE_ARN = "arn:aws:iam::123456789012:role/RoleEngineerUserAccess"
+TEST_PO_ROLE_ARN = "arn:aws:iam::123456789012:role/RolePlatformOwnerUserAccess"
 TEST_USERS = ["test-user-1", "test-user-2", "test-user-3"]
 TEST_SNS_MESSAGE = {
     "detailType": "GrantUserAccessLambda",
@@ -25,42 +26,43 @@ TEST_SNS_MESSAGE = {
     "endTime": "2012-01-14T13:00:01Z",
 }
 
-TEST_ENGINEER_ROLE_ARN = "arn:aws:iam::123456789012:role/RoleEngineerUserAccess"
-TEST_ENGINEER_USERS = ["test-engineer-1", "test-user-2", "test-user-3"]
-TEST_VALID_SNS_MESSAGE = {
-    "detailType": "GrantUserAccessLambda",
-    "account": "123456789012",
-    "region": "eu-west-2",
-    "roleArn": TEST_ENGINEER_ROLE_ARN,
-    "usernames": TEST_ENGINEER_USERS,
-    "hours": 1,
-    "startTime": "2012-01-14T12:00:01Z",
-    "endTime": "2012-01-14T13:00:01Z",
-}
+
+@mock_iam
+def _mock_users_and_group(usernames: Any, groupname: Any) -> None:
+    moto_client = boto3.client("iam")
+
+    moto_client.create_group(Path="/", GroupName=groupname)
+
+    for username in usernames:
+        moto_client.create_user(UserName=username)
+        moto_client.add_user_to_group(GroupName=groupname, UserName=username)
 
 
 @freeze_time("2012-01-14 12:00:01")
 @patch("aws_grant_user_access.src.process_event.PolicyCreator")
+@mock_iam
 def test_process_event_creates_iam_policy(_mock_policy_creator: Mock) -> None:
+    _mock_users_and_group(TEST_USERS, "test_platform_engineer")
+
     context = Mock()
     context.invoked_function_arn = "arn:aws:lambda:eu-west-2:123456789012:function:grant-user-access"
 
     policy_creator = _mock_policy_creator.return_value
     policy_creator.grant_access.return_value = Mock()
-    process_event(dict(role_arn=TEST_ENGINEER_ROLE_ARN, usernames=TEST_ENGINEER_USERS, approval_in_hours=12), context)
+    process_event(dict(role_arn=TEST_ROLE_ARN, usernames=TEST_USERS, approval_in_hours=12), context)
 
-    assert 1 == policy_creator.grant_access.call_count
+    assert 3 == policy_creator.grant_access.call_count
 
     policy_creator.grant_access.assert_any_call(
-        role_arn=TEST_ENGINEER_ROLE_ARN,
-        username=TEST_ENGINEER_USERS[1],
+        role_arn=TEST_ROLE_ARN,
+        username=TEST_USERS[1],
         start_time=datetime(year=2012, month=1, day=14, hour=12, minute=0, second=1),
         end_time=datetime(year=2012, month=1, day=15, hour=0, minute=0, second=1),
     )
 
     policy_creator.grant_access.assert_any_call(
-        role_arn=TEST_ENGINEER_ROLE_ARN,
-        username=TEST_ENGINEER_USERS[0],
+        role_arn=TEST_ROLE_ARN,
+        username=TEST_USERS[0],
         start_time=datetime(year=2012, month=1, day=14, hour=12, minute=0, second=1),
         end_time=datetime(year=2012, month=1, day=15, hour=0, minute=0, second=1),
     )
@@ -68,9 +70,12 @@ def test_process_event_creates_iam_policy(_mock_policy_creator: Mock) -> None:
 
 @freeze_time("2012-01-14 12:00:01")
 @patch("aws_grant_user_access.src.process_event.PolicyCreator")
+@mock_iam
 def test_process_event_deletes_expired_policies(_mock_policy_creator: Mock) -> None:
     context = Mock()
     context.invoked_function_arn = "arn:aws:lambda:eu-west-2:123456789012:function:grant-user-access"
+
+    _mock_users_and_group(TEST_USERS, "test_platform_engineer")
 
     policy_creator = _mock_policy_creator.return_value
     policy_creator.delete_expired_policies.return_value = Mock()
@@ -88,7 +93,7 @@ def test_publish_sns_message_with_a_sns_topic_arn_set(_mock_sns_message_publishe
     sns_message = SNSMessage(
         account="123456789012",
         region="eu-west-2",
-        role_arn="arn:aws:iam::123456789012:role/RoleUserAccess",
+        role_arn="arn:aws:iam::123456789012:role/RoleEngineerUserAccess",
         usernames=["test-user-1", "test-user-2", "test-user-3"],
         hours=1,
         time_window=GrantTimeWindow(hours=1),
@@ -110,7 +115,7 @@ def test_publish_sns_message_with_no_sns_topic_arn_set(_mock_sns_message_publish
     sns_message = SNSMessage(
         account="123456789012",
         region="eu-west-2",
-        role_arn="arn:aws:iam::123456789012:role/RoleUserAccess",
+        role_arn="arn:aws:iam::123456789012:role/RoleEngineerUserAccess",
         usernames=["test-user-1", "test-user-2"],
         hours=1,
         time_window=GrantTimeWindow(hours=1),
@@ -129,5 +134,45 @@ def test_invalid_time_window(_mock_policy_creator: Mock) -> None:
 
     assert (
         process_event(dict(role_arn=TEST_ROLE_ARN, usernames=TEST_USERS, approval_in_hours=8761), context)
-        == "Invalid time period specified: 8761 hours. Valid input is 1-8760 hours"
+        == "Invalid time period specified: 8761 hours. Valid input is 1-8760 hours (1 year)."
     )
+
+
+@mock_iam
+@patch("aws_grant_user_access.src.process_event.PolicyCreator")
+def test_deny_grant_to_platform_owner(_mock_policy_creator: Mock) -> None:
+    moto_client = boto3.client("iam")
+    context = Mock()
+
+    policy_creator = _mock_policy_creator.return_value
+    policy_creator.grant_access.return_value = Mock()
+
+    _mock_users_and_group(["test-platform-owner-1"], "test_platform_owner")
+
+    moto_client.list_groups_for_user(UserName="test-platform-owner-1")["Groups"]
+    assert (
+        process_event(dict(role_arn=TEST_ROLE_ARN, usernames=["test-platform-owner-1"], approval_in_hours=12), context)
+        == "test-platform-owner-1 appears to not be an engineer so is invalid for this request."
+    )
+    assert 0 == policy_creator.grant_access.call_count
+
+
+@mock_iam
+@patch("aws_grant_user_access.src.process_event.PolicyCreator")
+def test_deny_grant_to_non_engineer_role(_mock_policy_creator: Mock) -> None:
+    moto_client = boto3.client("iam")
+    context = Mock()
+
+    policy_creator = _mock_policy_creator.return_value
+    policy_creator.grant_access.return_value = Mock()
+
+    _mock_users_and_group(["test-platform-engineer-1"], "test_platform_engineer")
+
+    moto_client.list_groups_for_user(UserName="test-platform-engineer-1")["Groups"]
+    assert (
+        process_event(
+            dict(role_arn=TEST_PO_ROLE_ARN, usernames=["test-platform-engineer-1"], approval_in_hours=12), context
+        )
+        == "arn:aws:iam::123456789012:role/RolePlatformOwnerUserAccess is not an engineering role. Only engineering roles are valid."
+    )
+    assert 0 == policy_creator.grant_access.call_count
