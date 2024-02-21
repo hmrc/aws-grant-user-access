@@ -61,3 +61,21 @@ class AwsIamClient:
             ],
             f"failed to list attached user policies for {username}",
         )
+
+    def get_user(self, user_name: str) -> Dict[str, Any]:
+        return boto_try(
+            lambda: self._iam.get_user(UserName=user_name),
+            f"failed to get {user_name} user details",
+        )
+
+    def get_role(self, role_name: str) -> Dict[str, Any]:
+        return boto_try(
+            lambda: self._iam.get_role(RoleName=role_name),
+            f"failed to get {role_name} role details",
+        )
+
+    def list_groups_for_user(self, user_name: str) -> Dict[str, Any]:
+        return boto_try(
+            lambda: self._iam.list_groups_for_user(UserName=user_name),
+            f"failed to get list of groups for {user_name}",
+        )
