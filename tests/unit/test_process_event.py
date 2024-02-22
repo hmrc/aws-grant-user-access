@@ -160,6 +160,14 @@ def test_deny_grant_to_platform_owner(_mock_policy_creator: Mock) -> None:
 @mock_iam
 @patch("aws_grant_user_access.src.process_event.PolicyCreator")
 def test_deny_grant_to_non_engineer_role(_mock_policy_creator: Mock) -> None:
+    PERMITTED_ROLES = [
+        "engineer",
+        "RoleTerraformApplier",
+        "RoleTerraformProvisioner",
+        "RoleBitwardenEmergencyAccess",
+        "RoleStacksetAdministrator",
+        "RoleSSMAccess",
+    ]
     moto_client = boto3.client("iam")
     context = Mock()
 
@@ -173,6 +181,6 @@ def test_deny_grant_to_non_engineer_role(_mock_policy_creator: Mock) -> None:
         process_event(
             dict(role_arn=TEST_PO_ROLE_ARN, usernames=["test-platform-engineer-1"], approval_in_hours=12), context
         )
-        == "arn:aws:iam::123456789012:role/RolePlatformOwnerUserAccess is not an engineering role. Only engineering roles are valid."
+        == f"arn:aws:iam::123456789012:role/RolePlatformOwnerUserAccess is not a permitted engineering role. Valid options are {PERMITTED_ROLES}"
     )
     assert 0 == policy_creator.grant_access.call_count

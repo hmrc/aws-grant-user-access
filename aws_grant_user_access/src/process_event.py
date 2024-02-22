@@ -76,11 +76,18 @@ def publish_sns_message(message: SNSMessage) -> None:
 
 
 def _validate_role(role_arn: str) -> Any:
-    PERMITTED_ROLES = ["engineer"]
+    PERMITTED_ROLES = [
+        "engineer",
+        "RoleTerraformApplier",
+        "RoleTerraformProvisioner",
+        "RoleBitwardenEmergencyAccess",
+        "RoleStacksetAdministrator",
+        "RoleSSMAccess",
+    ]
     for role in PERMITTED_ROLES:
         if role.lower() in role_arn.lower():
             return None
-    return f"{role_arn} is not an engineering role. Only engineering roles are valid."
+    return f"{role_arn} is not a permitted engineering role. Valid options are {PERMITTED_ROLES}"
 
 
 def _validate_user(user_name: str) -> str:
