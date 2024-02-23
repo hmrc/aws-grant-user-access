@@ -29,7 +29,7 @@ PERMITTED_ROLES = [
     "RoleSSMAccess",
 ]
 
-ONE_YEAR = 8760
+ONE_WEEK = 168
 
 config = Config()
 
@@ -84,41 +84,40 @@ def publish_sns_message(message: SNSMessage) -> None:
         )
 
 
-def _validate_role(role_arn: str) -> Any:
+def _validate_role(role_arn: str) -> bool:
     for role in PERMITTED_ROLES:
         if role.lower() in role_arn.lower():
-            return None
-    return f"{role_arn} is not a permitted engineering role. Valid options are {PERMITTED_ROLES}"
+            return True
+    return False
 
 
-def _validate_user(user_name: str) -> str:
+def _validate_user(user_name: str) -> bool:
     iam_client = config.get_iam_client()
     user_groups = [grp["GroupName"] for grp in iam_client.list_groups_for_user(user_name=user_name)["Groups"]]
     if [e for e in user_groups if "engineer" not in e.lower()] or [
         o for o in user_groups if "platform_owner" in o.lower()
     ]:
-        retmsg = f"{user_name} appears to not be an engineer so is invalid for this request."
-        return retmsg
-    return "valid user"
+        return False
+    return True
 
 
 def validate_request(event: Dict[str, Any]) -> Any:
     logger = Config.configure_logging()
     user_names = event["usernames"]
     role_arn = event["role_arn"]
-    if not 1 <= event["approval_in_hours"] <= ONE_YEAR:
+    if not 1 <= event["approval_in_hours"] <= ONE_WEEK:
         retmsg = (
-            f"Invalid time period specified: {event['approval_in_hours']} hours. Valid input is 1-8760 hours (1 year)."
+            f"Invalid time period specified: {event['approval_in_hours']} hours. Valid input is 1-168 hours (1 week)."
         )
         logger.info(retmsg)
         return retmsg
-    valid_role = _validate_role(role_arn)
-    if valid_role is not None:
-        logger.info(valid_role)
-        return valid_role
+    if not _validate_role(role_arn):
+        retmsg = f"{role_arn} is not a permitted engineering role. Valid options are {PERMITTED_ROLES}"
+        logger.info(retmsg)
+        return retmsg
     for user_name in user_names:
-        retmsg = _validate_user(user_name)
-        if retmsg != "valid user":
+        if not _validate_user(user_name):
+            retmsg = f"{user_name} appears to not be an engineer so is invalid for this request."
             logger.info(retmsg)
             return retmsg
     return "Valid Request"
