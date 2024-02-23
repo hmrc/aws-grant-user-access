@@ -6,8 +6,7 @@ from moto import mock_iam
 from unittest.mock import Mock, patch
 from aws_grant_user_access.src.grant_time_window import GrantTimeWindow
 from aws_grant_user_access.src.notifier import SNSMessage
-from aws_grant_user_access.src.process_event import process_event, publish_sns_message
-
+from aws_grant_user_access.src.process_event import process_event, publish_sns_message, PERMITTED_ROLES
 from typing import Any
 from freezegun import freeze_time
 
@@ -173,6 +172,6 @@ def test_deny_grant_to_non_engineer_role(_mock_policy_creator: Mock) -> None:
         process_event(
             dict(role_arn=TEST_PO_ROLE_ARN, usernames=["test-platform-engineer-1"], approval_in_hours=12), context
         )
-        == "arn:aws:iam::123456789012:role/RolePlatformOwnerUserAccess is not an engineering role. Only engineering roles are valid."
+        == f"arn:aws:iam::123456789012:role/RolePlatformOwnerUserAccess is not a permitted engineering role. Valid options are {PERMITTED_ROLES}"
     )
     assert 0 == policy_creator.grant_access.call_count
