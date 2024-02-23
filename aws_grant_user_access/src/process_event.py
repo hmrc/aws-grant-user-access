@@ -20,6 +20,15 @@ SCHEMA = {
     "required": ["usernames", "role_arn", "approval_in_hours"],
 }
 
+PERMITTED_ROLES = [
+    "engineer",
+    "RoleTerraformApplier",
+    "RoleTerraformProvisioner",
+    "RoleBitwardenEmergencyAccess",
+    "RoleStacksetAdministrator",
+    "RoleSSMAccess",
+]
+
 ONE_YEAR = 8760
 
 config = Config()
@@ -76,14 +85,6 @@ def publish_sns_message(message: SNSMessage) -> None:
 
 
 def _validate_role(role_arn: str) -> Any:
-    PERMITTED_ROLES = [
-        "engineer",
-        "RoleTerraformApplier",
-        "RoleTerraformProvisioner",
-        "RoleBitwardenEmergencyAccess",
-        "RoleStacksetAdministrator",
-        "RoleSSMAccess",
-    ]
     for role in PERMITTED_ROLES:
         if role.lower() in role_arn.lower():
             return None

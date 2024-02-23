@@ -6,8 +6,7 @@ from moto import mock_iam
 from unittest.mock import Mock, patch
 from aws_grant_user_access.src.grant_time_window import GrantTimeWindow
 from aws_grant_user_access.src.notifier import SNSMessage
-from aws_grant_user_access.src.process_event import process_event, publish_sns_message
-
+from aws_grant_user_access.src.process_event import process_event, publish_sns_message, PERMITTED_ROLES
 from typing import Any
 from freezegun import freeze_time
 
@@ -160,14 +159,6 @@ def test_deny_grant_to_platform_owner(_mock_policy_creator: Mock) -> None:
 @mock_iam
 @patch("aws_grant_user_access.src.process_event.PolicyCreator")
 def test_deny_grant_to_non_engineer_role(_mock_policy_creator: Mock) -> None:
-    PERMITTED_ROLES = [
-        "engineer",
-        "RoleTerraformApplier",
-        "RoleTerraformProvisioner",
-        "RoleBitwardenEmergencyAccess",
-        "RoleStacksetAdministrator",
-        "RoleSSMAccess",
-    ]
     moto_client = boto3.client("iam")
     context = Mock()
 
