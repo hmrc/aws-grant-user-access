@@ -133,7 +133,7 @@ def test_invalid_time_window(_mock_policy_creator: Mock) -> None:
 
     assert (
         process_event(dict(role_arn=TEST_ROLE_ARN, usernames=TEST_USERS, approval_in_hours=8761), context)
-        == "Invalid time period specified: 8761 hours. Valid input is 1-8760 hours (1 year)."
+        == "Invalid time period specified: 8761 hours. Valid input is 1-168 hours (1 week)."
     )
 
 
