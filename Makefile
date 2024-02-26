@@ -62,7 +62,7 @@ terragrunt:
 		-f tg.Dockerfile \
 		.
 
-fmt:
+fmt: build
 	@$(POETRY_DOCKER_MOUNT) black --line-length 120 --exclude=.venv $(PYTHON_SRC)
 
 fmt-check: build
