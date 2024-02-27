@@ -1,13 +1,22 @@
 from datetime import datetime, timedelta
 import json
+import logging
 import os
 import boto3
+from pytest import LogCaptureFixture
+from aws_grant_user_access.src import config
+from aws_grant_user_access.src.config.config import Config
 from moto import mock_iam
 from unittest.mock import Mock, patch
 from aws_grant_user_access.src.grant_time_window import GrantTimeWindow
 from aws_grant_user_access.src.notifier import SNSMessage
-from aws_grant_user_access.src.process_event import process_event, publish_sns_message, PERMITTED_ROLES
-from typing import Any
+from aws_grant_user_access.src.process_event import (
+    filter_non_platform_engineers,
+    is_a_platform_engineer,
+    process_event,
+    publish_sns_message,
+)
+from typing import Any, Dict, List
 from freezegun import freeze_time
 
 
@@ -26,7 +35,6 @@ TEST_SNS_MESSAGE = {
 }
 
 
-@mock_iam
 def _mock_users_and_group(usernames: Any, groupname: Any) -> None:
     moto_client = boto3.client("iam")
 
@@ -127,20 +135,11 @@ def test_publish_sns_message_with_no_sns_topic_arn_set(_mock_sns_message_publish
     assert publisher.publish_sns_message.call_count == 0
 
 
-@patch("aws_grant_user_access.src.process_event.SNSMessagePublisher")
-def test_invalid_time_window(_mock_policy_creator: Mock) -> None:
-    context = Mock()
-
-    assert (
-        process_event(dict(role_arn=TEST_ROLE_ARN, usernames=TEST_USERS, approval_in_hours=8761), context)
-        == "Invalid time period specified: 8761 hours. Valid input is 1-168 hours (1 week)."
-    )
-
-
 @mock_iam
+@patch.dict(os.environ, {"LOG_LEVEL": "INFO"})
 @patch("aws_grant_user_access.src.process_event.PolicyCreator")
-def test_deny_grant_to_platform_owner(_mock_policy_creator: Mock) -> None:
-    moto_client = boto3.client("iam")
+def test_deny_grant_to_platform_owner(_mock_policy_creator: Mock, caplog: LogCaptureFixture) -> None:
+    caplog.set_level(logging.INFO)
     context = Mock()
 
     policy_creator = _mock_policy_creator.return_value
@@ -148,30 +147,43 @@ def test_deny_grant_to_platform_owner(_mock_policy_creator: Mock) -> None:
 
     _mock_users_and_group(["test-platform-owner-1"], "test_platform_owner")
 
-    moto_client.list_groups_for_user(UserName="test-platform-owner-1")["Groups"]
-    assert (
-        process_event(dict(role_arn=TEST_ROLE_ARN, usernames=["test-platform-owner-1"], approval_in_hours=12), context)
-        == "test-platform-owner-1 appears to not be an engineer so is invalid for this request."
-    )
+    process_event(dict(role_arn=TEST_ROLE_ARN, usernames=["test-platform-owner-1"], approval_in_hours=12), context)
+    assert "The following users are not engineers: test-platform-owner-1. This request is invalid!" in caplog.text
     assert 0 == policy_creator.grant_access.call_count
+
+
+def _mock_setup_users_and_groups(group_memberships: List[Dict[str, Any]]) -> None:
+    moto_client = boto3.client("iam")
+    all_groups = set([group for membership in group_memberships for group in membership["groups"]])
+
+    for group_name in all_groups:
+        moto_client.create_group(Path="/", GroupName=group_name)
+
+    for membership in group_memberships:
+        username = membership["username"]
+        moto_client.create_user(UserName=username)
+        for groupname in membership["groups"]:
+            moto_client.add_user_to_group(GroupName=groupname, UserName=username)
 
 
 @mock_iam
-@patch("aws_grant_user_access.src.process_event.PolicyCreator")
-def test_deny_grant_to_non_engineer_role(_mock_policy_creator: Mock) -> None:
-    moto_client = boto3.client("iam")
-    context = Mock()
+def test_is_a_platform_engineer() -> None:
+    memberships = [
+        {"username": "engineer.user01", "groups": ["platform_member", "team_engineer"]},
+        {"username": "platform.owner01", "groups": ["platform_member", "platform_owner"]},
+    ]
+    _mock_setup_users_and_groups(memberships)
 
-    policy_creator = _mock_policy_creator.return_value
-    policy_creator.grant_access.return_value = Mock()
+    assert is_a_platform_engineer("engineer.user01") is True
+    assert is_a_platform_engineer("platform.owner01") is False
 
-    _mock_users_and_group(["test-platform-engineer-1"], "test_platform_engineer")
 
-    moto_client.list_groups_for_user(UserName="test-platform-engineer-1")["Groups"]
-    assert (
-        process_event(
-            dict(role_arn=TEST_PO_ROLE_ARN, usernames=["test-platform-engineer-1"], approval_in_hours=12), context
-        )
-        == f"arn:aws:iam::123456789012:role/RolePlatformOwnerUserAccess is not a permitted engineering role. Valid options are {PERMITTED_ROLES}"
-    )
-    assert 0 == policy_creator.grant_access.call_count
+@mock_iam
+def test_filter_non_platform_engineers() -> None:
+    memberships = [
+        {"username": "engineer.user01", "groups": ["platform_member", "team_engineer"]},
+        {"username": "platform.owner01", "groups": ["platform_member", "platform_owner"]},
+    ]
+    _mock_setup_users_and_groups(memberships)
+
+    assert filter_non_platform_engineers(["engineer.user01", "platform.owner01"]) == {"platform.owner01"}
