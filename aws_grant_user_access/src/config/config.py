@@ -1,6 +1,5 @@
 import logging
 from os import environ
-from typing import Callable, Dict, Set, List
 from aws_grant_user_access.src.clients.aws_client_factory import AwsClientFactory
 from aws_grant_user_access.src.clients.aws_iam_client import AwsIamClient
 from aws_grant_user_access.src.clients.aws_sns_client import AwsSnsClient

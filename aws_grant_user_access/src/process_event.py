@@ -86,7 +86,7 @@ def process_event(event: Dict[str, Any], context: Any) -> None:
 def publish_sns_message(message: SNSMessage) -> None:
     try:
         sns_topic_arn = config.get_sns_topic_arn()
-    except MissingConfigException as error:
+    except MissingConfigException:
         sns_topic_arn = None
 
     if sns_topic_arn:

@@ -3,7 +3,6 @@ import boto3
 
 from aws_grant_user_access.src.clients.aws_iam_client import AwsIamClient
 from aws_grant_user_access.src.clients.aws_sns_client import AwsSnsClient
-from aws_grant_user_access.src.data.exceptions import ClientFactoryException
 
 from dataclasses import dataclass
 

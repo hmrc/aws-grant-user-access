@@ -1,4 +1,3 @@
-import json
 from typing import Any, Dict, List
 from aws_grant_user_access.src.clients import boto_try
 from botocore.client import BaseClient

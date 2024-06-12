@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Dict
 from aws_grant_user_access.src.clients import boto_try
 from botocore.client import BaseClient
 
