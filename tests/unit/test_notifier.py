@@ -5,10 +5,9 @@ from aws_grant_user_access.src.notifier import SNSMessagePublisher, SNSMessage
 from aws_grant_user_access.src.grant_time_window import GrantTimeWindow
 import boto3
 
-from moto import mock_sns, mock_s3
+from moto import mock_aws
 from moto.core import DEFAULT_ACCOUNT_ID
 from moto.sns import sns_backends
-from datetime import datetime, timedelta
 from freezegun import freeze_time
 
 
@@ -29,7 +28,7 @@ TEST_SNS_MESSAGE = {
 sns_backend = sns_backends[DEFAULT_ACCOUNT_ID][AWS_REGION]
 
 
-@mock_sns
+@mock_aws
 def test_publish_sns_message() -> None:
     moto_client = boto3.client("sns", region_name=AWS_REGION)
     sns_topic_arn = moto_client.create_topic(Name="grant-user-access-topic")["TopicArn"]
@@ -47,8 +46,6 @@ def test_publish_sns_message() -> None:
 
 @freeze_time("2012-01-14 12:00:01")
 def test_sns_message_to_dict() -> None:
-    role_arn = "RoleArn"
-    usernames = ["test.user01", "test.user02"]
     message = {
         "detailType": "GrantUserAccessLambda",
         "account": "123456789012",
