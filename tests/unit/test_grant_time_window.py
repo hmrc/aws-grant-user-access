@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Dict, List
 from freezegun import freeze_time
 from aws_grant_user_access.src.grant_time_window import GrantTimeWindow

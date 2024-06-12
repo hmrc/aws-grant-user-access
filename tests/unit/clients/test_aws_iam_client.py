@@ -18,7 +18,7 @@ def test_create_policy() -> None:
 def test_create_policy_failure() -> None:
     mock_client = Mock(create_policy=Mock(side_effect=BotoCoreError()))
     with pytest.raises(AwsClientException) as ace:
-        arn = AwsIamClient(mock_client).create_policy(
+        AwsIamClient(mock_client).create_policy(
             policy_name="test_policy", path="path", policy_document="{}", description="description", tags=[]
         )
 
