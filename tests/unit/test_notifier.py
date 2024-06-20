@@ -40,6 +40,9 @@ def test_publish_sns_message() -> None:
     message_id = response.get("MessageId", None)
     assert isinstance(message_id, str)
 
+    # For troubleshooting only see https://github.com/getmoto/moto/issues/7780
+    print(f"{sns_backend.topics = }")
+
     all_send_notifications = sns_backend.topics[sns_topic_arn].sent_notifications
     assert all_send_notifications[0][1] == json.dumps(TEST_SNS_MESSAGE)
 
