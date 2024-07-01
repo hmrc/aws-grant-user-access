@@ -200,8 +200,10 @@ def test_detach_expired_policies_from_users_error() -> None:
         list_policies=Mock(side_effect=_list_policies),
         list_attached_user_policies=Mock(
             side_effect=AwsClientException(
-                ("failed to list attached user policies for test.user: An error occurred (InvalidInput) when"
-                 "calling the ListAttachedUserPolicies operation")
+                (
+                    "failed to list attached user policies for test.user: An error occurred (InvalidInput) when"
+                    "calling the ListAttachedUserPolicies operation"
+                )
             )
         ),
         detach_user_policy=Mock(),
@@ -219,8 +221,10 @@ def test_detach_expired_policies_from_users_error_no_such_entity() -> None:
         list_policies=Mock(side_effect=_list_policies),
         list_attached_user_policies=Mock(
             side_effect=AwsClientException(
-                ("failed to list attached user policies for test.user: An error occurred (NoSuchEntity) when"
-                 "calling the ListAttachedUserPolicies operation: The user with name test.user cannot be found.")
+                (
+                    "failed to list attached user policies for test.user: An error occurred (NoSuchEntity) when"
+                    "calling the ListAttachedUserPolicies operation: The user with name test.user cannot be found."
+                )
             )
         ),
         detach_user_policy=Mock(),

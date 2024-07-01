@@ -25,11 +25,9 @@ TEST_SNS_MESSAGE = {
 }
 
 
-sns_backend = sns_backends[DEFAULT_ACCOUNT_ID][AWS_REGION]
-
-
 @mock_aws
 def test_publish_sns_message() -> None:
+    sns_backend = sns_backends[DEFAULT_ACCOUNT_ID][AWS_REGION]
     moto_client = boto3.client("sns", region_name=AWS_REGION)
     sns_topic_arn = moto_client.create_topic(Name="grant-user-access-topic")["TopicArn"]
     response = SNSMessagePublisher(AwsSnsClient(moto_client)).publish_sns_message(
@@ -39,9 +37,6 @@ def test_publish_sns_message() -> None:
     assert isinstance(response, dict)
     message_id = response.get("MessageId", None)
     assert isinstance(message_id, str)
-
-    # For troubleshooting only see https://github.com/getmoto/moto/issues/7780
-    print(f"{sns_backend.topics = }")
 
     all_send_notifications = sns_backend.topics[sns_topic_arn].sent_notifications
     assert all_send_notifications[0][1] == json.dumps(TEST_SNS_MESSAGE)
