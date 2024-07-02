@@ -1,5 +1,4 @@
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 from aws_grant_user_access.src.clients.aws_sns_client import AwsSnsClient
 from aws_grant_user_access.src.data.data import AWS_IAM_TIME_FORMAT
 

@@ -1,12 +1,10 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 import json
 import logging
 import os
 import boto3
 from pytest import LogCaptureFixture
-from aws_grant_user_access.src import config
-from aws_grant_user_access.src.config.config import Config
-from moto import mock_iam
+from moto import mock_aws
 from unittest.mock import Mock, patch
 from aws_grant_user_access.src.grant_time_window import GrantTimeWindow
 from aws_grant_user_access.src.notifier import SNSMessage
@@ -47,7 +45,7 @@ def _mock_users_and_group(usernames: Any, groupname: Any) -> None:
 
 @freeze_time("2012-01-14 12:00:01")
 @patch("aws_grant_user_access.src.process_event.PolicyCreator")
-@mock_iam
+@mock_aws
 def test_process_event_creates_iam_policy(_mock_policy_creator: Mock) -> None:
     _mock_users_and_group(TEST_USERS, "test_platform_engineer")
 
@@ -77,7 +75,7 @@ def test_process_event_creates_iam_policy(_mock_policy_creator: Mock) -> None:
 
 @freeze_time("2012-01-14 12:00:01")
 @patch("aws_grant_user_access.src.process_event.PolicyCreator")
-@mock_iam
+@mock_aws
 def test_process_event_deletes_expired_policies(_mock_policy_creator: Mock) -> None:
     context = Mock()
     context.invoked_function_arn = "arn:aws:lambda:eu-west-2:123456789012:function:grant-user-access"
@@ -135,7 +133,7 @@ def test_publish_sns_message_with_no_sns_topic_arn_set(_mock_sns_message_publish
     assert publisher.publish_sns_message.call_count == 0
 
 
-@mock_iam
+@mock_aws
 @patch.dict(os.environ, {"LOG_LEVEL": "INFO"})
 @patch("aws_grant_user_access.src.process_event.PolicyCreator")
 def test_deny_grant_to_platform_owner(_mock_policy_creator: Mock, caplog: LogCaptureFixture) -> None:
@@ -166,7 +164,7 @@ def _mock_setup_users_and_groups(group_memberships: List[Dict[str, Any]]) -> Non
             moto_client.add_user_to_group(GroupName=groupname, UserName=username)
 
 
-@mock_iam
+@mock_aws
 def test_is_a_platform_engineer() -> None:
     memberships = [
         {"username": "engineer.user01", "groups": ["platform_member", "team_engineer"]},
@@ -178,7 +176,7 @@ def test_is_a_platform_engineer() -> None:
     assert is_a_platform_engineer("platform.owner01") is False
 
 
-@mock_iam
+@mock_aws
 def test_filter_non_platform_engineers() -> None:
     memberships = [
         {"username": "engineer.user01", "groups": ["platform_member", "team_engineer"]},

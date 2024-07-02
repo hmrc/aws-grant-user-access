@@ -3,7 +3,7 @@ import pytest
 from unittest.mock import Mock
 
 from aws_grant_user_access.src.clients.aws_sns_client import AwsSnsClient
-from botocore.exceptions import BotoCoreError, ClientError
+from botocore.exceptions import BotoCoreError
 
 
 def test_publish() -> None:
@@ -17,6 +17,6 @@ def test_publish() -> None:
 def test_publish_failure() -> None:
     mock_client = Mock(publish=Mock(side_effect=BotoCoreError()))
     with pytest.raises(AwsClientException) as ace:
-        response = AwsSnsClient(mock_client).publish(sns_topic_arn="test_topic_arn", message="a test message")
+        AwsSnsClient(mock_client).publish(sns_topic_arn="test_topic_arn", message="a test message")
 
     assert str(ace.value) == "failed to publish a message to test_topic_arn: An unspecified error occurred"
