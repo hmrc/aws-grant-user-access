@@ -77,6 +77,9 @@ python-test: build
 		--no-header \
 		tests
 
+flake8: build
+	@$(POETRY_DOCKER) flake8 --max-line-length 120 --exclude=.venv $(PYTHON_SRC)
+
 mypy: build
 	@$(POETRY_DOCKER) mypy --strict $(PYTHON_SRC)
 
@@ -84,7 +87,7 @@ bandit: build
 	@$(POETRY_DOCKER) bandit -c bandit.yaml -r -q $(PYTHON_SRC)
 
 
-test: python-test fmt-check md-check mypy bandit
+test: python-test fmt-check flake8 mypy bandit md-check
 
 ci: test
 

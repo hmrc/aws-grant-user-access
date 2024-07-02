@@ -1,14 +1,9 @@
-from datetime import datetime, timedelta
-from typing import Any
 from unittest.mock import Mock, patch
 
 import pytest
 
-from freezegun import freeze_time
 from jsonschema.exceptions import ValidationError
 
-from aws_grant_user_access.src.policy_manager import PolicyCreator
-from aws_grant_user_access.src.process_event import process_event
 from main import handle
 
 TEST_ROLE_ARN = "arn:aws:iam::123456789012:role/RoleUserAccess"
