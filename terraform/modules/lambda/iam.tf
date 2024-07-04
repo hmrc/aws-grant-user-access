@@ -47,6 +47,7 @@ data "aws_iam_policy_document" "lambda" {
       "iam:ListPolicyTags",
       "iam:ListPolicies",
       "iam:ListPolicyVersions",
+      "iam:ListGroupsForUser",
       "iam:TagPolicy",
     ]
   }
