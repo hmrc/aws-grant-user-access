@@ -17,6 +17,7 @@ PERMITTED_ROLES = [
     "RoleBitwardenEmergencyAccess",
     "RoleStacksetAdministrator",
     "RoleSSMAccess",
+    "RoleSensitiveShellAccess",
     "RoleCredentialsRotation",
 ]
 
