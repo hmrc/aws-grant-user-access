@@ -204,7 +204,7 @@ ifeq ($(MAKECMDGOALS), bootstrap-labs)
 	@$(AWS_PROFILE_CMD) $(TG) terragrunt apply \
 		-var grant_user_access_sns_topic_arn="${GRANT_USER_ACCESS_SNS_TOPIC_ARN}"
 else
-	@$(AWS_PROFILE_CMD) $(TG) terragrunt apply -auto-approve\
+	@$(AWS_PROFILE_CMD) $(TG) terragrunt apply \
 		-var environment_account_ids="{\"labs\": \"${LABS_ACCOUNT_ID}\", \"live\": \"${LIVE_ACCOUNT_ID}\"}" \
 		-var grant_user_access_sns_topic_arn="${GRANT_USER_ACCESS_SNS_TOPIC_ARN}"
 endif
