@@ -62,9 +62,9 @@ inputs = {
   tf_state_bucket_name              = local.tf_state_bucket_name
   tf_state_lock_dynamodb_table_name = local.tf_state_lock_dynamodb_table_name
 
-  tf_read_roles          = ["arn:aws:iam::${local.account_id}:role/RoleTerraformApplier", "arn:aws:iam::${local.account_id}:role/RoleTerraformPlanner", "arn:aws:iam::${local.account_id}:role/RoleSecurityEngineer"]
-  tf_list_roles          = ["arn:aws:iam::${local.account_id}:role/RoleTerraformApplier", "arn:aws:iam::${local.account_id}:role/RoleTerraformPlanner", "arn:aws:iam::${local.account_id}:role/RoleSecurityEngineer"]
-  tf_metadata_read_roles = ["arn:aws:iam::${local.account_id}:role/RoleTerraformApplier", "arn:aws:iam::${local.account_id}:role/RoleTerraformPlanner", "arn:aws:iam::${local.account_id}:role/RoleSecurityEngineer"]
+  tf_read_roles          = ["arn:aws:iam::${local.account_id}:role/RoleTerraformApplier", "arn:aws:iam::${local.account_id}:role/RoleTerraformPlanner", "arn:aws:iam::${local.account_id}:role/RoleSecurityEngineer", "arn:aws:iam::${local.account_id}:role/RoleProwlerScanner"]
+  tf_list_roles          = ["arn:aws:iam::${local.account_id}:role/RoleTerraformApplier", "arn:aws:iam::${local.account_id}:role/RoleTerraformPlanner", "arn:aws:iam::${local.account_id}:role/RoleSecurityEngineer", "arn:aws:iam::${local.account_id}:role/RoleProwlerScanner"]
+  tf_metadata_read_roles = ["arn:aws:iam::${local.account_id}:role/RoleTerraformApplier", "arn:aws:iam::${local.account_id}:role/RoleTerraformPlanner", "arn:aws:iam::${local.account_id}:role/RoleSecurityEngineer", "arn:aws:iam::${local.account_id}:role/RoleProwlerScanner"]
   tf_write_roles         = ["arn:aws:iam::${local.account_id}:role/RoleTerraformApplier"]
   tf_admin_roles         = ["arn:aws:iam::${local.account_id}:role/RoleTerraformApplier"]
 }
