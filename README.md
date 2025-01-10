@@ -24,7 +24,7 @@ This project aims to grant assume-role access to an IAM user for a given AWS Rol
 
 ### How is the CI/CD pipeline configured?
 
-- PR build job is an [AWS CodeBuild](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/638924580364/projects/grant-user-access-pr-builder/history?region=eu-west-2) project
+- PR build job is an [AWS CodeBuild project](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/638924580364/projects/grant-user-access-pr-builder/history?region=eu-west-2)
 - Codepipeline pipeline config for deployment can be found in [here](https://github.com/hmrc/aws-grant-user-access/blob/main/terraform/ci/pipeline/terragrunt.hcl)
 
 ## Making Terraform code changes
@@ -124,7 +124,8 @@ This will install the version of Terraform set in the `.terraform-version` file.
   echo 'export PATH="$HOME/.tgenv/bin:$PATH"' >> ~/.bash_profile
   ```
 
-  OR you can make symlinks for `tgenv/bin/*` scripts into a path that is already added to your `$PATH` (e.g. `/usr/local/bin`) `OSX/Linux Only!`
+  OR you can make symlinks for `tgenv/bin/*` scripts into a path that is already added to your `$PATH` 
+  (e.g. `/usr/local/bin`) `OSX/Linux Only!`
 
   ```bash
   ln -s ~/.tgenv/bin/* /usr/local/bin

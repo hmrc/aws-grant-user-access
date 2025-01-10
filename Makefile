@@ -92,8 +92,8 @@ test: python-test fmt-check flake8 mypy bandit md-check
 ci: test
 
 md-check:
-	@docker pull zemanlx/remark-lint:0.2.0
-	@docker run --rm -i -v $(PWD):/lint/input:ro zemanlx/remark-lint:0.2.0 --frail .
+	@docker pull ghcr.io/zemanlx/remark-lint:0.3.5
+	@docker run --rm -i -v $(PWD):/lint/input:ro ghcr.io/zemanlx/remark-lint:0.3.5 --frail .
 
 container-release:
 	docker build --target lambda \
