@@ -5,7 +5,7 @@ and dynamo table.  In order to allow changes, the state of the bootstrap is mana
 
 ## For first time run
 
-- Comment out the `generate "backend" {}` block in the terragrunt.hcl file and add the `generate "local" {}` config
+* Comment out the `generate "backend" {}` block in the terragrunt.hcl file and add the `generate "local" {}` config
   below
 
 ```hcl
@@ -22,7 +22,7 @@ EOF
 }
 ```
 
-- Bootstrap resources for terraform s3 backend config (s3 bucket, dynamo table, etc)
+* Bootstrap resources for terraform s3 backend config (s3 bucket, dynamo table, etc)
 
 ```bash
 aws-vault exec <profile> -- terragrunt init
@@ -30,7 +30,7 @@ aws-vault exec <profile> -- terragrunt plan
 aws-vault exec <profile> -- terragrunt apply
 ```
 
-- (Optional) you may wish to verify the backend.tf and bootstrap.tfstate files
+* (Optional) you may wish to verify the backend.tf and bootstrap.tfstate files
 
 ```bash
 ❯ find .terragrunt-cache -type f -name '*backend.tf'
@@ -40,21 +40,21 @@ aws-vault exec <profile> -- terragrunt apply
 .terragrunt-cache/sxq6LJeYYII0ZCIcjJfLMG2BqnQ/RAcfo4l3w_fY2MAqs-r_9wiLoEo/bootstrap/bootstrap.tfstate
 ```
 
-- Uncomment the `generate "backend" {}` block. Comment out the `generate "local" {}` block.
-- To migrate terraform state from local backend to s3 backend, run
+* Uncomment the `generate "backend" {}` block. Comment out the `generate "local" {}` block.
+* To migrate terraform state from local backend to s3 backend, run
 
 ```bash
 aws-vault exec <profile> -- terragrunt init -migrate-state
 ```
 
-- done ✅
+* done ✅
 
 ## For successive runs
 
-- Run
+* Run
 
 ```bash
 aws-vault exec <profile> -- terragrunt apply
 ```
 
-- done ✅
+* done ✅

@@ -1,35 +1,42 @@
 # aws-grant-user-access
 
-This project aims to grant assume-role access to an IAM user for a given AWS Role ARN with a time limited IAM policy. 
+This project aims to grant assume-role access to an IAM user for a given AWS Role ARN with a time limited IAM policy.
 
-- [aws-grant-user-access](#aws-grant-user-access)
-  - [CI/CD pipeline](#cicd-pipeline)
-    - [Where can I find a CI/CD pipeline for this code base?](#where-can-i-find-a-cicd-pipeline-for-this-code-base)
-    - [How is the CI/CD pipeline configured?](#how-is-the-cicd-pipeline-configured)
-  - [Setting up locally](#setting-up-locally)
-    - [Running the code: Terragrunt](#running-the-code-terragrunt)
-      - [aws-vault tool](#aws-vault-tool)
-    - [Terraform](#terraform)
-    - [Terragrunt](#terragrunt)
-  - [How do I plan/apply terraform to an environment?](#how-do-i-planapply-terraform-to-an-environment)
+<!--lint disable-->
+
+* [aws-grant-user-access](#aws-grant-user-access)
+  * [CI/CD pipeline](#cicd-pipeline)
+    * [Where can I find a CI/CD pipeline for this code base?](#where-can-i-find-a-cicd-pipeline-for-this-code-base)
+    * [How is the CI/CD pipeline configured?](#how-is-the-cicd-pipeline-configured)
+  * [Setting up locally](#setting-up-locally)
+    * [Running the code: Terragrunt](#running-the-code-terragrunt)
+      * [aws-vault tool](#aws-vault-tool)
+    * [Terraform](#terraform)
+    * [Terragrunt](#terragrunt)
+  * [How do I plan/apply terraform to an environment?](#how-do-i-planapply-terraform-to-an-environment)
+
+<!--lint enable-->
 
 ## CI/CD pipeline
 
 ### Where can I find a CI/CD pipeline for this code base?
 
-- [PR build job](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/638924580364/projects/grant-user-access-pr-builder/history?region=eu-west-2)
-- [Deployment pipeline](https://eu-west-2.console.aws.amazon.com/codesuite/codepipeline/pipelines/grant-user-access-pipeline/view?region=eu-west-2)
-- [Container Release Builder](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/638924580364/projects/grant-user-access-container-release-builder/history?region=eu-west-2)
-  - release changes to `aws_grant_user_access` python code
+* [PR build job](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/638924580364/projects/grant-user-access-pr-builder/history?region=eu-west-2)
+
+* [Deployment pipeline](https://eu-west-2.console.aws.amazon.com/codesuite/codepipeline/pipelines/grant-user-access-pipeline/view?region=eu-west-2)
+
+* [Container Release Builder](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/638924580364/projects/grant-user-access-container-release-builder/history?region=eu-west-2)
+
+  * release changes to `aws_grant_user_access` python code
 
 ### How is the CI/CD pipeline configured?
 
-- PR build job is an [AWS CodeBuild project](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/638924580364/projects/grant-user-access-pr-builder/history?region=eu-west-2)
-- Codepipeline pipeline config for deployment can be found in [here](https://github.com/hmrc/aws-grant-user-access/blob/main/terraform/ci/pipeline/terragrunt.hcl)
+* PR build job is an [AWS CodeBuild project](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/638924580364/projects/grant-user-access-pr-builder/history?region=eu-west-2)
+* Codepipeline pipeline config for deployment can be found in [here](https://github.com/hmrc/aws-grant-user-access/blob/main/terraform/ci/pipeline/terragrunt.hcl)
 
 ## Making Terraform code changes
 
-See [Setting up locally](#setting-up-locally) section below for relevant tools needed locally. 
+See [Setting up locally](#setting-up-locally) section below for relevant tools needed locally.
 
 It is recommended to run command below after updating Terraform/Terragrunt files in this repository run
 
@@ -66,9 +73,10 @@ need to run/test applying terraform resources locally use the command below
 ## Setting up locally
 
 Pre-requisites:
-- [aws-vault tool](https://github.com/99designs/aws-vault#installing)
-- Terraform
-- Terragrunt
+
+* [aws-vault tool](https://github.com/99designs/aws-vault#installing)
+* Terraform
+* Terragrunt
 
 ### Running the code: Terragrunt
 
@@ -114,22 +122,22 @@ This will install the version of Terraform set in the `.terraform-version` file.
 
 1. Check out tgenv into any path (here is `${HOME}/.tgenv`)
 
-  ```bash
-  git clone https://github.com/cunymatthieu/tgenv.git ~/.tgenv
-  ```
+```bash
+git clone https://github.com/cunymatthieu/tgenv.git ~/.tgenv
+```
 
 2. Add `~/.tgenv/bin` to your `$PATH` any way you like
 
-  ```bash
-  echo 'export PATH="$HOME/.tgenv/bin:$PATH"' >> ~/.bash_profile
-  ```
+```bash
+echo 'export PATH="$HOME/.tgenv/bin:$PATH"' >> ~/.bash_profile
+```
 
-  OR you can make symlinks for `tgenv/bin/*` scripts into a path that is already added to your `$PATH` 
-  (e.g. `/usr/local/bin`) `OSX/Linux Only!`
+OR you can make symlinks for `tgenv/bin/*` scripts into a path that is already added to your `$PATH`
+(e.g. `/usr/local/bin`) `OSX/Linux Only!`
 
-  ```bash
-  ln -s ~/.tgenv/bin/* /usr/local/bin
-  ```
+```bash
+ln -s ~/.tgenv/bin/* /usr/local/bin
+```
 
 **Install Terragrunt**
 
