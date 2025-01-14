@@ -1,1 +1,1 @@
-# lambda_grant_user_access module
+# lambda\_grant\_user\_access module
