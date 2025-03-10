@@ -18,6 +18,7 @@ PERMITTED_ROLES = [
     "RoleStacksetAdministrator",
     "RoleSSMAccess",
     "RoleCredentialsRotation",
+    "RoleInfrastructureAdministrator",
 ]
 
 ONE_WEEK = 168
