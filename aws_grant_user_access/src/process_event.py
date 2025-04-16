@@ -19,6 +19,7 @@ PERMITTED_ROLES = [
     "RoleSSMAccess",
     "RoleCredentialsRotation",
     "RoleInfrastructureAdministrator",
+    "RoleKmsAdministrator",
 ]
 
 ONE_WEEK = 168
