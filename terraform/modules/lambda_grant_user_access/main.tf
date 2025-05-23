@@ -44,7 +44,7 @@ data "aws_iam_policy_document" "lambda_sns" {
   }
 
   statement {
-    sid = "AllowKmsGenerateDataKey"
+    sid    = "AllowKmsGenerateDataKey"
     effect = "Allow"
 
     actions = [
