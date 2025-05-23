@@ -49,7 +49,15 @@ data "aws_iam_policy_document" "lambda_sns" {
 
     actions = [
       "kms:GenerateDataKey",
+      "kms:Decrypt",
     ]
-    resources = [data.aws_ssm_parameter.sns_topic_arn.value]
+    resources = ["*"]
+    condition {
+      test     = "ForAnyValue:StringLike"
+      variable = "kms:ResourceAliases"
+      values = [
+        "alias/sns_topic_kms_*"
+      ]
+    }
   }
 }
