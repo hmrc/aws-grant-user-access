@@ -43,4 +43,13 @@ data "aws_iam_policy_document" "lambda_sns" {
     resources = [data.aws_ssm_parameter.sns_topic_arn.value]
   }
 
+  statement {
+    sid    = "AllowKmsGenerateDataKey"
+    effect = "Allow"
+
+    actions = [
+      "kms:GenerateDataKey",
+    ]
+    resources = [data.aws_ssm_parameter.sns_topic_arn.value]
+  }
 }
