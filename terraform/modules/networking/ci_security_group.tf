@@ -31,7 +31,6 @@ resource "aws_security_group" "ci_agent_to_internet" {
 resource "aws_security_group" "ci_agent_to_endpoints" {
   name_prefix = "${local.vpc_name}-agent-to-endpoints"
   vpc_id      = module.vpc.vpc_id
-  egress      = []
 }
 
 resource "aws_security_group_rule" "HTTPS_to_MDTP_Artifactory" {
