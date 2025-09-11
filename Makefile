@@ -63,9 +63,11 @@ terragrunt:
 		.
 
 fmt: build
+	@echo "black fix"
 	@$(POETRY_DOCKER_MOUNT) black --line-length 120 --exclude=.venv $(PYTHON_SRC)
 
 fmt-check: build
+	@echo "black checks"
 	@$(POETRY_DOCKER) black --line-length 120 --check $(PYTHON_SRC)
 
 python-test: build
@@ -78,21 +80,25 @@ python-test: build
 		tests
 
 flake8: build
+	@echo "flake8 checks"
 	@$(POETRY_DOCKER) flake8 --max-line-length 120 --exclude=.venv $(PYTHON_SRC)
 
 mypy: build
+	@echo "mypy checks"
 	@$(POETRY_DOCKER) mypy --strict $(PYTHON_SRC)
 
 bandit: build
+	@echo "bandit checks"
 	@$(POETRY_DOCKER) bandit -c bandit.yaml -r -q $(PYTHON_SRC)
 
 
-test: python-test fmt-check flake8 mypy bandit md-check
+test: fmt-check flake8 mypy bandit md-check python-test
 
 ci: test
 
 REMARK_LINT_VERSION = 0.3.5
 md-check:
+	@echo "remark-lint checks"
 	@docker run --pull missing --rm -i -v $(PWD):/lint/input:ro ghcr.io/zemanlx/remark-lint:${REMARK_LINT_VERSION} --frail .
 
 # Update (to best of tools ability) md linter findings
