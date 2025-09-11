@@ -196,7 +196,7 @@ apply-%: check-% terragrunt
 	@cd ./terraform/$*
 	@find . -type d -name '.terragrunt-cache' | xargs -I {} rm -rf {}
 	@$(AWS_PROFILE_CMD) $(TG) terragrunt init --all
-	@$(AWS_PROFILE_CMD) $(TG) terragrunt apply --all --terragrunt-non-interactive
+	@$(AWS_PROFILE_CMD) $(TG) terragrunt apply --all -auto-approve
 
 check-bootstrap: check-labs check-live
 ifndef GRANT_USER_ACCESS_SNS_TOPIC_ARN
