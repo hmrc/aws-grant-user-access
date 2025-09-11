@@ -48,7 +48,7 @@ TG := docker run \
 	--env LIVE_ACCOUNT_ID \
 	--env LABS_ACCOUNT_ID \
 	--env TF_LOG \
-	--env TERRAGRUNT_DOWNLOAD="${PWD}/terraform/.terragrunt-cache" \
+	--env TG_DOWNLOAD_DIR="${PWD}/terraform/.terragrunt-cache" \
 	--user "$(shell id -u):$(shell id -g)" \
 	--workdir "$${PWD}" \
 	tg-worker
@@ -150,14 +150,14 @@ check-ci: check-live
 # Format all terraform files
 .PHONY: tf-fmt
 tf-fmt: terragrunt
-	@$(TG) terragrunt hclfmt
+	@$(TG) terragrunt hcl format
 	@$(TG) terraform fmt -recursive .
 
 # Check if all files are formatted
 .PHONY: tf-fmt-check
 tf-fmt-check: terragrunt
 	@$(TG) terraform fmt -recursive -check .
-	@$(TG) terragrunt hclfmt --terragrunt-check
+	@$(TG) terragrunt hcl format --terragrunt-check
 
 .PHONY: tf-checks
 tf-checks: tf-fmt-check  md-check
@@ -172,8 +172,8 @@ validate-ci: export AWS_PROFILE := auth-RoleTerraformPlanner
 validate-%: check-% terragrunt
 	@cd ./terraform/$*
 	@find . -type d -name '.terragrunt-cache' | xargs -I {} rm -rf {}
-	@$(AWS_PROFILE_CMD) $(TG) terragrunt run-all init
-	@$(AWS_PROFILE_CMD) $(TG) terragrunt run-all validate >/dev/null
+	@$(AWS_PROFILE_CMD) $(TG) terragrunt init --all
+	@$(AWS_PROFILE_CMD) $(TG) terragrunt validate --all >/dev/null
 	echo "$@ OK"
 
 # Run plan for labs or live environment
@@ -184,8 +184,8 @@ plan-ci: export AWS_PROFILE := auth-RoleTerraformPlanner
 plan-%: check-% tf-fmt
 	@cd ./terraform/$*
 	@find . -type d -name '.terragrunt-cache' | xargs -I {} rm -rf {}
-	@$(AWS_PROFILE_CMD) $(TG) terragrunt run-all init
-	@$(AWS_PROFILE_CMD) $(TG) terragrunt run-all plan
+	@$(AWS_PROFILE_CMD) $(TG) terragrunt init --all
+	@$(AWS_PROFILE_CMD) $(TG) terragrunt plan --all
 
 # Run apply for labs or live environment
 .PHONY: apply-%
@@ -195,8 +195,8 @@ apply-ci: export AWS_PROFILE := auth-RoleTerraformApplier
 apply-%: check-% terragrunt
 	@cd ./terraform/$*
 	@find . -type d -name '.terragrunt-cache' | xargs -I {} rm -rf {}
-	@$(AWS_PROFILE_CMD) $(TG) terragrunt run-all init
-	@$(AWS_PROFILE_CMD) $(TG) terragrunt run-all apply --terragrunt-non-interactive
+	@$(AWS_PROFILE_CMD) $(TG) terragrunt init --all
+	@$(AWS_PROFILE_CMD) $(TG) terragrunt apply --all --terragrunt-non-interactive
 
 check-bootstrap: check-labs check-live
 ifndef GRANT_USER_ACCESS_SNS_TOPIC_ARN

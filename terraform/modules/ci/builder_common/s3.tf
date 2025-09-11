@@ -80,4 +80,38 @@ data "aws_iam_policy_document" "bucket_policy" {
       values   = local.admins
     }
   }
+
+  statement {
+    sid    = "AllowProwlerScannerReadOnlyAccess"
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    actions = [
+      "s3:GetBucketAcl",
+      "s3:GetBucketPolicy",
+      "s3:GetBucketPolicyStatus",
+      "s3:GetBucketLocation",
+      "s3:GetBucketVersioning",
+      "s3:GetEncryptionConfiguration",
+      "s3:GetBucketLogging",
+      "s3:GetBucketPublicAccessBlock",
+      "s3:GetBucketOwnershipControls",
+      "s3:GetBucketObjectLockConfiguration",
+      "s3:GetBucketNotification",
+      "s3:GetLifecycleConfiguration",
+      "s3:GetReplicationConfiguration",
+      "s3:GetAccelerateConfiguration"
+    ]
+    resources = [
+      module.builder_bucket.arn,
+      "${module.builder_bucket.arn}/*"
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:PrincipalArn"
+      values   = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/RoleProwlerScanner"]
+    }
+  }
 }
