@@ -157,7 +157,7 @@ tf-fmt: terragrunt
 .PHONY: tf-fmt-check
 tf-fmt-check: terragrunt
 	@$(TG) terraform fmt -recursive -check .
-	@$(TG) terragrunt hcl format --terragrunt-check
+	@$(TG) terragrunt hcl format --check
 
 .PHONY: tf-checks
 tf-checks: tf-fmt-check  md-check
