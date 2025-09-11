@@ -8,22 +8,21 @@ readme = "README.md"
 packages = [{include = "aws_grant_user_access"}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
-boto3 = "^1.26.158"
-jsonschema = "^4.17.3"
-awslambdaric = "^2.0.4"
+python = "^3.13"
+jsonschema = "~4.25.0"
+awslambdaric = "~3.1.0"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.3.2"
-pytest-cov = "^4.1.0"
-freezegun = "^1.2.2"
-black = "^24.3.0"
-bandit = "^1.7.5"
-mypy = "^1.5.1"
-types-jsonschema = "^4.17.0.10"
-jsonschema = "^4.19.0"
-flake8 = "^7.0.0"
-moto = "^5.0.9"
+boto3 = "~1.40.0"
+pytest = "~8.4.0"
+pytest-cov = "~6.3.0"
+freezegun = "~1.5.0"
+black = "~25.1.0"
+bandit = "~1.8.0"
+mypy = "~1.17.0"
+types-jsonschema = "~4.25.1.0"
+flake8 = "~7.3.0"
+moto = "~5.1.0"
 
 [build-system]
 requires = ["poetry-core"]
