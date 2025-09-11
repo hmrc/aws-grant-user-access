@@ -21,7 +21,7 @@ def test_time_window_end_time() -> None:
     ]
 
     for tc in test_cases:
-        print(f"test case: {tc['approval_in_hours'] = }")
+        print(f"test case: {tc['approval_in_hours'] = }")  # noqa: E202,E251
         grant_time_window = GrantTimeWindow(hours=tc["approval_in_hours"])
         assert grant_time_window.start_time == datetime(year=2012, month=6, day=27, hour=12, minute=0, second=1)
         assert grant_time_window.end_time == tc["end_time"]
