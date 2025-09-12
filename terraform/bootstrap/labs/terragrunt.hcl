@@ -11,6 +11,10 @@ locals {
   tf_state_lock_dynamodb_table_name = local.common.locals.tf_state_lock_dynamodb_table_name
 }
 
+# the key in this block needs fixing to "bootstrap.tfstate" 
+# the object in s3 needs to be moved first from "./bootstrap.tfstate"
+# to "bootstrap.tfstate" in short move the file and delete the
+# path_relative_to_include
 generate "backend" {
   path      = "backend.tf"
   if_exists = "overwrite_terragrunt"
