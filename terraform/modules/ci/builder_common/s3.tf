@@ -63,7 +63,6 @@ data "aws_iam_policy_document" "bucket_policy" {
       "s3:GetAnalyticsConfiguration",
       "s3:GetInventoryConfiguration",
       "s3:GetMetricsConfiguration",
-      "s3:GetReplicationConfiguration",
       "s3:PutAccelerateConfiguration",
       "s3:PutAnalyticsConfiguration",
       "s3:PutBucket*",
