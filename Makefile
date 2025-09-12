@@ -220,8 +220,8 @@ endif
 bootstrap-labs: export AWS_PROFILE := platsec-stackset-poc-RoleTerraformApplier
 bootstrap-live: export AWS_PROFILE := auth-RoleTerraformApplier
 bootstrap-%: check-bootstrap terragrunt
-	@cd ./terraform/bootstrap/$*
 	@find . -type d -name '.terragrunt-cache' | xargs -I {} rm -rf {}
+	@cd ./terraform/bootstrap/$*
 	@$(AWS_PROFILE_CMD) $(TG) terragrunt init
 ifeq ($(MAKECMDGOALS), bootstrap-labs)
 	@$(AWS_PROFILE_CMD) $(TG) terragrunt apply \

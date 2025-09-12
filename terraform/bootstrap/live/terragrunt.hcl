@@ -19,7 +19,7 @@ terraform {
   backend "s3" {
     bucket         = "${local.tf_state_bucket_name}"
     region         = "eu-west-2"
-    key            = "${path_relative_to_include()}/bootstrap.tfstate"
+    key            = "bootstrap.tfstate"
     encrypt        = true
     kms_key_id     = "alias/s3-${local.tf_state_bucket_name}"
     dynamodb_table = "${local.tf_state_lock_dynamodb_table_name}"
