@@ -92,7 +92,7 @@ bandit: build
 	@$(POETRY_DOCKER) bandit -c bandit.yaml -r -q $(PYTHON_SRC)
 
 
-test: fmt-check flake8 mypy bandit md-check python-test
+test: flake8 md-check bandit fmt-check python-test mypy
 
 ci: test
 
