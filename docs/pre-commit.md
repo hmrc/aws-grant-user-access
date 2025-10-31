@@ -28,7 +28,14 @@ brew install pre-commit
 pip install pre-commit
 ```
 
-3. Run the TruffleHog Check
+3. Enable the Hooks
+Run this once in the repo root to activate both commit and push hooks:
+
+```bash
+pre-commit install --hook-type pre-commit --hook-type pre-push
+```
+
+4. Run the TruffleHog Check
 
 * To scan all files
 
