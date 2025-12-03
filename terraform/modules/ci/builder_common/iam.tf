@@ -23,9 +23,9 @@ data "aws_iam_policy_document" "codebuild_assume_role" {
 }
 
 resource "aws_iam_role" "build" {
-  name_prefix         = substr(var.project_name, 0, 32)
-  description         = "${var.project_name} build"
-  assume_role_policy  = data.aws_iam_policy_document.codebuild_assume_role.json
+  name_prefix        = substr(var.project_name, 0, 32)
+  description        = "${var.project_name} build"
+  assume_role_policy = data.aws_iam_policy_document.codebuild_assume_role.json
 
   tags = {
     Step = var.project_name
