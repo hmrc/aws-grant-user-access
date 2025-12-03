@@ -12,18 +12,31 @@ data "aws_iam_policy_document" "codebuild_assume_role" {
     actions = [
       "sts:AssumeRole"
     ]
+
+    # Mitigate Confused Deputy by restricting to your account
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
   }
 }
 
 resource "aws_iam_role" "build" {
-  name_prefix         = substr(var.project_name, 0, 32)
-  description         = "${var.project_name} build"
-  assume_role_policy  = data.aws_iam_policy_document.codebuild_assume_role.json
-  managed_policy_arns = local.managed_policy_arns
+  name_prefix        = substr(var.project_name, 0, 32)
+  description        = "${var.project_name} build"
+  assume_role_policy = data.aws_iam_policy_document.codebuild_assume_role.json
 
   tags = {
     Step = var.project_name
   }
+}
+
+# Attach project-specific IAM policies
+resource "aws_iam_role_policy_attachment" "project_policies" {
+  for_each   = toset(local.managed_policy_arns)
+  role       = aws_iam_role.build.name
+  policy_arn = each.value
 }
 
 data "aws_iam_policy_document" "build" {
