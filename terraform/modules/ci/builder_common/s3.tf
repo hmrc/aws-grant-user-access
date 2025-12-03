@@ -9,10 +9,10 @@ locals {
 
 module "builder_bucket" {
   source         = "hmrc/s3-bucket-core/aws"
-  version        = "1.0.0"
+  version        = "3.1.0"
   bucket_name    = local.bucket_name
   force_destroy  = true
-  kms_key_policy = null
+  kms_key_policy = data.aws_iam_policy_document.bucket_kms_policy.json
 
   data_expiry      = "90-days"
   data_sensitivity = "low"
@@ -112,5 +112,44 @@ data "aws_iam_policy_document" "bucket_policy" {
       variable = "aws:PrincipalArn"
       values   = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/RoleProwlerScanner"]
     }
+  }
+}
+
+data "aws_iam_policy_document" "bucket_kms_policy" {
+  statement {
+    sid    = "AllowAdminAccess"
+    effect = "Allow"
+    principals {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/RoleTerraformApplier",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/RoleKmsAdministrator",
+      ]
+    }
+    actions   = ["kms:*"]
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "AllowReadOnlyAccess"
+    effect = "Allow"
+    principals {
+      type = "AWS"
+      identifiers = [
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/RoleProwlerScanner",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/RolePlatformReadOnly",
+        "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/RoleTerraformPlanner",
+      ]
+    }
+    actions = [
+      "kms:DescribeKey",
+      "kms:GetKeyPolicy",
+      "kms:ListKeyPolicies",
+      "kms:GetKeyRotationStatus",
+      "kms:ListResourceTags",
+      "kms:ListGrants"
+    ]
+    resources = ["*"]
   }
 }
