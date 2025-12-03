@@ -12,6 +12,13 @@ data "aws_iam_policy_document" "codebuild_assume_role" {
     actions = [
       "sts:AssumeRole"
     ]
+
+    # Mitigate Confused Deputy by restricting to your account
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
   }
 }
 
