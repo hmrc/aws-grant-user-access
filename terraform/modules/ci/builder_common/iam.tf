@@ -26,11 +26,17 @@ resource "aws_iam_role" "build" {
   name_prefix         = substr(var.project_name, 0, 32)
   description         = "${var.project_name} build"
   assume_role_policy  = data.aws_iam_policy_document.codebuild_assume_role.json
-  managed_policy_arns = local.managed_policy_arns
 
   tags = {
     Step = var.project_name
   }
+}
+
+# Attach project-specific IAM policies
+resource "aws_iam_role_policy_attachment" "project_policies" {
+  for_each   = toset(local.managed_policy_arns)
+  role       = aws_iam_role.build.name
+  policy_arn = each.value
 }
 
 data "aws_iam_policy_document" "build" {
