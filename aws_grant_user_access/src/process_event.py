@@ -72,19 +72,19 @@ def process_event(event: Dict[str, Any], context: Any) -> None:
         )
     logger.info(f"Access to {event['role_arn']} granted to {event['usernames']} for {event['approval_in_hours']} hours")
 
-    region = context.invoked_function_arn.split(":")[3]
-    account = context.invoked_function_arn.split(":")[4]
+    # region = context.invoked_function_arn.split(":")[3]
+    # account = context.invoked_function_arn.split(":")[4]
 
-    publish_sns_message(
-        message=SNSMessage(
-            account=account,
-            region=region,
-            role_arn=event["role_arn"],
-            usernames=event["usernames"],
-            hours=int(event["approval_in_hours"]),
-            time_window=time_window,
-        )
-    )
+    # publish_sns_message(
+    #     message=SNSMessage(
+    #         account=account,
+    #         region=region,
+    #         role_arn=event["role_arn"],
+    #         usernames=event["usernames"],
+    #         hours=int(event["approval_in_hours"]),
+    #         time_window=time_window,
+    #     )
+    # )
 
 
 def publish_sns_message(message: SNSMessage) -> None:
