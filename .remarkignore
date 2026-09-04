@@ -1,3 +1,5 @@
 .pytest_cache/
 tmp/
 .tmp/
+.terraform.d/
+terraform/.terragrunt-cache/
