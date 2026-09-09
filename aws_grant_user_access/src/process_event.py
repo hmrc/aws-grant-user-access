@@ -4,7 +4,11 @@ import logging
 from typing import Any, Dict, List, Set
 from jsonschema.validators import validate
 from aws_grant_user_access.src.config.config import Config
-from aws_grant_user_access.src.data.exceptions import AwsClientException, MissingConfigException, SlackNotificationException
+from aws_grant_user_access.src.data.exceptions import (
+    AwsClientException,
+    MissingConfigException,
+    SlackNotificationException,
+)
 
 from aws_grant_user_access.src.grant_time_window import GrantTimeWindow
 from aws_grant_user_access.src.notifier import SNSMessage, SNSMessagePublisher, SlackMessage, SlackMessagePublisher
