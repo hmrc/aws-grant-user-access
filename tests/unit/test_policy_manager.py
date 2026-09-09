@@ -50,7 +50,7 @@ def test_policy_creator_creates_policy_document() -> None:
             {"Effect": "Allow", "Action": "sts:AssumeRole", "Resource": "arn:aws:iam::123456789012:role/somerole"}
         ],
     }
-    policy_creator.create_iam_policy(policy_document=policy, name="some_name", end_time=datetime.utcnow())
+    policy_creator.create_iam_policy(policy_document=policy, name="some_name", end_time=datetime.now(UTC))
 
     policies = moto_client.list_policies(PathPrefix="/Lambda/GrantUserAccess/")["Policies"]
     assert len(policies) == 1
@@ -61,7 +61,7 @@ def test_policy_creator_creates_policy_document() -> None:
 def test_policy_creator_grants_access() -> None:
     moto_client = boto3.client("iam")
     policy_creator = PolicyCreator(AwsIamClient(moto_client))
-    start_time = datetime.utcnow()
+    start_time = datetime.now(UTC)
     role_arn = "arn:aws:iam::123456789012:role/somerole"
 
     create_user_response = moto_client.create_user(
@@ -97,7 +97,7 @@ def test_policy_is_tagged_with_expiry_time() -> None:
     PolicyCreator(mock_client).grant_access(
         role_arn="arn:aws:iam::123456789012:role/somerole",
         username="test-user-2",
-        start_time=datetime.utcnow(),
+        start_time=datetime.now(UTC),
         end_time=end_time,
     )
 
@@ -253,6 +253,42 @@ def test_delete_expired_policies() -> None:
     )
 
     assert 2 == mock_client.delete_policy.call_count
+
+
+def test_delete_expired_policies_error() -> None:
+    mock_client = Mock(
+        list_policies=Mock(return_value=resp.LIST_POLICIES),
+        get_policy=Mock(side_effect=_get_policy),
+        delete_policy=Mock(
+            side_effect=AwsClientException(
+                "failed to delete policy: An error occurred (InvalidInput) when calling the DeletePolicy operation"
+            )
+        ),
+    )
+
+    with pytest.raises(AwsClientException):
+        PolicyCreator(mock_client).delete_expired_policies(
+            current_time=datetime(year=2021, month=1, day=1, hour=1, minute=1, second=1)
+        )
+
+
+def test_delete_expired_policies_error_no_such_entity() -> None:
+    mock_client = Mock(
+        list_policies=Mock(return_value=resp.LIST_POLICIES),
+        get_policy=Mock(side_effect=_get_policy),
+        delete_policy=Mock(
+            side_effect=AwsClientException(
+                (
+                    "failed to delete policy: An error occurred (NoSuchEntity) when calling the DeletePolicy "
+                    "operation: The policy cannot be found."
+                )
+            )
+        ),
+    )
+
+    PolicyCreator(mock_client).delete_expired_policies(
+        current_time=datetime(year=2021, month=1, day=1, hour=1, minute=1, second=1)
+    )
 
 
 def test_get_attached_user_policy_arns() -> None:

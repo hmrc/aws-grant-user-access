@@ -119,6 +119,23 @@ resource "aws_vpc_endpoint" "ecs" {
   }
 }
 
+module "slack_notifications_endpoint_connector" {
+  source = "./service_endpoint_connector"
+
+  security_group_name = "${local.vpc_name}-slack-notifications-endpoint"
+  vpc_id              = module.vpc.vpc_id
+  service_name        = local.live_slack_notifications_endpoint_name
+  subnet_ids          = module.vpc.private_subnets
+
+  subdomains = [
+    "slack-notifications",
+  ]
+  top_level_domain = "tax.service.gov.uk"
+  tags = {
+    Purpose : "${local.vpc_name}-slack-notifications-endpoint-connector"
+  }
+}
+
 # S3 for downloading source code
 resource "aws_vpc_endpoint" "s3" {
   vpc_id       = module.vpc.vpc_id

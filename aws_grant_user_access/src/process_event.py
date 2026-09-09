@@ -1,12 +1,13 @@
 import json
+import logging
 
 from typing import Any, Dict, List, Set
 from jsonschema.validators import validate
 from aws_grant_user_access.src.config.config import Config
-from aws_grant_user_access.src.data.exceptions import MissingConfigException
+from aws_grant_user_access.src.data.exceptions import AwsClientException, MissingConfigException, SlackNotificationException
 
 from aws_grant_user_access.src.grant_time_window import GrantTimeWindow
-from aws_grant_user_access.src.notifier import SNSMessage, SNSMessagePublisher
+from aws_grant_user_access.src.notifier import SNSMessage, SNSMessagePublisher, SlackMessage, SlackMessagePublisher
 from aws_grant_user_access.src.policy_manager import PolicyCreator
 
 
@@ -63,28 +64,46 @@ def process_event(event: Dict[str, Any], context: Any) -> None:
     policy_creator.detach_expired_policies_from_users(current_time=time_window.start_time)
     policy_creator.delete_expired_policies(current_time=time_window.start_time)
 
+    granted_users: List[str] = []
+
     for user in event["usernames"]:
-        policy_creator.grant_access(
+        try:
+            policy_creator.grant_access(
+                role_arn=event["role_arn"],
+                username=user,
+                start_time=time_window.start_time,
+                end_time=time_window.end_time,
+            )
+            granted_users.append(user)
+        except AwsClientException as ex:
+            logger.error(f"failed to grant access to {event['role_arn']} for {user}: {ex}")
+
+    if not granted_users:
+        return
+
+    logger.info(f"Access to {event['role_arn']} granted to {granted_users} for {event['approval_in_hours']} hours")
+
+    publish_slack_message(
+        message=SlackMessage(
             role_arn=event["role_arn"],
-            username=user,
-            start_time=time_window.start_time,
-            end_time=time_window.end_time,
+            usernames=granted_users,
+            hours=int(event["approval_in_hours"]),
+            time_window=time_window,
         )
-    logger.info(f"Access to {event['role_arn']} granted to {event['usernames']} for {event['approval_in_hours']} hours")
+    )
 
-    # region = context.invoked_function_arn.split(":")[3]
-    # account = context.invoked_function_arn.split(":")[4]
 
-    # publish_sns_message(
-    #     message=SNSMessage(
-    #         account=account,
-    #         region=region,
-    #         role_arn=event["role_arn"],
-    #         usernames=event["usernames"],
-    #         hours=int(event["approval_in_hours"]),
-    #         time_window=time_window,
-    #     )
-    # )
+def publish_slack_message(message: SlackMessage) -> None:
+    try:
+        channels = config.get_slack_channels()
+        slack_client = config.get_slack_client()
+    except MissingConfigException:
+        return
+
+    try:
+        SlackMessagePublisher(slack_client).publish_slack_message(channels=channels, message=message)
+    except SlackNotificationException as ex:
+        logging.getLogger(__name__).warning(f"failed to publish slack message: {ex}")
 
 
 def publish_sns_message(message: SNSMessage) -> None:
@@ -101,7 +120,12 @@ def publish_sns_message(message: SNSMessage) -> None:
 
 def is_a_platform_engineer(username: str) -> bool:
     iam_client = config.get_iam_client()
-    groups = [grp["GroupName"] for grp in iam_client.list_groups_for_user(user_name=username)["Groups"]]
+    try:
+        groups = [grp["GroupName"] for grp in iam_client.list_groups_for_user(user_name=username)["Groups"]]
+    except AwsClientException as ex:
+        logging.getLogger(__name__).warning(f"failed to verify group membership for {username}: {ex}")
+        return False
+
     return (
         len([e for e in groups if "engineer" in e.lower()]) > 0
         and len([po for po in groups if "platform_owner" in po.lower()]) == 0

@@ -24,6 +24,8 @@ module "lambda" {
   policy_arns           = [aws_iam_policy.lambda_sns.arn]
   timeout_in_seconds    = var.timeout_in_seconds
   tags                  = var.tags
+  vpc_config            = var.vpc_config
+  security_group_ids    = var.security_group_ids
 }
 
 resource "aws_iam_policy" "lambda_sns" {

@@ -3,6 +3,7 @@ import boto3
 
 from aws_grant_user_access.src.clients.aws_iam_client import AwsIamClient
 from aws_grant_user_access.src.clients.aws_sns_client import AwsSnsClient
+from aws_grant_user_access.src.clients.aws_ssm_client import AwsSsmClient
 
 from dataclasses import dataclass
 
@@ -20,3 +21,6 @@ class AwsClientFactory:
 
     def get_sns_client(self) -> AwsSnsClient:
         return AwsSnsClient(boto3.client("sns", region_name=AWS_REGION))
+
+    def get_ssm_client(self) -> AwsSsmClient:
+        return AwsSsmClient(boto3.client("ssm", region_name=AWS_REGION))

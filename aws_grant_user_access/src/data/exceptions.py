@@ -16,3 +16,7 @@ class MissingConfigException(GrantUserAccessException):
 
 class InvalidConfigException(GrantUserAccessException):
     pass
+
+
+class SlackNotificationException(GrantUserAccessException):
+    pass
