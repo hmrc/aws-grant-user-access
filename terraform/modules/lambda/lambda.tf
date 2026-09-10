@@ -16,6 +16,14 @@ resource "aws_lambda_function" "this" {
     variables = var.environment_variables
   }
 
+  dynamic "vpc_config" {
+    for_each = var.vpc_config != null ? [1] : []
+    content {
+      subnet_ids         = var.vpc_config.private_subnet_ids
+      security_group_ids = var.security_group_ids
+    }
+  }
+
   tags = var.tags
 }
 

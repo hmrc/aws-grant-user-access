@@ -13,3 +13,7 @@ output "ci_agent_to_endpoints_sg_id" {
 output "ci_agent_to_internet_sg_id" {
   value = aws_security_group.ci_agent_to_internet.id
 }
+
+output "grant_user_access_lambda_sg_id" {
+  value = aws_security_group.grant_user_access_lambda.id
+}

@@ -31,3 +31,19 @@ variable "sns_topic_parameter_store_name" {
   description = "Name of parameter store containing SNS Topic ARN"
   type        = string
 }
+
+variable "vpc_config" {
+  type = object({
+    vpc_id              = string
+    private_subnet_ids  = list(string)
+    private_subnet_arns = list(string)
+  })
+  default     = null
+  description = "VPC config for the lambda function; when null, the function is not attached to a VPC"
+}
+
+variable "security_group_ids" {
+  type        = list(string)
+  default     = []
+  description = "Security group IDs to attach to the lambda's ENIs when vpc_config is set"
+}

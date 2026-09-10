@@ -1,5 +1,9 @@
 locals {
-  managed_policy_arns = concat([aws_iam_policy.lambda.arn], var.policy_arns)
+  managed_policy_arns = concat(
+    [aws_iam_policy.lambda.arn],
+    var.policy_arns,
+    var.vpc_config != null ? ["arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"] : []
+  )
 }
 
 resource "aws_iam_role" "lambda" {
