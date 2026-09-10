@@ -21,7 +21,7 @@ module "lambda" {
   environment_variables = local.environment_variables
   lambda_function_name  = var.lambda_function_name
   ecr_image_tag         = aws_ssm_parameter.grant_user_access.value
-  policy_arns           = [aws_iam_policy.lambda_sns.arn]
+  policy_arns           = [aws_iam_policy.lambda_sns.arn, aws_iam_policy.lambda_slack.arn]
   timeout_in_seconds    = var.timeout_in_seconds
   tags                  = var.tags
   vpc_config            = var.vpc_config
@@ -61,5 +61,37 @@ data "aws_iam_policy_document" "lambda_sns" {
         "alias/sns_topic_kms_*"
       ]
     }
+  }
+}
+
+resource "aws_iam_policy" "lambda_slack" {
+  name   = "${var.lambda_function_name}-slack-role-policy"
+  policy = data.aws_iam_policy_document.lambda_slack.json
+}
+
+data "aws_kms_alias" "aws_ssm" {
+  name = "alias/aws/ssm"
+}
+
+data "aws_iam_policy_document" "lambda_slack" {
+  statement {
+    sid    = "GetSlackApiKeyParameter"
+    effect = "Allow"
+
+    actions = [
+      "ssm:GetParameter",
+    ]
+    resources = [aws_ssm_parameter.slack_api_key.arn]
+  }
+
+  statement {
+    sid    = "AllowKmsDecryptForSlackApiKey"
+    effect = "Allow"
+
+    actions = [
+      "kms:Decrypt",
+      "kms:GenerateDataKey"
+    ]
+    resources = [data.aws_kms_alias.aws_ssm.target_key_arn]
   }
 }
