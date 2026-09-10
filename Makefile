@@ -172,8 +172,8 @@ validate-ci: export AWS_PROFILE := auth-RoleTerraformPlanner
 validate-%: check-% terragrunt
 	@cd ./terraform/$*
 	@find . -type d -name '.terragrunt-cache' | xargs -I {} rm -rf {}
-	@$(AWS_PROFILE_CMD) $(TG) terragrunt init --all
-	@$(AWS_PROFILE_CMD) $(TG) terragrunt validate --all >/dev/null
+	@$(AWS_PROFILE_CMD) $(TG) terragrunt init --all --non-interactive
+	@$(AWS_PROFILE_CMD) $(TG) terragrunt validate --all --non-interactive >/dev/null
 	echo "$@ OK"
 
 # Run plan for labs or live environment
@@ -184,8 +184,8 @@ plan-ci: export AWS_PROFILE := auth-RoleTerraformPlanner
 plan-%: check-% tf-fmt
 	@cd ./terraform/$*
 	@find . -type d -name '.terragrunt-cache' | xargs -I {} rm -rf {}
-	@$(AWS_PROFILE_CMD) $(TG) terragrunt init --all
-	@$(AWS_PROFILE_CMD) $(TG) terragrunt plan --all
+	@$(AWS_PROFILE_CMD) $(TG) terragrunt init --all --non-interactive
+	@$(AWS_PROFILE_CMD) $(TG) terragrunt plan --all --non-interactive
 
 # Run plan for labs or live environment
 .PHONY: plan-%
