@@ -19,7 +19,6 @@ from aws_grant_user_access.src.process_event import (
 from typing import Any, Dict, List
 from freezegun import freeze_time
 
-
 TEST_ROLE_ARN = "arn:aws:iam::123456789012:role/RoleEngineerUserAccess"
 TEST_PO_ROLE_ARN = "arn:aws:iam::123456789012:role/RolePlatformOwnerUserAccess"
 TEST_USERS = ["test-user-1", "test-user-2", "test-user-3"]

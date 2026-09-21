@@ -14,7 +14,6 @@ from aws_grant_user_access.src.grant_time_window import GrantTimeWindow
 from aws_grant_user_access.src.notifier import SNSMessage, SNSMessagePublisher, SlackMessage, SlackMessagePublisher
 from aws_grant_user_access.src.policy_manager import PolicyCreator
 
-
 PERMITTED_ROLES = [
     "engineer",
     "RoleBackupBucketAdmin",
