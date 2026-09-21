@@ -11,7 +11,6 @@ from moto.core import DEFAULT_ACCOUNT_ID
 from moto.sns import sns_backends
 from freezegun import freeze_time
 
-
 TEST_ROLE_ARN = "arn:aws:iam::123456789012:role/RoleUserAccess"
 TEST_USERS = ["test-user-1", "test-user-2", "test-user-3"]
 TEST_SNS_MESSAGE = {

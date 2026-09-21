@@ -6,7 +6,6 @@ from aws_grant_user_access.src.data.data import AWS_IAM_TIME_FORMAT
 from aws_grant_user_access.src.clients.aws_iam_client import AwsIamClient
 from aws_grant_user_access.src.data.exceptions import AwsClientException
 
-
 PRODUCT_TAG_VALUE = "grant-user-access"
 PRODUCT_TAG_KEY = "Product"
 EXPIRES_AT_TAG_KEY = "Expires_At"

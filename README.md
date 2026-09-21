@@ -74,7 +74,7 @@ need to run/test applying terraform resources locally use the command below
 
 Pre-requisites:
 
-* [aws-vault tool](https://github.com/99designs/aws-vault#installing)
+* [aws-vault tool](https://github.com/ByteNess/aws-vault#installing)
 * Terraform
 * Terragrunt
 
@@ -90,13 +90,13 @@ By design we *do not* invoke Terraform directly, instead we invoke Terragrunt.
 
 #### aws-vault tool
 
-Install [aws-vault tool](https://github.com/99designs/aws-vault#installing).
+Install [aws-vault tool](https://github.com/ByteNess/aws-vault#installing).
 
 ```bash
 brew install --cask aws-vault
 ```
 
-See https://github.com/99designs/aws-vault#installing for installation steps on Linux and Windows
+See https://github.com/ByteNess/aws-vault#installing for installation steps on Linux and Windows
 
 #### Terraform
 
