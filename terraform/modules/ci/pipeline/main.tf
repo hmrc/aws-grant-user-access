@@ -9,6 +9,7 @@ module "common" {
   src_org              = var.src_org
   src_repo             = var.src_repo
   github_token         = data.aws_ssm_parameter.github_api_token.value
+  codeconnection_arn   = data.aws_codestarconnections_connection.this.arn
   access_log_bucket_id = local.access_log_bucket_id
   admin_roles          = var.admin_roles
 }

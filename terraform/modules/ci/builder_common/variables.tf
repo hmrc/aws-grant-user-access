@@ -70,3 +70,7 @@ variable "github_webhook_events" {
   description = "List of Github Webhook events"
 }
 
+variable "codeconnection_arn" {
+  type        = string
+  description = "The aws_codestarconnections_connection ARN."
+}

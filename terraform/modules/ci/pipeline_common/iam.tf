@@ -52,6 +52,23 @@ data "aws_iam_policy_document" "codepipeline_policy" {
       module.codepipeline_bucket.kms_key_arn
     ]
   }
+
+  statement {
+    actions = [
+      "codeconnections:UseConnection",
+      "codestar-connections:UseConnection",
+    ]
+
+    resources = [var.codeconnection_arn]
+
+    condition {
+      test     = "ForAllValues:StringEquals"
+      variable = "codeconnections:FullRepositoryId"
+      values = [
+        "${var.src_org}/${var.src_repo}"
+      ]
+    }
+  }
 }
 
 resource "aws_iam_policy" "codepipeline_policy" {

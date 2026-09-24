@@ -51,3 +51,8 @@ variable "ecr_repository_arn" {
   type        = string
   description = "The ARN that identifies the container image repository"
 }
+
+variable "codeconnection_name" {
+  type        = string
+  description = "The name of the aws_codestarconnections_connection."
+}

@@ -41,3 +41,8 @@ variable "vpc_config" {
     vpc_id              = string,
   })
 }
+
+variable "codeconnection_name" {
+  type        = string
+  description = "The name of the aws_codestarconnections_connection."
+}

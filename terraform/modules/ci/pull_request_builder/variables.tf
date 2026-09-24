@@ -46,3 +46,8 @@ variable "src_branch" {
   default     = "^main"
   description = "Source repository branch"
 }
+
+variable "codeconnection_name" {
+  type        = string
+  description = "The name of the aws_codestarconnections_connection."
+}

@@ -33,6 +33,8 @@ inputs = {
   src_repo      = "aws-${local.product}"
   branch        = "main"
 
+  codeconnection_name = local.common.locals.environment
+
   step_assume_roles = [
     { labs = local.labs_admin_roles },
     { live = local.live_admin_roles },

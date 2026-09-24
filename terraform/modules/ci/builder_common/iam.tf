@@ -58,6 +58,32 @@ data "aws_iam_policy_document" "build" {
       "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/*"
     ]
   }
+
+  statement {
+    actions   = ["codeconnections:UseConnection"]
+    resources = [var.codeconnection_arn]
+
+    condition {
+      test     = "ForAllValues:StringEquals"
+      variable = "codeconnections:FullRepositoryId"
+      values   = ["${var.src_org}/${var.src_repo}"]
+    }
+
+    condition {
+      test     = "ForAllValues:StringEquals"
+      variable = "codeconnections:ProviderPermissionsRequired"
+      values   = ["read_only"]
+    }
+  }
+
+  statement {
+    actions = [
+      "codeconnections:GetConnectionToken",
+      "codeconnections:GetConnection"
+    ]
+
+    resources = [var.codeconnection_arn]
+  }
 }
 
 resource "aws_iam_policy" "build" {
@@ -160,6 +186,23 @@ data "aws_iam_policy_document" "build_core" {
       test     = "ArnEquals"
       variable = "ec2:Subnet"
       values   = var.vpc_config.private_subnet_arns
+    }
+  }
+
+  statement {
+    actions   = ["codeconnections:UseConnection"]
+    resources = [var.codeconnection_arn]
+
+    condition {
+      test     = "ForAllValues:StringEquals"
+      variable = "codeconnections:FullRepositoryId"
+      values   = ["${var.src_org}/${var.src_repo}"]
+    }
+
+    condition {
+      test     = "ForAllValues:StringEquals"
+      variable = "codeconnections:ProviderPermissionsRequired"
+      values   = ["read_only"]
     }
   }
 }

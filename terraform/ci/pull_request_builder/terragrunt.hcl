@@ -27,6 +27,8 @@ inputs = {
     "LIVE_TERRAFORM_PLANNER_ROLE_ARN" = "arn:aws:iam::${local.live_account_id}:role/RoleTerraformPlanner"
   }
 
+  codeconnection_name = local.common.locals.environment
+
   src_repo   = "aws-${local.product}"
   src_branch = ""
 
