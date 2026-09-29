@@ -55,7 +55,7 @@ data "aws_iam_policy_document" "build" {
       "ssm:GetParameters",
     ]
     resources = [
-      "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/*"
+      "arn:aws:ssm:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:parameter/*"
     ]
   }
 }
@@ -147,7 +147,7 @@ data "aws_iam_policy_document" "build_core" {
       "ec2:CreateNetworkInterfacePermission",
     ]
     resources = [
-      "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:network-interface/*"
+      "arn:aws:ec2:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:network-interface/*"
     ]
     condition {
       test     = "StringEquals"

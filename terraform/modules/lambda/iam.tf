@@ -7,9 +7,13 @@ locals {
 }
 
 resource "aws_iam_role" "lambda" {
-  assume_role_policy  = data.aws_iam_policy_document.lambda_assume_role.json
-  name_prefix         = substr(var.lambda_function_name, 0, 38)
-  managed_policy_arns = local.managed_policy_arns
+  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role.json
+  name_prefix        = substr(var.lambda_function_name, 0, 38)
+}
+
+resource "aws_iam_role_policy_attachments_exclusive" "lambda" {
+  role_name   = aws_iam_role.lambda.name
+  policy_arns = local.managed_policy_arns
 }
 
 resource "aws_iam_policy" "lambda" {

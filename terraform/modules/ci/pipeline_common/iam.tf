@@ -35,7 +35,7 @@ data "aws_iam_policy_document" "codepipeline_policy" {
     ]
 
     resources = [
-      "arn:aws:codebuild:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:project/${local.pipeline_name}*"
+      "arn:aws:codebuild:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:project/${local.pipeline_name}*"
     ]
   }
 
@@ -69,14 +69,18 @@ resource "aws_iam_policy" "codepipeline_policy" {
 }
 
 resource "aws_iam_role" "codepipeline_role" {
-  name_prefix         = substr(local.pipeline_name, 0, 32)
-  description         = "${local.pipeline_name} CodePipeline"
-  assume_role_policy  = data.aws_iam_policy_document.codepipeline_assume_role.json
-  managed_policy_arns = [aws_iam_policy.codepipeline_policy.arn]
+  name_prefix        = substr(local.pipeline_name, 0, 32)
+  description        = "${local.pipeline_name} CodePipeline"
+  assume_role_policy = data.aws_iam_policy_document.codepipeline_assume_role.json
 
   tags = {
     Pipeline = local.pipeline_name
   }
+}
+
+resource "aws_iam_role_policy_attachments_exclusive" "codepipeline_role" {
+  role_name   = aws_iam_role.codepipeline_role.name
+  policy_arns = [aws_iam_policy.codepipeline_policy.arn]
 }
 
 data "aws_iam_policy_document" "codebuild_assume_role" {
