@@ -4,8 +4,8 @@ SHELL = /bin/bash
 
 AWS_PROFILE ?= auth-RoleTerraformApplier
 IMAGE_TAG ?=
-LIVE_ACCOUNT_ID ?=
-LABS_ACCOUNT_ID ?=
+LIVE_ACCOUNT_ID ?= 638924580364
+LABS_ACCOUNT_ID ?= 979783897929
 GRANT_USER_ACCESS_SNS_TOPIC_ARN ?=
 ECR_REPO = dkr.ecr.eu-west-2.amazonaws.com/grant-user-access
 
