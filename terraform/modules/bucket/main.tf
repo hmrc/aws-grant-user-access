@@ -1,6 +1,6 @@
 module "bucket" {
   source  = "hmrc/s3-bucket-standard/aws"
-  version = "3.3.0"
+  version = "3.3.1"
 
   bucket_name   = var.bucket_name
   force_destroy = var.force_destroy
@@ -15,7 +15,8 @@ module "bucket" {
   restricted_ip_access   = var.restricted_ip_access
   restricted_vpce_access = var.restricted_vpce_access
 
-  required_tags_with_restricted_values = var.required_tags_with_restricted_values
+  required_tags_with_restricted_values   = var.required_tags_with_restricted_values
+  grant_current_provisioner_admin_access = false
 
   log_bucket_id = var.log_bucket_name
   tags = {
