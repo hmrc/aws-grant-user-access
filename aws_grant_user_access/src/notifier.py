@@ -7,6 +7,7 @@ from aws_grant_user_access.src.grant_time_window import GrantTimeWindow
 SLACK_DISPLAY_NAME = "grant-user-access"
 SLACK_EMOJI = ":unlock:"
 
+
 class SlackMessage:
     def __init__(
         self,
