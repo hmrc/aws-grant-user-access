@@ -1,4 +1,3 @@
-import json
 import logging
 
 from typing import Any, Dict, List, Set
@@ -11,7 +10,7 @@ from aws_grant_user_access.src.data.exceptions import (
 )
 
 from aws_grant_user_access.src.grant_time_window import GrantTimeWindow
-from aws_grant_user_access.src.notifier import SNSMessage, SNSMessagePublisher, SlackMessage, SlackMessagePublisher
+from aws_grant_user_access.src.notifier import SlackMessage, SlackMessagePublisher
 from aws_grant_user_access.src.policy_manager import PolicyCreator
 
 PERMITTED_ROLES = [
@@ -107,18 +106,6 @@ def publish_slack_message(message: SlackMessage) -> None:
         SlackMessagePublisher(slack_client).publish_slack_message(channels=channels, message=message)
     except SlackNotificationException as ex:
         logging.getLogger(__name__).warning(f"failed to publish slack message: {ex}")
-
-
-def publish_sns_message(message: SNSMessage) -> None:
-    try:
-        sns_topic_arn = config.get_sns_topic_arn()
-    except MissingConfigException:
-        sns_topic_arn = None
-
-    if sns_topic_arn:
-        SNSMessagePublisher(config.get_sns_client()).publish_sns_message(
-            sns_topic_arn=sns_topic_arn, message=json.dumps(message.to_dict())
-        )
 
 
 def is_a_platform_engineer(username: str) -> bool:

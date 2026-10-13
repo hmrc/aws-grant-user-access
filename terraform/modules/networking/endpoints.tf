@@ -15,7 +15,7 @@ module "artifactory_endpoint_connector" {
   ]
   top_level_domain = "tax.service.gov.uk"
   tags = {
-    Purpose : "${local.vpc_name}-artifactory-endpoint-connector"
+    Name : "${local.vpc_name}-artifactory-endpoint-connector"
   }
 }
 
@@ -124,7 +124,7 @@ module "slack_notifications_endpoint_connector" {
 
   security_group_name = "${local.vpc_name}-slack-notifications-endpoint"
   vpc_id              = module.vpc.vpc_id
-  service_name        = local.live_slack_notifications_endpoint_name
+  service_name        = var.slack_notifications_endpoint_name
   subnet_ids          = module.vpc.private_subnets
 
   subdomains = [
@@ -132,7 +132,7 @@ module "slack_notifications_endpoint_connector" {
   ]
   top_level_domain = "tax.service.gov.uk"
   tags = {
-    Purpose : "${local.vpc_name}-slack-notifications-endpoint-connector"
+    Name : "${local.vpc_name}-slack-notifications-endpoint-connector"
   }
 }
 

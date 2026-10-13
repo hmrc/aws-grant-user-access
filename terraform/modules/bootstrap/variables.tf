@@ -4,11 +4,6 @@ variable "environment" {
   description = "Environment name"
 }
 
-variable "environment_account_ids" {
-  type        = map(string)
-  description = "Map of AWS Account ID per environment"
-}
-
 variable "tf_read_roles" {
   type        = list(string)
   description = "A list of roles to allow read access to bucket objects"
@@ -44,17 +39,7 @@ variable "tf_state_bucket_name" {
   description = "The name of the Terraform state bucket"
 }
 
-variable "tf_state_lock_dynamodb_table_name" {
-  type        = string
-  description = "The name of the Terraform state lock Dynamodb table"
-}
-
 variable "log_bucket_name" {
   type        = string
   description = "The name of the access logs bucket"
-}
-
-variable "grant_user_access_sns_topic_arn" {
-  type        = string
-  description = "Arn of SNS Topic grant-user-access-lambda publishes to"
 }

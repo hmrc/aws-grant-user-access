@@ -21,18 +21,41 @@ This project aims to grant assume-role access to an IAM user for a given AWS Rol
 
 ### Where can I find a CI/CD pipeline for this code base?
 
-* [PR build job](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/638924580364/projects/grant-user-access-pr-builder/history?region=eu-west-2)
+CI/CD for this repo is hosted centrally in [platsec-ci-terraform](https://github.com/hmrc/platsec-ci-terraform)
+(account `987972305662`), not self-hosted in this repo:
 
-* [Deployment pipeline](https://eu-west-2.console.aws.amazon.com/codesuite/codepipeline/pipelines/grant-user-access-pipeline/view?region=eu-west-2)
+* PR checks: Python lint/test (`aws_grant_user_access_pr_builder`) and Terraform lint/plan
+  against the `development`/`production` accounts (`aws_grant_user_access_pr_jobs`)
 
-* [Container Release Builder](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/638924580364/projects/grant-user-access-container-release-builder/history?region=eu-west-2)
+* Lambda build/deploy: `aws_grant_user_access` (builds the Docker image, pushes to the
+  shared platsec-ci ECR repo, deploys via `lambda:UpdateFunctionCode`) in
+  `live/pipelines.tf`
 
-  * release changes to `aws_grant_user_access` python code
+* Terraform infra apply (`labs`/`live`, i.e. `development`/`production`):
+  `aws_grant_user_access_terraform_pipeline` in `live/pipelines.tf`, reusing the shared
+  `platsec_terraform_pipeline` module
 
 ### How is the CI/CD pipeline configured?
 
-* PR build job is an [AWS CodeBuild project](https://eu-west-2.console.aws.amazon.com/codesuite/codebuild/638924580364/projects/grant-user-access-pr-builder/history?region=eu-west-2)
-* Codepipeline pipeline config for deployment can be found in [here](https://github.com/hmrc/aws-grant-user-access/blob/main/terraform/ci/pipeline/terragrunt.hcl)
+* The Lambda build/deploy pipeline expects a `docker.tar` artifact produced by the root
+  [buildspec.yml](./buildspec.yml) (`make container-release` + `docker save`)
+
+* The Terraform apply/plan pipelines invoke `./scripts/run.sh <plan|apply> <development|production>`
+  in this repo, which internally maps those CI-facing names to this repo's own `labs`/`live`
+  Makefile targets and directories (kept as-is to avoid any risk to the existing Terraform
+  state bucket naming, which is derived from the `labs`/`live` environment name)
+
+### Why there are two pipelines
+
+* `aws-grant-user-access` ships the Lambda code: it builds the image, pushes it to ECR and updates
+  the function code. It owns the deployed image, so Terraform ignores changes to the function's `image_uri`.
+
+* `aws-grant-user-access-terraform` applies the infrastructure and the Lambda configuration.
+  It only sets the `latest` image when it first creates the function.
+
+* On a brand-new environment the code pipeline's deploy step fails until Terraform has created the
+  function. Run the Terraform pipeline first (or after the image has been pushed once), then re-run
+  the failed deploy step. Later merges need no manual steps.
 
 ## Making Terraform code changes
 
@@ -53,21 +76,29 @@ make tf-fmt
 ## How do I bootstrap an environment for terraform deployment?
 
 ```bash
-<ENV>_ACCOUNT_ID=123456789012 \
-  make bootstrap-${ENV}
+make bootstrap-${ENV}
 ```
 
 ## How do I plan/apply terraform to an environment?
+
+Use `labs` or `live` as the environment. The Makefile selects the corresponding
+planner/applier profile for local execution through aws-vault. Account-ID exports
+are not required; the account configuration is defined in Terraform/Terragrunt.
+
+The Slack notifications PrivateLink service is configured separately for each environment
+through the `slack_notifications_endpoint_name` input in
+[labs networking](./terraform/labs/networking/terragrunt.hcl) and
+[live networking](./terraform/live/networking/terragrunt.hcl).
+The service must exist and allow connections from the respective AWS account.
 
 There is [CI/CD pipeline](#cicd-pipeline) in place to test and apply new changes. However, in the event there is a
 need to run/test applying terraform resources locally use the command below
 
 ```bash
-<ENV>_ACCOUNT_ID=123456789012 \
-  make ${CMD}-${ENV}
+make ${CMD}-${ENV}
 
 # where CMD is one of: validate, plan or apply
-# e.g. LABS_ACCOUNT_ID=123456789012 make plan-labs
+# e.g. make plan-labs
 ```
 
 ## Setting up locally

@@ -26,12 +26,6 @@ variable "timeout_in_seconds" {
   type        = number
 }
 
-variable "sns_topic_parameter_store_name" {
-  default     = null
-  description = "Name of parameter store containing SNS Topic ARN"
-  type        = string
-}
-
 variable "vpc_config" {
   type = object({
     vpc_id              = string

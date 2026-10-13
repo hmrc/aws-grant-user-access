@@ -25,6 +25,10 @@ resource "aws_lambda_function" "this" {
   }
 
   tags = var.tags
+
+  lifecycle {
+    ignore_changes = [image_uri]
+  }
 }
 
 resource "aws_lambda_alias" "latest" {
