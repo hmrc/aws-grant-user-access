@@ -26,9 +26,11 @@ CI/CD for this repo is hosted centrally in [platsec-ci-terraform](https://github
 
 * PR checks: Python lint/test (`aws_grant_user_access_pr_builder`) and Terraform lint/plan
   against the `development`/`production` accounts (`aws_grant_user_access_pr_jobs`)
+
 * Lambda build/deploy: `aws_grant_user_access` (builds the Docker image, pushes to the
   shared platsec-ci ECR repo, deploys via `lambda:UpdateFunctionCode`) in
   `live/pipelines.tf`
+
 * Terraform infra apply (`labs`/`live`, i.e. `development`/`production`):
   `aws_grant_user_access_terraform_pipeline` in `live/pipelines.tf`, reusing the shared
   `platsec_terraform_pipeline` module
@@ -37,6 +39,7 @@ CI/CD for this repo is hosted centrally in [platsec-ci-terraform](https://github
 
 * The Lambda build/deploy pipeline expects a `docker.tar` artifact produced by the root
   [buildspec.yml](./buildspec.yml) (`make container-release` + `docker save`)
+
 * The Terraform apply/plan pipelines invoke `./scripts/run.sh <plan|apply> <development|production>`
   in this repo, which internally maps those CI-facing names to this repo's own `labs`/`live`
   Makefile targets and directories (kept as-is to avoid any risk to the existing Terraform
@@ -46,12 +49,13 @@ CI/CD for this repo is hosted centrally in [platsec-ci-terraform](https://github
 
 * `aws-grant-user-access` ships the Lambda code: it builds the image, pushes it to ECR and updates
   the function code. It owns the deployed image, so Terraform ignores changes to the function's `image_uri`.
+
 * `aws-grant-user-access-terraform` applies the infrastructure and the Lambda configuration.
   It only sets the `latest` image when it first creates the function.
+
 * On a brand-new environment the code pipeline's deploy step fails until Terraform has created the
   function. Run the Terraform pipeline first (or after the image has been pushed once), then re-run
   the failed deploy step. Later merges need no manual steps.
-
 
 ## Making Terraform code changes
 

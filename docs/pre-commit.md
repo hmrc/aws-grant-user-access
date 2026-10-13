@@ -29,7 +29,7 @@ pip install pre-commit
 ```
 
 3. Enable the Hooks
-Run this once in the repo root to activate both commit and push hooks:
+   Run this once in the repo root to activate both commit and push hooks:
 
 ```bash
 pre-commit install --hook-type pre-commit --hook-type pre-push
