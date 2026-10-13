@@ -120,6 +120,9 @@ tf-fmt-check: terragrunt
 .PHONY: tf-checks
 tf-checks: tf-fmt-check  md-check
 
+.PHONY: all-checks
+all-checks: tf-checks
+
 # Validate terraform configuration without need to accessing the state file
 validate: validate-labs validate-live
 
