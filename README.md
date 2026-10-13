@@ -57,6 +57,29 @@ CI/CD for this repo is hosted centrally in [platsec-ci-terraform](https://github
   function. Run the Terraform pipeline first (or after the image has been pushed once), then re-run
   the failed deploy step. Later merges need no manual steps.
 
+## Testing a deployed Lambda (dry run)
+
+The labs Lambda runs in dry run mode (`DRY_RUN=true` environment variable, set in
+`terraform/labs/lambda_grant_user_access/terragrunt.hcl`). To test it end to end, invoke it with a normal
+request, for example from the Lambda console's **Test** tab:
+
+```json
+{
+  "usernames": ["test.user"],
+  "role_arn": "arn:aws:iam::000000000000:role/RoleTerraformApplier",
+  "approval_in_hours": 2
+}
+```
+
+A dry run validates the event and makes a read-only IAM call (the expired policy lookup) to prove the Lambda can reach
+IAM. It skips the engineer group check, because labs has no real users, so any username can be used. It then sends
+the normal grant notification to the configured Slack channels, with a `[DRY RUN]` title and a note that no access
+was granted, and logs `DRY RUN: access to ... granted to ... (no IAM changes made)`. It does not create, attach,
+detach or delete any IAM policy.
+
+`DRY_RUN` accepts `true` or `false` (case-insensitive) and defaults to `false`. Any other value makes the Lambda fail.
+It is not set in live.
+
 ## Making Terraform code changes
 
 See [Setting up locally](#setting-up-locally) section below for relevant tools needed locally.

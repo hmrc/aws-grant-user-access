@@ -38,3 +38,24 @@ def test_publish_slack_message() -> None:
         channels=["#a-channel"], display_name="grant-user-access", emoji=":unlock:", text=message.text()
     )
     assert response == {}
+
+
+@freeze_time("2012-01-14 12:00:01")
+def test_dry_run_slack_message_text() -> None:
+    message = SlackMessage(
+        role_arn="arn:aws:iam::123456789012:role/RoleTerraformApplier",
+        usernames=["test.user", "other.user"],
+        hours=2,
+        time_window=GrantTimeWindow(hours=2),
+        dry_run=True,
+    )
+
+    assert message.text() == (
+        "[DRY RUN] Temporary access to user(s) granted\n"
+        "Access to `arn:aws:iam::123456789012:role/RoleTerraformApplier` has been granted for 2 hour(s) "
+        "to the following users at 2012-01-14T12:00:01Z:\n"
+        "  *  test.user\n"
+        "  *  other.user\n"
+        "Access expires at 2012-01-14T14:00:01Z.\n"
+        "_This is a dry run test - no access was granted._"
+    )

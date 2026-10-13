@@ -41,3 +41,24 @@ def test_get_slack_client(_mock_client_factory: Mock) -> None:
 
     ssm_client.get_parameter.assert_called_once_with("/service_accounts/slack_v2_api_key")
     assert isinstance(slack_client, SlackClient)
+
+
+@pytest.mark.parametrize("value,expected", [("true", True), ("TRUE", True), ("false", False), ("False", False)])
+def test_is_dry_run(monkeypatch: Any, value: str, expected: bool) -> None:
+    monkeypatch.setenv("DRY_RUN", value)
+
+    assert Config.is_dry_run() is expected
+
+
+def test_is_dry_run_defaults_to_false(monkeypatch: Any) -> None:
+    monkeypatch.delenv("DRY_RUN", raising=False)
+
+    assert Config.is_dry_run() is False
+
+
+def test_is_dry_run_invalid(monkeypatch: Any) -> None:
+    monkeypatch.setenv("DRY_RUN", "yes")
+    with pytest.raises(InvalidConfigException) as ice:
+        Config.is_dry_run()
+
+    assert str(ice.value) == "invalid DRY_RUN: yes"

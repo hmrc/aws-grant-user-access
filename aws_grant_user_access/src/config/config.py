@@ -16,6 +16,13 @@ class Config:
     def get_slack_channels(self) -> List[str]:
         return self._get_env("SLACK_CHANNELS").split(",")
 
+    @staticmethod
+    def is_dry_run() -> bool:
+        dry_run = environ.get("DRY_RUN", "false").lower()
+        if dry_run not in ["true", "false"]:
+            raise InvalidConfigException(f"invalid DRY_RUN: {dry_run}")
+        return dry_run == "true"
+
     def get_slack_client(self) -> SlackClient:
         api_key = self.get_ssm_client().get_parameter(SLACK_V2_API_KEY_PARAMETER_NAME)
         return SlackClient(webhook_url=SLACK_NOTIFICATION_SERVICE_ENDPOINT, api_key=api_key)
