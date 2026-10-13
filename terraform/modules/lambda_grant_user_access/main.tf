@@ -1,7 +1,7 @@
 locals {
   environment_variables = merge(var.environment_variables)
-  ci_account_id      = "987972305662"
-  ecr_repository_url = "${local.ci_account_id}.dkr.ecr.eu-west-2.amazonaws.com/aws-grant-user-access"
+  ci_account_id         = "987972305662"
+  ecr_repository_url    = "${local.ci_account_id}.dkr.ecr.eu-west-2.amazonaws.com/aws-grant-user-access"
 }
 
 module "lambda" {

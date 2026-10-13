@@ -20,6 +20,6 @@ inputs = {
   timeout_in_seconds    = 900
   environment_variables = { "LOG_LEVEL" : "INFO", "SLACK_CHANNELS" : "#team-platsec-test-notifications" }
 
-  vpc_config          = dependency.networking.outputs.vpc_config
+  vpc_config         = dependency.networking.outputs.vpc_config
   security_group_ids = [dependency.networking.outputs.grant_user_access_lambda_sg_id]
 }
