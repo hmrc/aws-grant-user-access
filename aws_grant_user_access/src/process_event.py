@@ -54,6 +54,10 @@ def process_event(event: Dict[str, Any], context: Any) -> None:
     logger = Config.configure_logging()
     validate(instance=event, schema=SCHEMA)
 
+    if config.is_dry_run():
+        process_dry_run(event)
+        return
+
     non_platform_engineers = filter_non_platform_engineers(event["usernames"])
     if non_platform_engineers:
         logger.info(
@@ -91,6 +95,26 @@ def process_event(event: Dict[str, Any], context: Any) -> None:
             usernames=granted_users,
             hours=int(event["approval_in_hours"]),
             time_window=time_window,
+        )
+    )
+
+
+def process_dry_run(event: Dict[str, Any]) -> None:
+    time_window = GrantTimeWindow(hours=event["approval_in_hours"])
+    PolicyCreator(config.get_iam_client()).find_expired_policies(current_time=time_window.start_time)
+
+    logging.getLogger(__name__).info(
+        f"DRY RUN: access to {event['role_arn']} granted to {event['usernames']} "
+        f"for {event['approval_in_hours']} hours (no IAM changes made)"
+    )
+
+    publish_slack_message(
+        message=SlackMessage(
+            role_arn=event["role_arn"],
+            usernames=event["usernames"],
+            hours=int(event["approval_in_hours"]),
+            time_window=time_window,
+            dry_run=True,
         )
     )
 

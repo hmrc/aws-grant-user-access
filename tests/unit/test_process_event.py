@@ -248,3 +248,57 @@ def test_filter_non_platform_engineers() -> None:
     _mock_setup_users_and_groups(memberships)
 
     assert filter_non_platform_engineers(["engineer.user01", "platform.owner01"]) == {"platform.owner01"}
+
+
+@freeze_time("2012-01-14 12:00:01")
+@patch.dict(os.environ, {"LOG_LEVEL": "INFO", "DRY_RUN": "true"})
+@patch("aws_grant_user_access.src.process_event.filter_non_platform_engineers")
+@patch("aws_grant_user_access.src.process_event.publish_slack_message")
+@patch("aws_grant_user_access.src.process_event.PolicyCreator")
+def test_process_event_dry_run_notifies_without_granting_access(
+    _mock_policy_creator: Mock,
+    _mock_publish_slack_message: Mock,
+    _mock_filter_non_platform_engineers: Mock,
+    caplog: LogCaptureFixture,
+) -> None:
+    caplog.set_level(logging.INFO)
+    policy_creator = _mock_policy_creator.return_value
+
+    process_event(dict(role_arn=TEST_ROLE_ARN, usernames=["test.user"], approval_in_hours=2), Mock())
+
+    _mock_filter_non_platform_engineers.assert_not_called()
+    policy_creator.find_expired_policies.assert_called_once_with(
+        current_time=datetime(year=2012, month=1, day=14, hour=12, minute=0, second=1)
+    )
+    policy_creator.grant_access.assert_not_called()
+    policy_creator.detach_expired_policies_from_users.assert_not_called()
+    policy_creator.delete_expired_policies.assert_not_called()
+
+    _mock_publish_slack_message.assert_called_once()
+    slack_message = _mock_publish_slack_message.call_args.kwargs["message"]
+    assert slack_message.dry_run is True
+    assert slack_message.role_arn == TEST_ROLE_ARN
+    assert slack_message.usernames == ["test.user"]
+    assert slack_message.hours == 2
+    assert (
+        f"DRY RUN: access to {TEST_ROLE_ARN} granted to ['test.user'] for 2 hours (no IAM changes made)" in caplog.text
+    )
+    assert "WARNING" not in caplog.text
+    assert "ERROR" not in caplog.text
+
+
+@freeze_time("2012-01-14 12:00:01")
+@patch.dict(os.environ, {"DRY_RUN": "false"})
+@patch("aws_grant_user_access.src.process_event.publish_slack_message")
+@patch("aws_grant_user_access.src.process_event.PolicyCreator")
+@mock_aws
+def test_process_event_dry_run_false_grants_access(
+    _mock_policy_creator: Mock, _mock_publish_slack_message: Mock
+) -> None:
+    _mock_users_and_group(TEST_USERS, "test_platform_engineer")
+    policy_creator = _mock_policy_creator.return_value
+
+    process_event(dict(role_arn=TEST_ROLE_ARN, usernames=TEST_USERS, approval_in_hours=12), Mock())
+
+    assert 3 == policy_creator.grant_access.call_count
+    assert _mock_publish_slack_message.call_args.kwargs["message"].dry_run is False
