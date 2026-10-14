@@ -17,7 +17,7 @@ generate "backend" {
 terraform {
   backend "s3" {
     bucket       = "${local.common.locals.tf_state_bucket_name}"
-    region       = "${local.common.locals.region}"
+    region       = "${local.region}"
     key          = "labs/networking.tfstate"
     encrypt      = true
     kms_key_id   = "alias/s3-${local.common.locals.tf_state_bucket_name}"
@@ -35,7 +35,7 @@ generate "provider" {
 # https://github.com/terraform-aws-modules/terraform-aws-vpc/issues/625
 provider "aws" {
   alias  = "no-default-tags"
-  region = "eu-west-2"
+  region = "${local.region}"
 }
 
 terraform {

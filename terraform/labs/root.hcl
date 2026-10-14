@@ -1,7 +1,6 @@
 locals {
   common               = read_terragrunt_config(find_in_parent_folders("common/labs.hcl"))
   environment          = local.common.locals.environment
-  product              = local.common.locals.product
   team                 = local.common.locals.team
   region               = local.common.locals.region
   tf_state_bucket_name = local.common.locals.tf_state_bucket_name
@@ -14,7 +13,7 @@ generate "backend" {
 terraform {
   backend "s3" {
     bucket         = "${local.tf_state_bucket_name}"
-    region         = "${local.common.locals.region}"
+    region         = "${local.region}"
     key            = "labs/${path_relative_to_include()}.tfstate"
     encrypt        = true
     kms_key_id     = "alias/s3-${local.tf_state_bucket_name}"
