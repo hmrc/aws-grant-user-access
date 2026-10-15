@@ -3,12 +3,11 @@ terraform {
 }
 
 locals {
-  common      = read_terragrunt_config(find_in_parent_folders("common/live.hcl"))
-  environment = local.common.locals.environment
-  product     = local.common.locals.product
-
-  tf_state_bucket_name              = local.common.locals.tf_state_bucket_name
-  tf_state_lock_dynamodb_table_name = local.common.locals.tf_state_lock_dynamodb_table_name
+  common               = read_terragrunt_config(find_in_parent_folders("common/live.hcl"))
+  environment          = local.common.locals.environment
+  product              = local.common.locals.product
+  region               = local.common.locals.region
+  tf_state_bucket_name = local.common.locals.tf_state_bucket_name
 }
 
 generate "backend" {
@@ -17,13 +16,13 @@ generate "backend" {
   contents  = <<EOF
 terraform {
   backend "s3" {
-    bucket         = "${local.tf_state_bucket_name}"
-    region         = "eu-west-2"
-    key            = "ci/networking.tfstate"
-    encrypt        = true
-    kms_key_id     = "alias/s3-${local.tf_state_bucket_name}"
-    dynamodb_table = "${local.tf_state_lock_dynamodb_table_name}"
-    acl            = "bucket-owner-full-control"
+    bucket      = "${local.tf_state_bucket_name}"
+    region      = "${local.region}"
+    key         = "live/networking.tfstate"
+    encrypt     = true
+    kms_key_id  = "alias/s3-${local.tf_state_bucket_name}"
+    use_lockfile = true
+    acl         = "bucket-owner-full-control"
   }
 }
 EOF
@@ -36,7 +35,7 @@ generate "provider" {
 # https://github.com/terraform-aws-modules/terraform-aws-vpc/issues/625
 provider "aws" {
   alias  = "no-default-tags"
-  region = "eu-west-2"
+  region = "${local.region}"
 }
 
 terraform {

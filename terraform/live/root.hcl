@@ -1,10 +1,9 @@
 locals {
-  common      = read_terragrunt_config(find_in_parent_folders("common/live.hcl"))
-  environment = local.common.locals.environment
-  product     = local.common.locals.product
-
-  tf_state_bucket_name              = local.common.locals.tf_state_bucket_name
-  tf_state_lock_dynamodb_table_name = local.common.locals.tf_state_lock_dynamodb_table_name
+  common               = read_terragrunt_config(find_in_parent_folders("common/live.hcl"))
+  environment          = local.common.locals.environment
+  team                 = local.common.locals.team
+  region               = local.common.locals.region
+  tf_state_bucket_name = local.common.locals.tf_state_bucket_name
 }
 
 generate "backend" {
@@ -14,11 +13,11 @@ generate "backend" {
 terraform {
   backend "s3" {
     bucket         = "${local.tf_state_bucket_name}"
-    region         = "eu-west-2"
-    key            = "labs/${path_relative_to_include()}.tfstate"
+    region         = "${local.region}"
+    key            = "live/${path_relative_to_include()}.tfstate"
     encrypt        = true
     kms_key_id     = "alias/s3-${local.tf_state_bucket_name}"
-    dynamodb_table = "${local.tf_state_lock_dynamodb_table_name}"
+    use_lockfile    = true
     acl            = "bucket-owner-full-control"
   }
 }
@@ -30,12 +29,14 @@ generate "provider" {
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 provider "aws" {
-  region = "eu-west-2"
+  region = "${local.region}"
   default_tags {
     tags = {
-      "team:product" : "infra:${local.product}"
-      "Git_Project"  : "aws-${local.product}"
-      "Environment"  : "${local.environment}"
+      Team        = "${local.team}"
+      Region      = "${local.region}"
+      Service     = "aws-grant-user-access"
+      Environment = "${local.environment}"
+      Source      = "https://github.com/hmrc/aws-grant-user-access/"
     }
   }
 }

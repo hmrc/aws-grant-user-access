@@ -3,12 +3,13 @@ terraform {
 }
 
 locals {
-  common                            = read_terragrunt_config(find_in_parent_folders("common/live.hcl"))
-  account_id                        = get_aws_account_id()
-  environment                       = local.common.locals.environment
-  product                           = local.common.locals.product
-  tf_state_bucket_name              = local.common.locals.tf_state_bucket_name
-  tf_state_lock_dynamodb_table_name = local.common.locals.tf_state_lock_dynamodb_table_name
+  common               = read_terragrunt_config(find_in_parent_folders("common/live.hcl"))
+  account_id           = local.common.locals.account_id
+  environment          = local.common.locals.environment
+  team                 = local.common.locals.team
+  product              = local.common.locals.product
+  region               = local.common.locals.region
+  tf_state_bucket_name = local.common.locals.tf_state_bucket_name
 }
 
 generate "backend" {
@@ -18,11 +19,11 @@ generate "backend" {
 terraform {
   backend "s3" {
     bucket         = "${local.tf_state_bucket_name}"
-    region         = "eu-west-2"
+    region         = "${local.region}"
     key            = "bootstrap.tfstate"
     encrypt        = true
     kms_key_id     = "alias/s3-${local.tf_state_bucket_name}"
-    dynamodb_table = "${local.tf_state_lock_dynamodb_table_name}"
+    use_lockfile    = true
     acl            = "bucket-owner-full-control"
   }
 }
@@ -34,12 +35,14 @@ generate "provider" {
   if_exists = "overwrite_terragrunt"
   contents  = <<EOF
 provider "aws" {
-  region = "eu-west-2"
+  region = "${local.region}"
   default_tags {
     tags = {
-      "team:product" : "platsec:${local.product}"
-      "Git_Project"  : "aws-${local.product}"
-      "Environment"  : "${local.environment}"
+      Team        = "${local.team}"
+      Region      = "${local.region}"
+      Service     = "aws-grant-user-access"
+      Environment = "${local.environment}"
+      Source      = "https://github.com/hmrc/aws-grant-user-access/"
     }
   }
 }
@@ -56,14 +59,13 @@ terraform {
 }
 
 inputs = {
-  environment                       = local.environment
-  log_bucket_name                   = "auth-access-logs-${local.environment}-${md5(local.environment)}"
-  tf_state_bucket_name              = local.tf_state_bucket_name
-  tf_state_lock_dynamodb_table_name = local.tf_state_lock_dynamodb_table_name
+  environment          = local.environment
+  log_bucket_name      = "auth-access-logs-${local.environment}-${md5(local.environment)}"
+  tf_state_bucket_name = local.tf_state_bucket_name
 
   tf_read_roles          = ["arn:aws:iam::${local.account_id}:role/RoleTerraformApplier", "arn:aws:iam::${local.account_id}:role/RoleTerraformPlanner", "arn:aws:iam::${local.account_id}:role/RoleSecurityEngineer", "arn:aws:iam::${local.account_id}:role/RoleProwlerScanner"]
   tf_list_roles          = ["arn:aws:iam::${local.account_id}:role/RoleTerraformApplier", "arn:aws:iam::${local.account_id}:role/RoleTerraformPlanner", "arn:aws:iam::${local.account_id}:role/RoleSecurityEngineer", "arn:aws:iam::${local.account_id}:role/RoleProwlerScanner"]
   tf_metadata_read_roles = ["arn:aws:iam::${local.account_id}:role/RoleTerraformApplier", "arn:aws:iam::${local.account_id}:role/RoleTerraformPlanner", "arn:aws:iam::${local.account_id}:role/RoleSecurityEngineer", "arn:aws:iam::${local.account_id}:role/RoleProwlerScanner"]
-  tf_write_roles         = ["arn:aws:iam::${local.account_id}:role/RoleTerraformApplier"]
+  tf_write_roles         = ["arn:aws:iam::${local.account_id}:role/RoleTerraformApplier", "arn:aws:iam::${local.account_id}:role/RoleTerraformPlanner"]
   tf_admin_roles         = ["arn:aws:iam::${local.account_id}:role/RoleTerraformApplier"]
 }
