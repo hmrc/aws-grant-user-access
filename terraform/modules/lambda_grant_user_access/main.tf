@@ -1,23 +1,17 @@
-locals {
-  environment_variables = merge(var.environment_variables)
-  ci_account_id         = "987972305662"
-  ecr_repository_url    = "${local.ci_account_id}.dkr.ecr.eu-west-2.amazonaws.com/aws-grant-user-access"
-}
-
 module "lambda" {
   source = "../lambda"
 
-  ecr_repository_url    = local.ecr_repository_url
+  ecr_repository_url    = "${var.platsec_ci_account_id}.dkr.ecr.eu-west-2.amazonaws.com/aws-grant-user-access"
   environment           = var.environment
-  environment_variables = local.environment_variables
   lambda_function_name  = var.lambda_function_name
   ecr_image_tag         = "latest"
   policy_arns           = [aws_iam_policy.lambda_slack.arn]
   timeout_in_seconds    = var.timeout_in_seconds
   vpc_config            = var.vpc_config
   security_group_ids    = var.security_group_ids
+  environment_variables = merge(var.environment_variables, { SLACK_API_SECRET_ARN = data.aws_secretsmanager_secret.slack_api_key_secret.arn })
 
-  tags = merge(var.tags, { AllowCiDeploy = "true", SLACK_API_SECRET_ARN = data.aws_secretsmanager_secret.slack_api_key_secret.arn })
+  tags = merge(var.tags, { AllowCiDeploy = "true" })
 }
 
 resource "aws_iam_policy" "lambda_slack" {
