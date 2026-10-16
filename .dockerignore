@@ -1,2 +1,16 @@
 **/*/.terraform.d
 **/*/.terragrunt-cache
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+.ruff_cache/
+.pytest_cache/
+.ruff_cache/

@@ -14,9 +14,10 @@ module "lambda" {
   ecr_image_tag         = "latest"
   policy_arns           = [aws_iam_policy.lambda_slack.arn]
   timeout_in_seconds    = var.timeout_in_seconds
-  tags                  = merge(var.tags, { AllowCiDeploy = "true" })
   vpc_config            = var.vpc_config
   security_group_ids    = var.security_group_ids
+
+  tags = merge(var.tags, { AllowCiDeploy = "true", SLACK_API_SECRET_ARN = data.aws_secretsmanager_secret.slack_api_key_secret.arn })
 }
 
 resource "aws_iam_policy" "lambda_slack" {

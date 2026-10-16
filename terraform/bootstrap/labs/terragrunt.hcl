@@ -22,7 +22,7 @@ generate "backend" {
 terraform {
   backend "s3" {
     bucket         = "${local.tf_state_bucket_name}"
-    region         = "eu-west-2"
+    region         = "${local.region}"
     key            = "bootstrap.tfstate"
     encrypt        = true
     kms_key_id     = "alias/s3-${local.tf_state_bucket_name}"

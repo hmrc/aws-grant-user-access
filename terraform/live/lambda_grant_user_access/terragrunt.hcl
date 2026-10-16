@@ -5,6 +5,7 @@ terraform {
 locals {
   common  = read_terragrunt_config(find_in_parent_folders("common/live.hcl"))
   product = local.common.locals.product
+  region  = local.common.locals.region
 }
 
 include {
@@ -16,6 +17,7 @@ dependency "networking" {
 }
 
 inputs = {
+  region                = local.region
   lambda_function_name  = local.product
   timeout_in_seconds    = 900
   environment_variables = { "LOG_LEVEL" : "INFO", "SLACK_CHANNELS" : "#aws-prod-alerts" }

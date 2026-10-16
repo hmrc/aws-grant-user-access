@@ -1,3 +1,5 @@
+variable "region" {}
+
 variable "environment" {
   default     = "example-environment"
   description = "The name of the environment the lambda function is deployed to"
@@ -40,4 +42,10 @@ variable "security_group_ids" {
   type        = list(string)
   default     = []
   description = "Security group IDs to attach to the lambda's ENIs when vpc_config is set"
+}
+
+variable "slack_api_key_secret_account_id" {
+  description = "AWS Platsec CI account ID hosting the Slack API key secret in Secrets Manager"
+  type        = string
+  default     = "987972305662"
 }

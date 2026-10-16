@@ -1,8 +1,7 @@
-from aws_grant_user_access.src.data.exceptions import InvalidConfigException, MissingConfigException
+from aws_grant_user_access.src.data.exceptions import AwsClientException, InvalidConfigException, MissingConfigException
 import pytest
 from typing import Any
 from unittest.mock import Mock, patch
-from aws_grant_user_access.src.clients.slack_client import SlackClient
 from aws_grant_user_access.src.config.config import Config
 
 
@@ -33,14 +32,51 @@ def test_get_slack_channels_missing(monkeypatch: Any) -> None:
 
 
 @patch("aws_grant_user_access.src.config.config.AwsClientFactory")
-def test_get_slack_client(_mock_client_factory: Mock) -> None:
-    ssm_client = _mock_client_factory.return_value.get_ssm_client.return_value
-    ssm_client.get_parameter.return_value = "a-slack-api-key"
+@patch("aws_grant_user_access.src.config.config.SlackClient")
+def test_get_slack_client(mock_slack_client: Mock, mock_client_factory: Mock, monkeypatch: Any) -> None:
+    secret_arn = "arn:aws:secretsmanager:eu-west-2:111111111111:secret:slack-AbCdEf"
+    monkeypatch.setenv("SLACK_API_SECRET_ARN", secret_arn)
+    secrets_client = mock_client_factory.return_value.get_secrets_manager_client.return_value
+    secrets_client.get_secret_value.return_value = "a-slack-api-key"
 
     slack_client = Config().get_slack_client()
 
-    ssm_client.get_parameter.assert_called_once_with("/service_accounts/slack_v2_api_key")
-    assert isinstance(slack_client, SlackClient)
+    secrets_client.get_secret_value.assert_called_once_with(secret_arn)
+    mock_slack_client.assert_called_once_with(
+        webhook_url="https://slack-notifications.tax.service.gov.uk/api/v2/notification",
+        api_key="a-slack-api-key",
+    )
+    assert slack_client is mock_slack_client.return_value
+
+
+@patch("aws_grant_user_access.src.config.config.AwsClientFactory")
+@patch("aws_grant_user_access.src.config.config.SlackClient")
+def test_get_slack_client_missing_secret_arn(
+    mock_slack_client: Mock, mock_client_factory: Mock, monkeypatch: Any
+) -> None:
+    monkeypatch.delenv("SLACK_API_SECRET_ARN", raising=False)
+
+    with pytest.raises(MissingConfigException, match="SLACK_API_SECRET_ARN"):
+        Config().get_slack_client()
+
+    mock_client_factory.assert_not_called()
+    mock_slack_client.assert_not_called()
+
+
+@patch("aws_grant_user_access.src.config.config.AwsClientFactory")
+@patch("aws_grant_user_access.src.config.config.SlackClient")
+def test_get_slack_client_secret_failure(mock_slack_client: Mock, mock_client_factory: Mock, monkeypatch: Any) -> None:
+    monkeypatch.setenv("SLACK_API_SECRET_ARN", "a-secret-arn")
+    secrets_client = mock_client_factory.return_value.get_secrets_manager_client.return_value
+    error = AwsClientException("failed to retrieve secret")
+    secrets_client.get_secret_value.side_effect = error
+
+    with pytest.raises(AwsClientException) as ace:
+        Config().get_slack_client()
+
+    assert ace.value is error
+    secrets_client.get_secret_value.assert_called_once_with("a-secret-arn")
+    mock_slack_client.assert_not_called()
 
 
 @pytest.mark.parametrize("value,expected", [("true", True), ("TRUE", True), ("false", False), ("False", False)])
