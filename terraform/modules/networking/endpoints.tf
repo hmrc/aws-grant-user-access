@@ -60,12 +60,27 @@ resource "aws_vpc_endpoint" "secretsmanager" {
 
   security_group_ids = [
     aws_security_group.aws_interface_endpoints.id,
+    aws_security_group.secretsmanager_lambda_endpoint.id,
   ]
   subnet_ids          = module.vpc.private_subnets
   private_dns_enabled = true
 
   tags = {
     Name : "${local.vpc_name}-secretsmanager"
+  }
+}
+
+resource "aws_security_group" "secretsmanager_lambda_endpoint" {
+  name_prefix = "${local.vpc_name}-secretsmanager-lambda-"
+  description = "Allow grant-user-access Lambda to reach Secrets Manager"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    description     = "HTTPS from grant-user-access Lambda"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.grant_user_access_lambda.id]
   }
 }
 

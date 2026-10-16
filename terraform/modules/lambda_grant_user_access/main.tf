@@ -19,29 +19,27 @@ resource "aws_iam_policy" "lambda_slack" {
   policy = data.aws_iam_policy_document.lambda_slack.json
 }
 
-data "aws_kms_alias" "aws_ssm" {
-  name = "alias/aws/ssm"
-}
-
 data "aws_iam_policy_document" "lambda_slack" {
+
   statement {
-    sid    = "GetSlackApiKeyParameter"
+    sid    = "AllowCrossAccountAccessToSlackApiKey"
     effect = "Allow"
 
     actions = [
-      "ssm:GetParameter",
+      "secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret",
     ]
-    resources = [aws_ssm_parameter.slack_api_key.arn]
+    resources = [data.aws_secretsmanager_secret.slack_api_key_secret.arn]
   }
 
   statement {
-    sid    = "AllowKmsDecryptForSlackApiKey"
+    sid    = "AllowCrossAccountAccessToSlackApiKeyKms"
     effect = "Allow"
 
     actions = [
       "kms:Decrypt",
-      "kms:GenerateDataKey"
+      "kms:DescribeKey",
     ]
-    resources = [data.aws_kms_alias.aws_ssm.target_key_arn]
+    resources = [data.aws_kms_key.slack_api_key_kms.arn]
   }
 }
