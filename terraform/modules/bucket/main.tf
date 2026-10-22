@@ -1,6 +1,6 @@
 module "bucket" {
   source  = "hmrc/s3-bucket-standard/aws"
-  version = "3.3.1"
+  version = "3.3.2"
 
   bucket_name   = var.bucket_name
   force_destroy = var.force_destroy
